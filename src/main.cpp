@@ -83,6 +83,7 @@ int main (int argc, char *argv[]) {
         Kernel ker(ran, data, size);
         //	    ker.printAll(); cout << endl << endl;
         double time = ker.execute(ran,0.0,false);
+        double timetoreduction=-1.;
         if(!ker.hasLSC())
             nolsc +=1;
         if(ker.reachedDiagnosis()) {
@@ -98,7 +99,7 @@ int main (int argc, char *argv[]) {
 
             if(ker.reachedReduction()){
                 reachedreduction +=1;
-                double timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
+                timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
                 total_timetoreduction +=timetoreduction;
                 redresult.push_back(ker.whenReduction() - ker.getDiagnosis());
                 if (output_specifier==0){
@@ -126,6 +127,12 @@ int main (int argc, char *argv[]) {
 
         if (output_specifier==1){
             cout  << ker.get_nolsctime() << endl;
+        }
+        else if (output_specifier==2){
+                std::cout << ker.getDiagnosis() << "  " 
+                << timetoreduction << "  "
+                << ker.whenReduction() << " "
+                << ker.get_nolsctime() << endl;
         }
         ker.addStochCompSizes(avgsize);
     }
