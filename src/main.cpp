@@ -143,12 +143,13 @@ int main (int argc, char *argv[]) {
     cout << "#Fraction with no LSC" << (nolsc / (double) patients) << endl;
     cout << "#Fraction diagnosed with no LSC" << (diagnosed > 0?(diagnosed_nolsc / (double) diagnosed):0) << endl;
     cout << "#Fraction that reached "<< reduction 
-        << " log reduction : <reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << endl <<"# "
-        << (reachedreduction > 0?(reachedreduction / (double) diagnosed):0)
+        << " log reduction : <reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << endl;
+    if (output_specifier!=3) std::cout <<"# ";
+    std::cout << ((reachedreduction > 0&&diagnosed>0)?(reachedreduction / (double) diagnosed):0)
         << " " << reachedreduction << " " << diagnosed << " " << diagnosed_nolsc<< endl;
     double stddev = 0;
     double avg = (reachedreduction > 0?(total_timetoreduction / (double) reachedreduction):0) ;
-    for(int i=0; i < redresult.size(); i++){
+    for(unsigned int i=0; i < redresult.size(); i++){
         stddev += pow((double)(redresult[i] - avg), 2.0);
     }
     stddev = stddev / (double)redresult.size();
