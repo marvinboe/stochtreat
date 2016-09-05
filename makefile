@@ -58,6 +58,7 @@ $(TARGET): $(OBJECTS)
 
 #copy files to "/data/"
 copy: all
+	cp $(TARGET) ./data/
 
 
 #create dependencies ############################################
