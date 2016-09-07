@@ -206,6 +206,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 	}
 	double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
 	
+        std::cout <<"debug: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<std::endl;
 	while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
 		
 		//treat cells -> affects reactions in priorityqueue !!
@@ -238,7 +239,10 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 		_pool.setWhenReduction((_time/365.0));
 	}
 //	cout << "laste iter  " << iters << "\t  " << (_time/365.0) << endl;
+
+        std::cout <<"debug: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<std::endl;
 	return ( _time / 365.0);
+
 }
 
 float Kernel::burden(){
@@ -287,6 +291,10 @@ ostream& Kernel::writeModel(ostream& output){
 	return output;
 }
 
+std::istream& Kernel::readModel(std::istream& input){
+	input >> _pool;
+	return input;
+}
 
 
 

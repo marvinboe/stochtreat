@@ -29,13 +29,21 @@ public:
 	float getReduction();
 	float whenReduction();
 
-        /* get first timepoint without LSC in population.
-         */
+        /**  get first timepoint without LSC in population.  */
         float get_nolsctime();
+
+        /** Returns "true" if LSC is present in stem cell pool */
 	bool hasLSC();
+
 	float burden();
 	void addStochCompSizes(double* data);
+
+        /** write all model data to the std::ostream */
 	ostream& writeModel(ostream&);
+
+        /** Reads all model data from the std::istream.
+         * Requires same format as writeModel(ostream&).  */
+        std::istream& readModel(std::istream& input);
 	
 private:
 	void adjustReactions(RanGen& ran,unsigned compartment, unsigned type);

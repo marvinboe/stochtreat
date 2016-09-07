@@ -105,7 +105,9 @@ class Data {
 		double perc_bound() const {return _perc_bound;}
 		void setPercBound(double v) {_perc_bound = v;}
 		
+                /** sets the end time for no treatment runs. TODO unit and setting unclear.*/
 		int ntimes() const {return _ntimes;}
+
 		void setNtimes(int v) {_ntimes = v;}
 		double age() const {return _age;}
 		void setAge(double v) {_age=v;}
@@ -134,18 +136,23 @@ class Data {
 		void setOfname(string name) {_ofname=name;}
 		string ofname() const {return _ofname;}
 		double treatment() const {return _treatment;}
+
+                /** Sets treatment time in years(TODO?) that will be used 
+                 * in the treatment phase of the simulation. */
 		void setTreatment(double t) {_treatment=t;}
+
 		string storage() const {return _hdlocation;}
 		void setStorage(string s) {_hdlocation=s;}
 		
-                /* calculating patient parameters from given numbers
-                 */
+                /** calculating patient parameters from given numbers
+                 * TODO what are the parameters?*/
 		void calcFromMass(double,double,double, double, double, double);
 		friend ostream & operator<<(ostream &o, Data& c){return c.display(o);}
 		double mylog(double, double);				
 					
 	private:
 		ostream& display(ostream&);
+		istream& read_from_file(istream&);
 
 		double _dt; //time step relative to days
 		double _epsh; //differentation probability normal cell

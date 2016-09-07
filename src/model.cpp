@@ -395,24 +395,41 @@ void Model::store(unsigned k, unsigned t, double v){
 }
 
 ostream& Model::display(ostream& os){
-	for(unsigned k=0; k < _numcomp; ++k){
-		if(k == 0){
-			os << k <<"\t" << setprecision(4) << getRate(0) <<"\t";
-			os << getN(0) << "\t" << getH(0) <<"\t" << getC(0) <<"\t" << getI(0)<< endl; 
-		}
-		else {
-			os << k <<"\t" << setprecision(4) << getRate(k) <<"\t"; 
-			os << getN(k) << "\t" << getH(k) <<"\t" << getC(k) <<"\t";
-			os << getI(k) <<"\t" << getB(k)<< endl; 
-		}
-	}
-	os << "# " << _numstoch << endl;
-	os << "# " << _numcomp << endl;
-	os << "# " << _alpha << endl;
-	os << "# " << _diagnosis << endl;
-	os << "# " << getReduction() << endl;
-	os << "# " << when() << endl;
-	return os;
+    os <<_numcomp<<std::endl;
+    for(unsigned k=0; k < _numcomp; ++k){
+        os << k <<" " << setprecision(6) << getRate(k) <<" "; 
+        os << getN(k) << " " << getH(k) <<" " << getC(k) <<" " << getI(k);
+        if (k>0) os  <<" "<< getB(k);
+        os << std::endl; 
+    }
+    os << "# " << _numstoch << endl;
+    os << "# " << _numcomp << endl;
+    os << "# " << _alpha << endl;
+    os << "# " << _diagnosis << endl;
+    os << "# " << getReduction() << endl;
+    os << "# " << when() << endl;
+    return os;
+}
+
+std::istream& Model::read(std::istream& is){
+    is >> _numcomp;
+    for(unsigned i=0; i < _numcomp; ++i){
+        unsigned int k;
+        double N,H,C,I,B;
+        double rate;
+        is >> k >> rate ;
+        is >> N >>  H >> C >> I;
+        if (k > 0) {
+            is >> B; 
+            setB(k,B);
+        }
+        setRate(k,rate);
+        setH(k,H);
+        setC(k,C);
+        setI(k,I);
+    }
+    calcAlpha();
+    return is;
 }
 
 void Model::memorize(){
@@ -509,8 +526,8 @@ bool Model::treatStochastically(unsigned k, double rate, RanGen& ran){
 
 
 bool Model::diagnosis(Data& data){
-//	double res = mylog(getN(_numcomp-1),10);
-//	cout <<  res << "\t" << data.stop() << endl;
+	// double res = mylog(getN(_numcomp-1),10);
+	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << endl;
 	return mylog(lastN(),10)>= data.stop();
 }
 

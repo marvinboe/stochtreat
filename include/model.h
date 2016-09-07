@@ -37,6 +37,7 @@ public:
 	void setRate(unsigned int k, double v);
 	double getRate(unsigned k) const;
 	
+        /** returns numbers of cells in compartment k.*/
 	double getN(unsigned int k) const;
 	void setH(unsigned int k, double v); 
 	double getH(unsigned int k) const; 
@@ -63,20 +64,25 @@ public:
 	double lastI() const {return getI(_numcomp-1);}
 	double lastB() const {return getB(_numcomp-1);}
 	
+        /** returns the time of diagnosis.  */
 	double diagRes() const {return _diagnosis;}
+
+        /** sets the time of diagnosis.  */
 	void setDiagRes(double v) {_diagnosis = v;}
+
+        /** return time of CML reduction (in years?!). */
 	double when() const {return _when;}
+
 	void setWhenReduction(double v) {_when = v;}
 
-        /* set time when LSCvanished.
-         */
+        /** set time when LSCvanished.  */
         void setWhenLSCvanished(double t) {_nolsctime=t;}
 
-        /* check if LSC is in pool, otherwise save time.
-         */
+        /** check if LSC is in pool, otherwise save time.  */
         void check_LSCvanished(double t);
 	
 	friend ostream & operator<<(ostream &o, Model& p){return p.display(o);}
+	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
 
 	double retrieve(unsigned k, unsigned t);
@@ -89,6 +95,8 @@ public:
 	
 	void memorize();
 	bool updateDet(unsigned k, Data& data);
+
+        /** returns True if diagnosis is reached.*/
 	bool diagnosis(Data& data);
 	bool reduction(Data& data);
 	float getReduction();
@@ -96,16 +104,17 @@ public:
 	bool treatDeterministically(unsigned k, double amount);
 	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
-        /* set time when LSCvanished.
+        /** get time when LSCvanished.
          */
         double get_nolsctime() {return _nolsctime;}
 	
+        /** calculates alpha from cell numbers TODO what is that? */
 	void calcAlpha();
 	double getAlpha() const {return _alpha;}
 	
 	double diseaseBurden();
 
-        /* print cell numbers.
+        /** print cell numbers.
          * <HSC> <LSC>
          */
         void print_cells(std::ostream &,double _time);
@@ -115,6 +124,7 @@ private:
 	double mylog(double p1, double base);
 
 	ostream& display(ostream&);
+        std::istream& read(std::istream& is);
 
 	unsigned int _endstoch;
 	double* _compartments;
@@ -123,10 +133,16 @@ private:
 	unsigned _numstoch;
 	unsigned _numcomp;
 	double _alpha;
+
+        /** time of diagnosis (in years?!)
+         */
 	double _diagnosis;
+
+        /** time of reduction (in years?!)
+         */
 	double _when;
 
-        /* time when the LSC vanished from the stem cell pool.
+        /** time when the LSC vanished from the stem cell pool.
          */
         double _nolsctime;
 };

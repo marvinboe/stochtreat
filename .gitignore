@@ -4,3 +4,5 @@ doc/
 stochtreat
 seed.out
 tags
+outinput/
+.ycm*

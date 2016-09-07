@@ -49,7 +49,7 @@ Data::Data(){
 	_epsh=0.8476;
 	_epsc=0.72;
 	_epsi=_epsc;
-	_ntimes=91250;
+	_ntimes=91250; //TODO this is the time looking for a diagnosis?! 
 	_age=25;
 	_ncompartments=32;
 	_stop=10.39;//DP RAT
@@ -157,40 +157,40 @@ Data::Data(const Data& other){
 }
 
 
-ostream& Data::display(ostream& os){
-	os << "#Input data for hematopoietic model" << endl;
-	os << "\tcalculated :: " << endl;
-	os << "\t\tN0 " << _N0 << endl;
-	os << "\t\ttau " << _tau << endl;
-	os << "\t\tdt " << _dt << endl;
-	os << "\t\tntimes " << _ntimes << " iterations = " << _age << " years" << endl;
-	os << "\tcommand line :: " << endl;
-	os << "\t\tmass " << _mass << endl;
-	os << "\t\tlimit " << _limit << endl;
-	os << "\t\tstep " << _step << endl;
-	os << "\t\tmammal " << _offinal << endl;
-	os << "\t\tthreshold " << _threshold << endl;
-	os << "\t\tfrac_csc " << _frac_csc << endl;
-	os << "\t\tnumlsc " << _numlsc << endl;
-	os << "\tfixed :: " << endl;
-	os << "\t\trbase " << _rbase << endl;	
-	os << "\t\tepsh " << _epsh << endl;
-	os << "\t\tespc " << _epsc << endl;
-	os << "\t\tespb " << _epsb << endl;
-	os << "\t\tespi " << _epsi << endl;
-	os << "\t\tp_csc " << _p_csc << endl;
-	os << "\t\tp_imm " << _p_imm << endl;
-	os << "\t\tperc_bound " << _perc_bound << endl;
-	os << "\t\tncompartment " << _ncompartments << endl;
-	os << "\t\tadditional " << _additional << endl;
-	os << "\t\ttreatment " << _treatment << endl;
-	os << "\t\tstop " << _stop << endl;
-	os << "\t\treduction " << _reduction << endl;
-	os << "\t\trcancer " << _rcancer << endl;
-	os << "\tdata collection :: " << endl;	
-	os << "\t\toutput 1  " << _ofcompartment << endl;
-	os << "\t\toutput 3  " << _ofname << endl;
-	os << "\t\tstorage  " << _hdlocation << endl;
+std::ostream& Data::display(std::ostream& os){
+	os << "#Inputdata_for_hematopoietic_model" << endl;
+	os << "  calculated :: " << endl;
+	os << "    N0 " << _N0 << endl;
+	os << "    tau " << _tau << endl;
+	os << "    dt " << _dt << endl;
+	os << "    ntimes " << _ntimes << " iterations = " << _age << " years" << endl;
+	os << "  command line :: " << endl;
+	os << "    mass " << _mass << endl;
+	os << "    limit " << _limit << endl;
+	os << "    step " << _step << endl;
+	os << "    mammal " << _offinal << endl;
+	os << "    threshold " << _threshold << endl;
+	os << "    frac_csc " << _frac_csc << endl;
+	os << "    numlsc " << _numlsc << endl;
+	os << "  fixed :: " << endl;
+	os << "    rbase " << _rbase << endl;	
+	os << "    epsh " << _epsh << endl;
+	os << "    espc " << _epsc << endl;
+	os << "    espb " << _epsb << endl;
+	os << "    espi " << _epsi << endl;
+	os << "    p_csc " << _p_csc << endl;
+	os << "    p_imm " << _p_imm << endl;
+	os << "    perc_bound " << _perc_bound << endl;
+	os << "    ncompartment " << _ncompartments << endl;
+	os << "    additional " << _additional << endl;
+	os << "    treatment " << _treatment << endl;
+	os << "    stop " << _stop << endl;
+	os << "    reduction " << _reduction << endl;
+	os << "    rcancer " << _rcancer << endl;
+	os << "  data collection :: " << endl;	
+	os << "    output 1  " << _ofcompartment << endl;
+	os << "    output 3  " << _ofname << endl;
+	os << "    storage  " << _hdlocation << endl;
 	
 	return os;
 }
