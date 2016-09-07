@@ -7,7 +7,7 @@
  *
  */
 
-#include "../include/dependency.h"
+#include "dependency.h"
 
 DependencyNode::DependencyNode(const DependencyNode& other){
 	_affecting.clear();

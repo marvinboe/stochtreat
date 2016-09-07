@@ -11,8 +11,8 @@
 #include <cmath>
 #include <iomanip>
 
-#include "../include/model.h"
-#include "../include/dependency.h"
+#include "model.h"
+#include "dependency.h"
 
 #include <gsl/gsl_sf_log.h>
 #include <gsl/gsl_math.h>

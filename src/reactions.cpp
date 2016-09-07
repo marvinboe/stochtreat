@@ -7,7 +7,7 @@
  *
  */
 
-#include "../include/reactions.h"
+#include "reactions.h"
 
 Reaction::Reaction(const Reaction& other){
 	_comp_reactant=other.reactantComp();
