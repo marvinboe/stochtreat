@@ -42,7 +42,9 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time", ntime);
     parameters.SetValue("output", "Specifiy kind of output", output_specifier);
-    parameters.SetValue("treattest", "Specifiy kind of output", treattest);
+    parameters.SetValue("treattest", "test the treatment", treattest);
+
+    parameters.print_help(std::cout);
 
 
 

@@ -122,14 +122,14 @@ bool Kernel::nextMethod(RanGen& ran){
 
 void Kernel::adjustReactions(RanGen& ran, unsigned compartment, unsigned type){
 	unsigned which[]={C,B}; //C = Cancer cells, B=Treated cancer cells
-	cout << "RESET REACTIONS " << endl;
+	// cout << "RESET REACTIONS " << endl;
 	for(int i=0; i < 2; ++i){
 		DependencyNode* node = _depend.get(type, ((compartment-1)*4)+which[i]);
 		Reaction* r = _allr[node->reaction()];
 		QueueElement* elm = _queue[node->reaction()];
 		double prev_t = _time; 
 		double next_estimate =numeric_limits<double>::infinity();
-		cout << setprecision(8) << *r << "\t" <<  _time << " \t" << elm->tau() << "\t" << elm->queueLoc() << endl;
+		// cout << setprecision(8) << *r << "\t" <<  _time << " \t" << elm->tau() << "\t" << elm->queueLoc() << endl;
 	
 		if(!r->sufficientReactants(_pool) && elm->tau() < numeric_limits<double>::infinity()){
 			if(r->getTZero() == -1.0){ // if it is the first time that the reactants are not sufficient
@@ -166,7 +166,7 @@ void Kernel::adjustReactions(RanGen& ran, unsigned compartment, unsigned type){
 		//adjust the queue, find the location of the reactin in the queue and change and update tau
 		elm->setTau(next_estimate); 
 		_queue.update(elm->queueLoc()); 	
-		cout << setprecision(8)<< *r << "\t" << prev_t << "\t" << elm->tau() << "\t" << elm->queueLoc() << endl;
+		// cout << setprecision(8)<< *r << "\t" << prev_t << "\t" << elm->tau() << "\t" << elm->queueLoc() << endl;
 	}
 }
 

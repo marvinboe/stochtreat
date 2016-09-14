@@ -122,6 +122,17 @@ bool ParameterHandler::ParseString(std::string input, s_parameter &new_parameter
         input=input.substr(0,found_at);
     }
 
+    found_at=input.find("help");
+    if (found_at!=std::string::npos){
+        help=true;
+        return false;
+    }
+    found_at=input.find("-h");
+    if (found_at!=std::string::npos){
+        help=true;
+        return false;
+    }
+
 
 
     found_at=input.find("=");
@@ -314,6 +325,21 @@ template<> void ParameterHandler::SetValue<bool>(const char* name,const char* he
     }
 
     return;
+}
+
+void ParameterHandler::print_help(std::ostream & os){
+
+    if (help){
+        os <<" usage: './executable argument1=x argument2=y ...'"<<std::endl;
+        os <<" or './executable parameterfile argument1=x argument2=y ...'"<<std::endl;
+        os << "<argument name> \t description"<<std::endl;
+        os << "-----------------------------------"<<std::endl;
+        for (const auto keyhelp_pair: keys_and_help){
+            os <<'<'<<keyhelp_pair.first<<'>'<<"\t\t"<<keyhelp_pair.second<<std::endl;
+        }
+        exit(0);
+    }
+
 }
 
 
