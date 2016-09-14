@@ -100,7 +100,10 @@ public:
 	bool diagnosis(Data& data);
 	bool reduction(Data& data);
 	float getReduction();
+
+        /** returns true if LSC is in stem cell pool */
 	bool containsLSC();
+
 	bool treatDeterministically(unsigned k, double amount);
 	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 

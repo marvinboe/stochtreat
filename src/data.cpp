@@ -49,7 +49,7 @@ Data::Data(){
 	_epsh=0.8476;
 	_epsc=0.72;
 	_epsi=_epsc;
-	_ntimes=91250; //TODO this is the time looking for a diagnosis?! 
+	_ntimes=91250; //TODO this is the time looking for a diagnosis?!  what unit?! days?
 	_age=25;
 	_ncompartments=32;
 	_stop=10.39;//DP RAT
@@ -69,7 +69,7 @@ Data::Data(){
 	_epsi=0.8476; // what value?
 	_p_csc=0;
 	_p_imm=0;
-	_perc_bound=0.0;
+	_treatment_rate=0.0;
 	_treatment=3.0;
 	_rcancer = 1.0;
 }
@@ -119,7 +119,7 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	_epsi=_epsc;
 	_p_csc=0;
 	_p_imm=0;
-	_perc_bound=0.05;
+	_treatment_rate=0.05;
 	_treatment=3.0;
 	_rcancer = 1.0;
 }
@@ -134,7 +134,7 @@ Data::Data(const Data& other){
 	_p_imm=other.p_imm();
 	_frac_csc=other.frac_csc();
 	_numlsc = other.numlsc();
-	_perc_bound=other.perc_bound();
+	_treatment_rate=other.treatment_rate();
 	_ntimes=other.ntimes();
 	_age=other.age();
 	_rbase=other.rbase();
@@ -180,7 +180,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    espi " << _epsi << endl;
 	os << "    p_csc " << _p_csc << endl;
 	os << "    p_imm " << _p_imm << endl;
-	os << "    perc_bound " << _perc_bound << endl;
+	os << "    treatment_rate " << _treatment_rate << endl;
 	os << "    ncompartment " << _ncompartments << endl;
 	os << "    additional " << _additional << endl;
 	os << "    treatment " << _treatment << endl;

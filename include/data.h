@@ -102,8 +102,13 @@ class Data {
 		void setPcsc (double v) {_p_csc = v;} 
 		double p_imm() const {return _p_imm;}
 		void setPimm (double v) {_p_imm = v;} 
-		double perc_bound() const {return _perc_bound;}
-		void setPercBound(double v) {_perc_bound = v;}
+
+
+                /** returns the percentage of cells that is affected by treatment. */
+		double treatment_rate() const {return _treatment_rate;}
+
+                /** sets the percentage of cells that is affected by treatment. */
+		void setPercBound(double v) {_treatment_rate = v;}
 		
                 /** sets the end time for no treatment runs. TODO unit and setting unclear.*/
 		int ntimes() const {return _ntimes;}
@@ -121,8 +126,13 @@ class Data {
 
 		double additional() const {return _additional;}
 		void setAdditional(double a)  {_additional=a;}
+
+                /** returns the number of stochstic compartments */
 		int limit() const {return _limit;}
+
+                /** Sets the number of stochastic compartments.*/
 		void setLimit(int l) {_limit = l;}
+
 		double threshold() const {return _threshold;}
 		void setThreshold(double v) {_threshold = v;}
 		  
@@ -162,15 +172,15 @@ class Data {
 		double _p_csc; //probability that a normal cell turns into a cancer cell
 		double _p_imm; //probabilty that a cancer cell turns into an immune cell
 		double _frac_csc; //fraction of cancer cells in the stem cell compartment
-		double _numlsc;
-		double _perc_bound; //percentage of cells bound to imatinib
+		double _numlsc; //number of LSC
+		double _treatment_rate; //percentage of cells bound to imatinib
 		double _rbase; //basal metabolic rate
-		int _ntimes;  // number of iterations of the simulation
-		double _age; //maximum age
+		int _ntimes;  // number of maximum iteractions of the simulation (=duration)
+		double _age; //maximum age TODO really?
 		int _ncompartments;  //number of compartmens in the hematopoeitic system
 		double _N0; //Numbe of cells in the stem cell compartment
 		double _tau; //maturation time reticulocytes
-		int _nt; // ???
+		int _nt; // ??? unused
 		int _limit; //index of first deterministic compartment
 		double _additional; //additional number of years to continue simulation after X
 		double _treatment; //number of years of treatment

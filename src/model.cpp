@@ -506,22 +506,22 @@ bool Model::treatDeterministically(unsigned k, double amount){
 	return true;
 }
 
-bool Model::treatStochastically(unsigned k, double rate, RanGen& ran){	
-	double ccells = getC(k);
-	double bcells = getB(k);
+bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){	
+    double ccells = getC(k);
+    double bcells = getB(k);
 
-	double tmp (0);
-	for(unsigned i = 0; i < ccells; ++i){
-		if(ran.randouble() < rate) ++tmp;
-	}
-	
-	bool changed = (tmp>0)?true:false;
-	if (changed){
-		setC(k, ccells - tmp);
-		setB(k, bcells + tmp);
-//		cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << endl;
-	}
-	return changed;	
+    double tmp (0.);
+    for(unsigned i = 0; i < ccells; ++i){
+        if(ran.randouble() < probability) ++tmp;
+    }
+
+    bool changed = (tmp>0)?true:false;
+    if (changed){
+        setC(k, ccells - tmp);
+        setB(k, bcells + tmp);
+        		// cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << endl;
+    }
+    return changed;	
 }
 
 

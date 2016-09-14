@@ -27,6 +27,7 @@ int main (int argc, char *argv[]) {
     std::string inpath(path);
     double ntime(-1.0);
     int output_specifier(0);
+    bool treattest=false;
 
     ParameterHandler parameters(argc,argv);
 
@@ -41,12 +42,13 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time", ntime);
     parameters.SetValue("output", "Specifiy kind of output", output_specifier);
+    parameters.SetValue("treattest", "Specifiy kind of output", treattest);
 
 
 
-    double Nbase(16.52861491); /**< TODO what is that? */
-    double Bbase(2.892507609); /**< TODO what is that? */
-    double Sbase(0.034572078); /**< TODO what is that? */
+    double Nbase(16.52861491); // TODO what is that? */
+    double Bbase(2.892507609); // TODO what is that? */
+    double Sbase(0.034572078); // TODO what is that? */
     double Lbase(8.643019616); //elephant 8.54663017, human 8.643019616
 
     RanGen ran;
@@ -55,9 +57,9 @@ int main (int argc, char *argv[]) {
     if (ntime > 0.){ //non-default
         data.setNtimes(ntime);
     }
-    data.setPercBound(0.05);
-    data.setStop(12); /**< Diagnosis limit?! TODO */
-    data.setReduction(reduction);
+    data.setPercBound(0.05); //sets the rate (?) of treatment per cell
+    data.setStop(12); // Diagnosis limit
+    data.setReduction(reduction); //treatment stop 
     data.setLimit(size);
     data.setTreatment(treatmenttime);
     //	cout << data << endl;
@@ -72,6 +74,7 @@ int main (int argc, char *argv[]) {
 
     bool recurrence_run=false;
     int no_recurrence_patients=0;
+    unsigned recurrence_count=0;
     for (int i=0; i< size+1; i++) {
         avgsize[i]=0.0;
     }
@@ -85,26 +88,26 @@ int main (int argc, char *argv[]) {
         }
         Kernel ker(ran, data, size);
 
-        //#################read compartment data from file##########
-        stringstream ssin;
-        ssin << path<< "patient-"<< runid << "-"<< i << ".txt";
-        std::ifstream input(ssin.str().c_str());
-        if(!input.is_open()){
-            if (recurrence_run){
-                std::cout << "# unable to open input file " << ssin.str() << std::endl;
-                // std::cout << " exiting program " << std::endl;
-                // exit(-1);
-                continue;
-            }
-        }
-        else{//input is open
-            ker.readModel(input);
-            ker.writeModel(std::cout);
-            input.close();
-            recurrence_run=true;
-            no_recurrence_patients+=1;
-        }
-        //#############end reading model data ######################
+        // //#################read compartment data from file##########
+        // stringstream ssin;
+        // ssin << path<< "patient-"<< runid << "-"<< i << ".txt";
+        // std::ifstream input(ssin.str().c_str());
+        // if(!input.is_open()){
+        //     if (recurrence_run){
+        //         std::cout << "# unable to open input file " << ssin.str() << std::endl;
+        //         // std::cout << " exiting program " << std::endl;
+        //         // exit(-1);
+        //         continue;
+        //     }
+        // }
+        // else{//input is open
+        //     ker.readModel(input);
+        //     // ker.writeModel(std::cout);
+        //     input.close();
+        //     recurrence_run=true;
+        //     no_recurrence_patients+=1;
+        // }
+        // //#############end reading model data ######################
         
         //make run without treatment until diagnosis (or time exceeded).
         double time = ker.execute(ran,0.0,false);
@@ -115,21 +118,23 @@ int main (int argc, char *argv[]) {
         double timetoreduction=-1.;
         if(ker.reachedDiagnosis()) {
             diagnosed +=1;
+            if (treattest) no_recurrence_patients++;
+
             total_diagnosis_time += time;
             if(!ker.hasLSC())
                 diagnosed_nolsc +=1;
 
-            if (recurrence_run){
-                if (output_specifier==1){
-                    std::cout << ker.getDiagnosis() << "  " 
-                        << ker.get_nolsctime() << endl;
-                }
-                continue; // end this if we only check for recurrence
-            }
+            // if (recurrence_run){
+            //     if (output_specifier==1){
+            //         std::cout << ker.getDiagnosis() << "  " 
+            //             << ker.get_nolsctime() << endl;
+            //     }
+            //     continue; // end this if we only check for recurrence
+            // }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-            ker.execute(ran,time,true);
+            time=ker.execute(ran,time,true);
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
 
 
@@ -147,19 +152,27 @@ int main (int argc, char *argv[]) {
                 }
 
             }
+            if (treattest){
+
+                time=ker.execute(ran,0.,false);
+                if(ker.reachedDiagnosis()) {
+                    recurrence_count++;
+                }
+            }
             //			cout << "Reduction is " << ker.getReduction() << endl;
             //
-            //write compartment data to file
-            stringstream ss;
-            ss << path<< "patient-"<< runid << "-"<< i << ".txt";
-            ofstream output(ss.str().c_str());
-            if(!output.is_open()){
-                cout << " unable to open output file " << ss.str() << endl;
-                cout << " exiting program " << endl;
-                exit(-1);
-            }
-            ker.writeModel(output);
-            output.close();
+            // //##########write compartment data to file
+            // stringstream ss;
+            // ss << path<< "patient-"<< runid << "-"<< i << ".txt";
+            // ofstream output(ss.str().c_str());
+            // if(!output.is_open()){
+            //     cout << " unable to open output file " << ss.str() << endl;
+            //     cout << " exiting program " << endl;
+            //     exit(-1);
+            // }
+            // ker.writeModel(output);
+            // output.close();
+            // //######end writing patient data to file
         }//######### everything for case of diagnosis done
         
 
@@ -180,9 +193,9 @@ int main (int argc, char *argv[]) {
         ker.addStochCompSizes(avgsize);
     }
 
-    if (recurrence_run){
-        std::cout <<diagnosed/double(no_recurrence_patients) <<" "
-            << no_recurrence_patients<<" "<<diagnosed << " " << diagnosed_nolsc<< std::endl;
+    if (treattest||recurrence_run){
+        std::cout <<recurrence_count/double(no_recurrence_patients)
+         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " " << diagnosed_nolsc<< std::endl;
     }
 
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-timer)/CLOCKS_PER_SEC << std::endl;

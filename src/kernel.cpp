@@ -122,14 +122,14 @@ bool Kernel::nextMethod(RanGen& ran){
 
 void Kernel::adjustReactions(RanGen& ran, unsigned compartment, unsigned type){
 	unsigned which[]={C,B}; //C = Cancer cells, B=Treated cancer cells
-//	cout << "RESET REACTIONS " << endl;
+	cout << "RESET REACTIONS " << endl;
 	for(int i=0; i < 2; ++i){
 		DependencyNode* node = _depend.get(type, ((compartment-1)*4)+which[i]);
 		Reaction* r = _allr[node->reaction()];
 		QueueElement* elm = _queue[node->reaction()];
 		double prev_t = _time; 
 		double next_estimate =numeric_limits<double>::infinity();
-//		cout << setprecision(8) << *r << "\t" <<  _time << " \t" << elm->tau() << "\t" << elm->queueLoc() << endl;
+		cout << setprecision(8) << *r << "\t" <<  _time << " \t" << elm->tau() << "\t" << elm->queueLoc() << endl;
 	
 		if(!r->sufficientReactants(_pool) && elm->tau() < numeric_limits<double>::infinity()){
 			if(r->getTZero() == -1.0){ // if it is the first time that the reactants are not sufficient
@@ -166,24 +166,26 @@ void Kernel::adjustReactions(RanGen& ran, unsigned compartment, unsigned type){
 		//adjust the queue, find the location of the reactin in the queue and change and update tau
 		elm->setTau(next_estimate); 
 		_queue.update(elm->queueLoc()); 	
-//		cout << setprecision(8)<< *r << "\t" << prev_t << "\t" << elm->tau() << "\t" << elm->queueLoc() << endl;
+		cout << setprecision(8)<< *r << "\t" << prev_t << "\t" << elm->tau() << "\t" << elm->queueLoc() << endl;
 	}
 }
 
 void Kernel::treatCells(RanGen& ran){
-	//difference between stochastic and deterministic treatment !
-	float tobetreated=(_data.dt() * _data.perc_bound());
-	for(unsigned k = 1; k < _pool.numStoch(); ++k){
-		bool changed = _pool.treatStochastically(k,tobetreated, ran);
-		//adjust the selfrenewal and differentiation reactions accordingly !
-		if(changed){
-			adjustReactions(ran, k, SELF_RENEWAL);
-			adjustReactions(ran, k, DIFFERENTATION);
-		}
-	}	
-	for(unsigned k = _pool.numStoch(); k < _pool.numComp(); ++k){
-		_pool.treatDeterministically(k,tobetreated);
-	}	
+    //difference between stochastic and deterministic treatment !
+
+    //calculate probability of treatment, which is rate x time
+    float tobetreated=(_data.dt() * _data.treatment_rate());
+    for(unsigned k = 1; k < _pool.numStoch(); ++k){
+        bool changed = _pool.treatStochastically(k,tobetreated, ran);
+        //adjust the selfrenewal and differentiation reactions accordingly !
+        if(changed){
+            adjustReactions(ran, k, SELF_RENEWAL);
+            adjustReactions(ran, k, DIFFERENTATION);
+        }
+    }	
+    for(unsigned k = _pool.numStoch(); k < _pool.numComp(); ++k){
+        _pool.treatDeterministically(k,tobetreated);
+    }	
 }
 
 void Kernel::detUpdate(){
@@ -194,19 +196,19 @@ void Kernel::detUpdate(){
 }
 
 double Kernel::execute(RanGen& ran, double t, bool treat){
-	_time = (t*365.0); // _time is expressed in days
+	_time = (t*365.0); // _time is in the function expressed in days
 	double  _time_step = _data.dt();
 //	cout << "##execute starts " << _time << endl;
 	int iters = (int)ceil(_time / _data.dt());
 	int endsim = _data.ntimes();
-        int yearscounter=0;
+
 	if(treat) {
 		endsim = iters + (int) (_data.treatment()*365.0/_data.dt());	
 //		cout << "treatment ends at " <<  treatmentend << " iterations ("<< (t + _data.treatment()) << " years)" << endl;
 	}
 	double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
 	
-        std::cout <<"debug: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<std::endl;
+        std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
 	while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
 		
 		//treat cells -> affects reactions in priorityqueue !!
@@ -240,7 +242,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 	}
 //	cout << "laste iter  " << iters << "\t  " << (_time/365.0) << endl;
 
-        std::cout <<"debug: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<std::endl;
+        std::cout <<"debug after: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
 	return ( _time / 365.0);
 
 }
