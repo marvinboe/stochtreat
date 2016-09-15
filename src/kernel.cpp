@@ -208,7 +208,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 	}
 	double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
 	
-        std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
+        // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
 	while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
 		
 		//treat cells -> affects reactions in priorityqueue !!
@@ -242,7 +242,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 	}
 //	cout << "laste iter  " << iters << "\t  " << (_time/365.0) << endl;
 
-        std::cout <<"debug after: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
+        // std::cout <<"debug after: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
 	return ( _time / 365.0);
 
 }
