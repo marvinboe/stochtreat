@@ -48,6 +48,7 @@ ParameterHandler::ParameterHandler(int argc, char** argv):file_loaded(false)
 
     std::ifstream DataFile;
     std::string file_name;
+    help=false;
     
     if (argc>=2) // second argument should be the input file
     {
