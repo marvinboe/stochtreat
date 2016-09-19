@@ -49,7 +49,7 @@ protected:
 	vector<DependencyNode*> _affecting;
 };
 
-enum reaction_type {MORAN=0,SELF_RENEWAL,DIFFERENTATION};
+enum reaction_type {MORAN=0,SELF_RENEWAL,DIFFERENTATION,TREATMENT};
 
 class DependencyGraph {
 public:
@@ -81,6 +81,7 @@ public:
 	DependencyNode* getMoranNode(unsigned pos) {return _morannodes[pos];}
 	DependencyNode* getSelfNode(unsigned pos) {return _selfnodes[pos];}
 	DependencyNode* getDiffNode(unsigned pos) {return _diffnodes[pos];}
+	DependencyNode* getTreatNode(unsigned pos) {return _treatnodes[pos];}
 	
 	DependencyNode* get(unsigned which, unsigned pos){
 		switch(which){
@@ -90,6 +91,8 @@ public:
 				return getSelfNode(pos);
 			case DIFFERENTATION:
 				return getDiffNode(pos);
+			case TREATMENT:
+				return getTreatNode(pos);
 		}
 		return NULL;
 	}
@@ -106,6 +109,11 @@ public:
 		_diffnodes.push_back(dn);
 		return  (unsigned) _diffnodes.size()-1;
 	}
+
+	unsigned addTreatNode(DependencyNode* dn) {
+		_treatnodes.push_back(dn);
+		return  (unsigned) _treatnodes.size()-1;
+	}
 	
 	unsigned add(int which, DependencyNode* dn){
 		switch(which){
@@ -115,6 +123,8 @@ public:
 				return addSelfNode(dn);
 			case DIFFERENTATION:
 				return addDiffNode(dn);
+			case TREATMENT:
+				return addTreatNode(dn);
 		}
 		return 999;
 	}
@@ -126,6 +136,7 @@ private:
 	vector<DependencyNode*> _morannodes;
 	vector<DependencyNode*> _selfnodes;
 	vector<DependencyNode*> _diffnodes;
+	vector<DependencyNode*> _treatnodes;
 };
 
 

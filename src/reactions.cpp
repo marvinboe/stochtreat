@@ -104,6 +104,25 @@ StemCellRenewal& StemCellRenewal::operator=(const StemCellRenewal& other){
 	return *this;
 }
 
+Treatment& Treatment::operator=(const Treatment& other){
+	_comp_reactant=other.reactantComp();
+	_reactant=other.reactant();	
+	_comp_product1=other.product1Comp();	
+	_product1=other.product1();	
+	_comp_product2=other.product2Comp();	
+	_product2=other.product2();	
+	_r=other.rate();
+	_a=other.propensity();
+	_ptime = other.putativeTime();
+	_lasta = other.last_a();
+	_lastptime = other.last_ptime();
+	_time_zero = other.getTZero();
+	_intype=other.inType();
+	_ingraph=other.inGraph();
+	_used =other.used();
+	return *this;
+}
+
 MoranReaction::MoranReaction(const MoranReaction& other){
 	_comp_reactant=other.reactantComp();
 	_reactant=other.reactant();	
@@ -224,6 +243,21 @@ bool Reaction::apply(Model& pool, double time){
 		pool.decr(reactantComp(), reactant(),1);
 		pool.incr(product1Comp(), product1(),1);
 		pool.incr(product2Comp(), product2(),1);
+//		cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+		this->incrUsed();
+		return false; 
+	}
+	return false;
+}
+
+bool Treatment::apply(Model& pool, double time){
+	//Reaction format : Tp(k) -> Tp(k')
+	//decrease reactant, increase product
+//	cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+	if(pool.retrieve(reactantComp(), reactant()) > 0){
+//		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << endl; 
+		pool.decr(reactantComp(), reactant(),1);
+		pool.incr(product1Comp(), product1(),1);
 //		cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
 		this->incrUsed();
 		return false; 

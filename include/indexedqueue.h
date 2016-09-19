@@ -87,6 +87,9 @@ public:
 	QueueElement* operator[](int location) {return _indices[location];}
 
 	void update(int index) {_pqueue.update(index);}
+
+        
+        void init(RanGen& ran, AllReactions & all);
 	
 	void printQ() {_pqueue.print();} 
 	

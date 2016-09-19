@@ -24,6 +24,7 @@ enum celltypes {H=0,C,I,B}; //H=healthy, C=cancer, I=resitant to TKI and B=Bound
 class Model {
 public:
 	Model(Data data, unsigned int size);
+	Model(Data data, std::istream & is);
 	Model(const Model& other);
 	~Model(){
 		delete[] _compartments;
@@ -36,6 +37,9 @@ public:
 	
 	void setRate(unsigned int k, double v);
 	double getRate(unsigned k) const;
+
+	void setTreatRate( double v){_treatrate=v;};
+	double getTreatRate() const {return _treatrate;};
 	
         /** returns numbers of cells in compartment k.*/
 	double getN(unsigned int k) const;
@@ -136,6 +140,7 @@ private:
 	unsigned _numstoch;
 	unsigned _numcomp;
 	double _alpha;
+        double _treatrate;
 
         /** time of diagnosis (in years?!)
          */

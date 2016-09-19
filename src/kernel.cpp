@@ -24,6 +24,8 @@ private:
 };
 
 
+
+
 void Kernel::printAll(){
 	cout << endl << "#pool " << endl;
 	cout << _pool<< endl;
@@ -90,7 +92,7 @@ bool Kernel::nextMethod(RanGen& ran){
 					rd->setPropensity(0.0);  // only now is allowed
 				}
 			}
-			else if(rd->sufficientReactants(_pool)) {  
+			else if(rd->sufficientReactants(_pool)) {//TODO unnesseccary "if"?
 				double prevtau = qed->tau(); // can also be infinity
 				double t1 = prev_t;
 				double t2 = prev_t;
@@ -118,6 +120,26 @@ bool Kernel::nextMethod(RanGen& ran){
 		++start;
 	}
 	return lsc_moved;
+}
+
+void Kernel::reinitialize(Model& pool,RanGen& ran){
+
+    for (unsigned int r =0 ; r < _allr.size(); ++r){
+
+        _allr[r]->setPropensity((_allr[r]->sufficientReactants(pool)?_allr[r]->reactantFactor(pool):0.0)); 
+    }
+
+    //     double time_i = numeric_limits<double>::infinity();
+    //     if(_allr[r]->propensity() > 0.0){
+    //         double rval = ran.randouble();
+    //         time_i = _allr[r]->calcPutativeTime(rval); 
+    //         //			cout << "Rval = " << rval << " for reaction " << *(all[r]) << " produces pututative time = "<<  time_i << endl;
+    //     }
+    //     else _allr[r]->setPutativeTime(time_i);
+    // }
+
+    _queue.init(ran,_allr);
+
 }
 
 void Kernel::adjustReactions(RanGen& ran, unsigned compartment, unsigned type){

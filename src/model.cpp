@@ -92,6 +92,49 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(
 	setC(0, data.numlsc());
 }
 
+Model::Model(Data data,std::istream & is):_diagnosis(0),_nolsctime(-1.){ 
+	_numcomp = data.ncompartments()+1;
+	unsigned int tlen = ((_numcomp-1)*4) + 3;
+	_compartments=new double[tlen];
+	_previous=new double[tlen];
+	_rates = new double[_numcomp];
+	
+        read(is);
+
+
+	// //initialize Model: 1. Stem Cell compartment
+	// setH(0,data.N0());
+	// setC(0,0);
+	// setI(0,0);//initially no resistant mutants
+	// setRate(0, 1.0/data.tau());
+	// storeH(0,0);
+	// storeC(0,0);
+	// storeI(0,0);
+	//
+	//
+	// //initialize Model: 2. other compartments
+	// double gamma =( (2.0*data.epsh()) / (2.0*data.epsh() - 1.0) ) / data.rbase();
+	// for(unsigned k=1; k < _numcomp; ++k){
+	// 	double tempHk=getH(k-1)*gamma;
+	// 	if(k == 1)
+	// 		tempHk*=(1.0/ (2.0*data.epsh()));
+	// 	double Hk=myround(tempHk);
+	// 	setH(k,Hk);
+	// 	setC(k,0);
+	// 	setI(k,0);
+	// 	setB(k,0);
+	// 	storeH(k,0);
+	// 	storeC(k,0);
+	// 	storeI(k,0);
+	// 	storeB(k,0);
+	// 	
+	// 	setRate(k, getRate(k-1)*data.rbase());
+	// }
+	// //initialize CML
+	// setH(0, getH(0)-data.numlsc());
+	// setC(0, data.numlsc());
+}
+
 Model::Model(const Model& other){
 	_numstoch = other.numStoch();
 	_numcomp = other.numComp();
@@ -395,7 +438,7 @@ void Model::store(unsigned k, unsigned t, double v){
 }
 
 ostream& Model::display(ostream& os){
-    os <<_numcomp<<std::endl;
+    os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
         os << k <<" " << setprecision(6) << getRate(k) <<" "; 
         os << getN(k) << " " << getH(k) <<" " << getC(k) <<" " << getI(k);
@@ -413,6 +456,8 @@ ostream& Model::display(ostream& os){
 
 std::istream& Model::read(std::istream& is){
     is >> _numcomp;
+    is >> _numstoch;
+    _endstoch = ((_numstoch-1)*4) + 3;
     for(unsigned i=0; i < _numcomp; ++i){
         unsigned int k;
         double N,H,C,I,B;
@@ -422,11 +467,15 @@ std::istream& Model::read(std::istream& is){
         if (k > 0) {
             is >> B; 
             setB(k,B);
+	    storeB(k,B);
         }
         setRate(k,rate);
         setH(k,H);
+        storeH(k,H);
         setC(k,C);
+        storeC(k,C);
         setI(k,I);
+        storeI(k,I);
     }
     calcAlpha();
     return is;

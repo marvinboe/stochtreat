@@ -24,6 +24,7 @@ class Reaction { //X0 ->X0 + X1 or X0 -> X0 + X0
 public:
 	Reaction():_comp_reactant(0), _reactant(0),_comp_product1(0), _product1(0), _comp_product2(0), 
 		_product2(0), _r(-1.0), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
+
         /** Constructor for reaction. parameters:
          * cr   -> compartment of reactant
          * rct  -> reactant cell type 
@@ -31,7 +32,9 @@ public:
          * p1   -> product 1 cell type
          * cp2  -> compartment of product2
          * p2   -> product 2 cell type
-         * r    -> reaction rate */
+         * r    -> reaction rate
+         * cell types: 
+         * 0: healthy, 1: cancer, 2: immune, 3: treated.*/
 	Reaction(int cr, int rct, int cp1, int p1, int cp2, int p2, double r):_comp_reactant(cr), 
 		_reactant(rct),_comp_product1(cp1), _product1(p1), _comp_product2(cp2), _product2(p2), 
 		_r(r), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
@@ -56,7 +59,7 @@ public:
 
         /** Sets the propensity for this this reaction.
          * x -> number of cells for this reaction
-         * already set: _r -> reaction rate per cell */
+         * needs to be set: _r -> reaction rate per cell */
 	void setPropensity(double x) {_a = x *_r;}
 	
 	double putativeTime() const {return _ptime;}
@@ -85,6 +88,8 @@ public:
 	virtual Reaction& operator=(const Reaction& other);
 	friend ostream & operator<<(ostream &o, Reaction& r){return r.display(o);}
 	
+        /** applies this reaction to the stem cell pool.
+         * returns false (TODO ?!). */
 	virtual bool apply(Model& pool,double time);
 	virtual bool sufficientReactants(Model& pool);
         
@@ -128,6 +133,16 @@ public:
 	virtual ~Differentation() {};
 	virtual Differentation& operator=(const Differentation& other);
 	
+};
+
+
+class Treatment : public Reaction {
+public:
+	Treatment(int compartment, double rate):Reaction(compartment,1,compartment,3,-1,-1,rate){};
+	Treatment(const Treatment& other):Reaction(other){};
+	virtual ~Treatment() {};
+	virtual Treatment& operator=(const Treatment& other);
+        virtual bool apply(Model & pool, double time);
 };
 
 
