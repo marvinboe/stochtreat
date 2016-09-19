@@ -62,6 +62,8 @@ class Data {
 		double epsc() const {return _epsc;}
 		double epsb() const {return _epsb;}
 		double epsi() const {return _epsi;}
+
+                /** return self-renewal probability epsilon for type. */
 		double eps(unsigned type) const {
 			switch(type){
 				case 0:

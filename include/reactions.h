@@ -24,6 +24,14 @@ class Reaction { //X0 ->X0 + X1 or X0 -> X0 + X0
 public:
 	Reaction():_comp_reactant(0), _reactant(0),_comp_product1(0), _product1(0), _comp_product2(0), 
 		_product2(0), _r(-1.0), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
+        /** Constructor for reaction. parameters:
+         * cr   -> compartment of reactant
+         * rct  -> reactant cell type 
+         * cp1  -> compartment of product 1
+         * p1   -> product 1 cell type
+         * cp2  -> compartment of product2
+         * p2   -> product 2 cell type
+         * r    -> reaction rate */
 	Reaction(int cr, int rct, int cp1, int p1, int cp2, int p2, double r):_comp_reactant(cr), 
 		_reactant(rct),_comp_product1(cp1), _product1(p1), _comp_product2(cp2), _product2(p2), 
 		_r(r), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
@@ -40,10 +48,15 @@ public:
 	
 	unsigned int inGraph() const {return _ingraph;}
 	unsigned int inType() const {return _intype;}
+        /** Storing node type and the index of the node (in the graph)*/
 	void setDG(unsigned type, unsigned loc) { _intype=type; _ingraph = loc;}
 	
 	double propensity() const {return _a;}
 	double probability(double dt) const {return _a * dt;}
+
+        /** Sets the propensity for this this reaction.
+         * x -> number of cells for this reaction
+         * already set: _r -> reaction rate per cell */
 	void setPropensity(double x) {_a = x *_r;}
 	
 	double putativeTime() const {return _ptime;}
@@ -74,6 +87,8 @@ public:
 	
 	virtual bool apply(Model& pool,double time);
 	virtual bool sufficientReactants(Model& pool);
+        
+        /** returns number of cells for given reaction type */
 	virtual double reactantFactor(Model& pool);
 	
 	
@@ -184,7 +199,12 @@ public:
 	}
 	
 	unsigned int size() const {return (unsigned)_all.size();}
+
+        /** Adds reaction to the end of _all.
+         * returns index of this element (=_all.size()-1) */
 	unsigned int add(Reaction*);
+
+        /** Returns pointer to reaction saved in _all[pos] */
 	Reaction* operator[](unsigned pos);
 	
 	double propSum() const {return _sumprop;}

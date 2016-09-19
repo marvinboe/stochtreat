@@ -1,7 +1,7 @@
 #ifndef HEAP_H
 #define HEAP_H
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <exception>
@@ -201,10 +201,11 @@ public:
 	//------------------------
 	
 private:
-	/**
+	/** finds parent of node index.
 	 * New Depths are being filled up sequentially, a Heap is a complete Binary Tree
-	 * Each new depth has Max.number of Nodes equal to Sum of all Nodes higher in the Heap minus 1.
-	 * Therefore parentnode for index or index+1 is always the rounded down value of the index divided by 2
+	 * Each new depth has Max.number of Nodes equal to Sum of all Nodes higher in the
+         * Heap minus 1. Therefore parentnode for index or index+1 is always the rounded 
+         * down value of the index divided by 2.
 	 */
 	int parent(int index){
 		int tmp = (int)floor(index / 2);

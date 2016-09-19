@@ -37,6 +37,7 @@ public:
 	double tau() const {return _tau;}
 	void setTau(double tau) {_tau=tau;}
 	unsigned queueLoc() const {return _queloc;}
+        /** set location of queue element to l*/
 	void setQueueLoc(unsigned l) { _queloc = l;}
 	
 	
@@ -92,7 +93,10 @@ public:
 protected:
 	QL_Compare _compare;
 	QL_swap _swap;
+        /** this is the queue which internally uses a heap.*/
 	PriorityQueue<QueueElement*,QL_Compare, QL_swap> _pqueue;
+        /** TODO why is this called indices?
+         * it stores the queue elements... */
 	vector<QueueElement*> _indices;
 	QueueElement* _sentinel;
 };

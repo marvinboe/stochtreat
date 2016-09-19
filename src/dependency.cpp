@@ -54,15 +54,15 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
 	double sum=0.0;
 	unsigned numtypes = 4;
 	for(unsigned k=1; k < pool.numStoch(); ++k) { //every compartment
-		for(unsigned tp = 0; tp < numtypes; ++tp) {
-//			cout << "(1-eps) = " << (1.0-data.eps(tp)) << "\t rate= " << pool.getRate(k) << endl; 
-			SelfRenewal *self= new SelfRenewal(k,tp,(1.0 - data.eps(tp))*pool.getRate(k));// TP(k) -> TP(k)+TP(k)
+		for(unsigned type = 0; type < numtypes; ++type) {
+//			cout << "(1-eps) = " << (1.0-data.eps(type)) << "\t rate= " << pool.getRate(k) << endl; 
+			SelfRenewal *self= new SelfRenewal(k,type,(1.0 - data.eps(type))*pool.getRate(k));// type(k) -> type(k)+type(k)
 			self->setPropensity((self->sufficientReactants(pool)?self->reactantFactor(pool):0.0)); 
 			sum += self->propensity();
 			pos=all.add(self);
 			DependencyNode *selfnode=new DependencyNode(pos);
 			
-			Differentation *diff= new Differentation(k,tp,data.eps(tp)*pool.getRate(k));// TP(k) -> TP(k+1)+TP(k+1)
+			Differentation *diff= new Differentation(k,type,data.eps(type)*pool.getRate(k));// type(k) -> type(k+1)+type(k+1)
 			diff->setPropensity((diff->sufficientReactants(pool)?diff->reactantFactor(pool):0.0)); 
 			sum += diff->propensity();
 			pos=all.add(diff);
@@ -77,8 +77,8 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
 			//both nodes are also affected by certain reactions from the previous compartment.			
 			//need to add them. Carefull with the reactions in compartment 0.
 			if( (k-1) > 0){ //starting from k=2
-				_diffnodes[((k-2)*4 + tp)]->affects(selfnode);
-				_diffnodes[((k-2)*4 + tp)]->affects(diffnode);
+				_diffnodes[((k-2)*4 + type)]->affects(selfnode);
+				_diffnodes[((k-2)*4 + type)]->affects(diffnode);
 			}
 			//add both nodes to their corresponding vectors.
 			pos=add(SELF_RENEWAL,selfnode);
@@ -130,7 +130,7 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
 		}
 	}
 	all.setPropSum(sum);
-//	cout << "#finished creation DependencyGraph, number of reactions = "<< all.size() << endl;
+	// cout << "#finished creation DependencyGraph, number of reactions = "<< all.size() << endl;
 }
 
 

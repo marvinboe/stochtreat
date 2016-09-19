@@ -19,6 +19,11 @@
 
 class Kernel {
 public:
+    /** Kernel contructor:
+     * 1. Calls constructor of Model to initialize system in _pool.
+     * 2. Calls constructor of DependencyGraph to initialize list of reactions (_allr) and the dependency graph _depend.
+     * 3. Calls constructor of IndexedQueue with _pool and _allr as argument to initialize reaction queue.
+     */
 	Kernel(RanGen& ran, Data& data, unsigned size, double time=0.0):_time(time),_data(data), _dt(data.dt()), _pool(data,size), 
 	_depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.ntimes()*(data.dt()/365.0)),_lsctime(-1){};
 	void printAll();

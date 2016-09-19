@@ -29,8 +29,10 @@ public:
 	}
 	DependencyNode& operator=(const DependencyNode& other);
 	
+        /** returns index of reaction? TODO */
 	unsigned reaction() const {return _idx;}
 	
+        /** adds pointer to other DependencyNode to _affecting std::vector.*/
 	void affects(DependencyNode* other) {
 		_affecting.push_back(other);
 	}
