@@ -50,7 +50,12 @@ public:
 	double rate() const {return _r;}
 	
 	unsigned int inGraph() const {return _ingraph;}
+
+        /** Returns type of reaction:
+         * MORAN=0,SELF_RENEWAL=1,DIFFERENTATION=2,TREATMENT=3};
+         */
 	unsigned int inType() const {return _intype;}
+
         /** Storing node type and the index of the node (in the graph)*/
 	void setDG(unsigned type, unsigned loc) { _intype=type; _ingraph = loc;}
 	
@@ -62,6 +67,8 @@ public:
          * needs to be set: _r -> reaction rate per cell */
 	void setPropensity(double x) {_a = x *_r;}
 	
+        void setRate(double v) {_r=v;};
+
 	double putativeTime() const {return _ptime;}
 	double calcPutativeTime(double ranval, double prev=0.0) { 
 		_ptime = prev + (1.0 / _a ) * gsl_sf_log(1.0/ranval);

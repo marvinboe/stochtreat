@@ -67,6 +67,8 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(
 	storeH(0,0);
 	storeC(0,0);
 	storeI(0,0);
+
+        _treatrate=data.treatment();
 	
 	
 	//initialize Model: 2. other compartments

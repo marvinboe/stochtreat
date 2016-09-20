@@ -124,10 +124,16 @@ bool Kernel::nextMethod(RanGen& ran){
 
 void Kernel::reinitialize(Model& pool,RanGen& ran){
 
-    for (unsigned int r =0 ; r < _allr.size(); ++r){
 
+    // std::cout <<"propsum before "<<_allr.propSum()<<std::endl;
+
+    double sum=0.;
+    for (unsigned int r =0 ; r < _allr.size(); ++r){
         _allr[r]->setPropensity((_allr[r]->sufficientReactants(pool)?_allr[r]->reactantFactor(pool):0.0)); 
+        // std::cout <<"debug : "<<r<<" "<<_allr[r]->inType()<<" "<<_allr[r]->propensity()<<" "<<sum<<std::endl;
+        sum+=_allr[r]->propensity();
     }
+    _allr.setPropSum(sum);
 
     //     double time_i = numeric_limits<double>::infinity();
     //     if(_allr[r]->propensity() > 0.0){
@@ -218,6 +224,12 @@ void Kernel::detUpdate(){
 }
 
 double Kernel::execute(RanGen& ran, double t, bool treat){
+    for (unsigned int r=0; r< _allr.size(); ++r){
+        if (_allr[r]->inType()==3)
+            _allr[r]->setRate((treat?_pool.getTreatRate():0.));
+    }
+    reinitialize(_pool,ran);
+    
 	_time = (t*365.0); // _time is in the function expressed in days
 	double  _time_step = _data.dt();
 //	cout << "##execute starts " << _time << endl;
@@ -234,10 +246,10 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 	while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
 		
 		//treat cells -> affects reactions in priorityqueue !!
-		if(treat) {
-			treatCells(ran); // treat fraction of cells
-			next_stoch = (_queue.top())->tau();
-		}
+		// if(treat) {
+		// 	treatCells(ran); // treat fraction of cells
+		// 	next_stoch = (_queue.top())->tau();
+		// }
 
 		//start new update
 		_pool.memorize(); //every time we update the state is stored (calculations are performed on these states)

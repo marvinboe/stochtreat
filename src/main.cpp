@@ -193,7 +193,7 @@ int main (int argc, char *argv[]) {
         }
 
         ker.addStochCompSizes(avgsize);
-    }
+    }//end loop over patients
 
     if (treattest||recurrence_run){
         std::cout <<recurrence_count/double(no_recurrence_patients)

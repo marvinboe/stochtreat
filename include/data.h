@@ -147,6 +147,8 @@ class Data {
 		void setOffinal (string name) { _offinal = name;}
 		void setOfname(string name) {_ofname=name;}
 		string ofname() const {return _ofname;}
+
+                /** returns treatment time in years.*/
 		double treatment() const {return _treatment;}
 
                 /** Sets treatment time in years(TODO?) that will be used 
