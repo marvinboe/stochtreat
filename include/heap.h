@@ -65,8 +65,11 @@ public:
 	
 	void print() const  {
 		if(contents_.size() > 1){
+                        DataType  buff=contents_[0];
 			for (unsigned i = 1; i < contents_.size(); i++)
 			{
+                            std::cout <<i<<" "<<compare_->smaller(contents_[i],buff)<<" ";
+                            buff=contents_[i];
 				contents_[i]->print();
 			}
 		}

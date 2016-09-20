@@ -113,69 +113,70 @@ int main (int argc, char *argv[]) {
         
         //make run without treatment until diagnosis (or time exceeded).
         double time = ker.execute(ran,0.0,false);
+        ker.addStochCompSizes(avgsize);
         if(!ker.hasLSC())
             nolsc +=1;
 
         //#### check if diagnosis is reached
         double timetoreduction=-1.;
-        if(ker.reachedDiagnosis()) {
-            diagnosed +=1;
-            if (treattest) no_recurrence_patients++;
-
-            total_diagnosis_time += time;
-            if(!ker.hasLSC())
-                diagnosed_nolsc +=1;
-
-            // if (recurrence_run){
-            //     if (output_specifier==1){
-            //         std::cout << ker.getDiagnosis() << "  " 
-            //             << ker.get_nolsctime() << endl;
-            //     }
-            //     continue; // end this if we only check for recurrence
-            // }
-
-            //start treatment until limit is reached or maxmum time of treatment has passed
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-            time=ker.execute(ran,time,true);
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-
-
-            if(ker.reachedReduction()){
-                reachedreduction +=1;
-                timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
-                total_timetoreduction +=timetoreduction;
-                redresult.push_back(ker.whenReduction() - ker.getDiagnosis());
-                if (output_specifier==3){
-                    cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
-                        << ker.getDiagnosis() << "  " 
-                        << timetoreduction << "  "
-                        << ker.whenReduction() << " "
-                        << ker.get_nolsctime() << endl;
-                }
-
-            }
-            if (treattest){
-
-                time=ker.execute(ran,0.,false);
-                if(ker.reachedDiagnosis()) {
-                    recurrence_count++;
-                }
-            }
-            //			cout << "Reduction is " << ker.getReduction() << endl;
-            //
-            // //##########write compartment data to file
-            // stringstream ss;
-            // ss << path<< "patient-"<< runid << "-"<< i << ".txt";
-            // ofstream output(ss.str().c_str());
-            // if(!output.is_open()){
-            //     cout << " unable to open output file " << ss.str() << endl;
-            //     cout << " exiting program " << endl;
-            //     exit(-1);
-            // }
-            // ker.writeModel(output);
-            // output.close();
-            // //######end writing patient data to file
-        }//######### everything for case of diagnosis done
+        // if(ker.reachedDiagnosis()) {
+        //     diagnosed +=1;
+        //     if (treattest) no_recurrence_patients++;
+        //
+        //     total_diagnosis_time += time;
+        //     if(!ker.hasLSC())
+        //         diagnosed_nolsc +=1;
+        //
+        //     // if (recurrence_run){
+        //     //     if (output_specifier==1){
+        //     //         std::cout << ker.getDiagnosis() << "  " 
+        //     //             << ker.get_nolsctime() << endl;
+        //     //     }
+        //     //     continue; // end this if we only check for recurrence
+        //     // }
+        //
+        //     //start treatment until limit is reached or maxmum time of treatment has passed
+        //     // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+        //     time=ker.execute(ran,time,true);
+        //     // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+        //
+        //
+        //     if(ker.reachedReduction()){
+        //         reachedreduction +=1;
+        //         timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
+        //         total_timetoreduction +=timetoreduction;
+        //         redresult.push_back(ker.whenReduction() - ker.getDiagnosis());
+        //         if (output_specifier==3){
+        //             cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
+        //                 << ker.getDiagnosis() << "  " 
+        //                 << timetoreduction << "  "
+        //                 << ker.whenReduction() << " "
+        //                 << ker.get_nolsctime() << endl;
+        //         }
+        //
+        //     }
+        //     if (treattest){
+        //
+        //         time=ker.execute(ran,0.,false);
+        //         if(ker.reachedDiagnosis()) {
+        //             recurrence_count++;
+        //         }
+        //     }
+        //     //			cout << "Reduction is " << ker.getReduction() << endl;
+        //     //
+        //     // //##########write compartment data to file
+        //     // stringstream ss;
+        //     // ss << path<< "patient-"<< runid << "-"<< i << ".txt";
+        //     // ofstream output(ss.str().c_str());
+        //     // if(!output.is_open()){
+        //     //     cout << " unable to open output file " << ss.str() << endl;
+        //     //     cout << " exiting program " << endl;
+        //     //     exit(-1);
+        //     // }
+        //     // ker.writeModel(output);
+        //     // output.close();
+        //     // //######end writing patient data to file
+        // }//######### everything for case of diagnosis done
         
 
         if (output_specifier==1){
@@ -192,7 +193,6 @@ int main (int argc, char *argv[]) {
                 << ker.get_nolsctime() << endl;
         }
 
-        ker.addStochCompSizes(avgsize);
     }//end loop over patients
 
     if (treattest||recurrence_run){

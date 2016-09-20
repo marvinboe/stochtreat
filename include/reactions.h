@@ -70,6 +70,9 @@ public:
         void setRate(double v) {_r=v;};
 
 	double putativeTime() const {return _ptime;}
+
+        /** calculates the putative time for this reaction,
+         * adds to time "prev" and stores result in queue. */
 	double calcPutativeTime(double ranval, double prev=0.0) { 
 		_ptime = prev + (1.0 / _a ) * gsl_sf_log(1.0/ranval);
 		return _ptime;

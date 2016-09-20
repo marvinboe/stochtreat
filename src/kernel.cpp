@@ -134,6 +134,13 @@ void Kernel::reinitialize(Model& pool,RanGen& ran){
         sum+=_allr[r]->propensity();
     }
     _allr.setPropSum(sum);
+    std::cout <<"##########before##############"<<std::endl;
+    std::cout <<"debug stuff: "<<_queue.top()->index()<<std::endl;
+    _queue.printQ();
+    _queue.init(ran,_allr);
+    std::cout <<"debug stuff2: "<<_queue.top()->index()<<std::endl;
+    std::cout <<"##########after##############"<<std::endl;
+    _queue.printQ();
 
     //     double time_i = numeric_limits<double>::infinity();
     //     if(_allr[r]->propensity() > 0.0){
@@ -144,7 +151,6 @@ void Kernel::reinitialize(Model& pool,RanGen& ran){
     //     else _allr[r]->setPutativeTime(time_i);
     // }
 
-    _queue.init(ran,_allr);
 
 }
 
