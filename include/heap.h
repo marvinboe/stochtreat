@@ -65,12 +65,9 @@ public:
 	
 	void print() const  {
 		if(contents_.size() > 1){
-                        DataType  buff=contents_[0];
-			for (unsigned i = 1; i < contents_.size(); i++)
-			{
-                            std::cout <<i<<" "<<compare_->smaller(contents_[i],buff)<<" ";
-                            buff=contents_[i];
-				contents_[i]->print();
+			for (unsigned i = 1; i < contents_.size(); i++){
+                            std::cout <<i<<" "<<compare_->smaller(contents_[i],contents_[parent(i)])<<" ";
+                            contents_[i]->print();
 			}
 		}
 		else throw emptyHeapException();
@@ -210,7 +207,7 @@ private:
          * Heap minus 1. Therefore parentnode for index or index+1 is always the rounded 
          * down value of the index divided by 2.
 	 */
-	int parent(int index){
+	int parent(int index) const{
 		int tmp = (int)floor(index / 2);
 		return (tmp >= 1?tmp:1); 
 	};

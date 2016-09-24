@@ -55,6 +55,7 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
     unsigned numtypes = 4;
     for(unsigned k=1; k < pool.numStoch(); ++k) { //every compartment
 
+        //
         Treatment *treat= new Treatment(k,pool.getTreatRate());// type(k) -> type(k+1)+type(k+1)
         treat->setPropensity((treat->sufficientReactants(pool)?treat->reactantFactor(pool):0.0)); 
         sum += treat->propensity();

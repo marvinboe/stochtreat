@@ -106,11 +106,11 @@ class Data {
 		void setPimm (double v) {_p_imm = v;} 
 
 
-                /** returns the percentage of cells that is affected by treatment. */
+                /** returns the percentage of cells that is affected by treatment per day. */
 		double treatment_rate() const {return _treatment_rate;}
 
                 /** sets the percentage of cells that is affected by treatment. */
-		void setPercBound(double v) {_treatment_rate = v;}
+		void set_treatment_rate(double v) {_treatment_rate = v;}
 		
                 /** sets the end time for no treatment runs. TODO unit and setting unclear.*/
 		int ntimes() const {return _ntimes;}

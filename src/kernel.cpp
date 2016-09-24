@@ -125,32 +125,23 @@ bool Kernel::nextMethod(RanGen& ran){
 void Kernel::reinitialize(Model& pool,RanGen& ran){
 
 
-    // std::cout <<"propsum before "<<_allr.propSum()<<std::endl;
-
     double sum=0.;
     for (unsigned int r =0 ; r < _allr.size(); ++r){
-        _allr[r]->setPropensity((_allr[r]->sufficientReactants(pool)?_allr[r]->reactantFactor(pool):0.0)); 
+        // std::cout <<"propensity test "<<r<<" "<<_allr[r]->propensity()<<" "
+        //         <<_allr[r]->rate()<<" "<<_allr[r]->reactantFactor(pool)<<" "; 
+        if (_allr[r]->sufficientReactants(pool)){
+            _allr[r]->setPropensity(_allr[r]->reactantFactor(pool)); 
+        }
+        else {
+            _allr[r]->setPropensity(0.);
+        }
+        // std::cout <<"after "<<_allr[r]->propensity()<<" "
+        //         <<_allr[r]->rate()<<std::endl; 
         // std::cout <<"debug : "<<r<<" "<<_allr[r]->inType()<<" "<<_allr[r]->propensity()<<" "<<sum<<std::endl;
         sum+=_allr[r]->propensity();
     }
     _allr.setPropSum(sum);
-    std::cout <<"##########before##############"<<std::endl;
-    std::cout <<"debug stuff: "<<_queue.top()->index()<<std::endl;
-    _queue.printQ();
     _queue.init(ran,_allr);
-    std::cout <<"debug stuff2: "<<_queue.top()->index()<<std::endl;
-    std::cout <<"##########after##############"<<std::endl;
-    _queue.printQ();
-
-    //     double time_i = numeric_limits<double>::infinity();
-    //     if(_allr[r]->propensity() > 0.0){
-    //         double rval = ran.randouble();
-    //         time_i = _allr[r]->calcPutativeTime(rval); 
-    //         //			cout << "Rval = " << rval << " for reaction " << *(all[r]) << " produces pututative time = "<<  time_i << endl;
-    //     }
-    //     else _allr[r]->setPutativeTime(time_i);
-    // }
-
 
 }
 
@@ -230,9 +221,14 @@ void Kernel::detUpdate(){
 }
 
 double Kernel::execute(RanGen& ran, double t, bool treat){
+    //turn treatment on or off
     for (unsigned int r=0; r< _allr.size(); ++r){
-        if (_allr[r]->inType()==3)
+        // std::cout <<"setting rate "<<r<<" "<<_allr[r]->inType()<<" ";
+        if (_allr[r]->inType()==3){
             _allr[r]->setRate((treat?_pool.getTreatRate():0.));
+            // std::cout <<"set to "<<(treat?_pool.getTreatRate():0.);
+        }
+        // std::cout <<std::endl;
     }
     reinitialize(_pool,ran);
     
