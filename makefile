@@ -24,7 +24,7 @@ LDLIBS = -L /usr/local/lib/ -lgsl #-lm -lboost_serialization
 WARNINGS := #-Wall -pedantic -Wextra -Wshadow  -Wcast-qual  -Weffc++ -Wfloat-equal -Wunreachable-code -Wconversion  -Wdisabled-optimization
 #--Wstrict-overflow=5 Wpointer-arith -Wunused
 
-OPTIDEBUG := -g -ggdb
+OPTIDEBUG := -O3
 #CFLAGS: release mode: -O2 or -O3 debug mode: -g -ggdb  profile mode: -pg 
 
 CFLAGS := -std=c++11 $(OPTIDEBUG) $(WARNINGS) -I./$(INCLUDEDIR)/
