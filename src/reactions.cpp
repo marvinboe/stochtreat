@@ -265,8 +265,9 @@ bool Treatment::apply(Model& pool, double time){
 		return false; 
 	}
         else{
-            std::cout <<"something wrong in treatment"<<std::endl;
-            exit(0);
+            //TODO this should never happen, but it does, why?
+            // std::cout <<"something wrong in treatment"<<std::endl;
+            // exit(0);
         }
 	return false;
 }
