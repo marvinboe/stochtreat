@@ -127,13 +127,13 @@ int main (int argc, char *argv[]) {
             if(!ker.hasLSC())
                 diagnosed_nolsc +=1;
 
-            // if (recurrence_run){
-            //     if (output_specifier==1){
-            //         std::cout << ker.getDiagnosis() << "  " 
-            //             << ker.get_nolsctime() << endl;
-            //     }
-            //     continue; // end this if we only check for recurrence
-            // }
+            if (recurrence_run){
+                if (output_specifier==1){
+                    std::cout << ker.getDiagnosis() << "  " 
+                        << ker.get_nolsctime() << endl;
+                }
+                continue; // end this if we only check for recurrence
+            }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;

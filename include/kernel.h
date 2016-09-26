@@ -31,8 +31,8 @@ public:
 	Kernel(RanGen& ran, Data& data,std::istream& is, double time=0.0):_time(time),_data(data), _dt(data.dt()),
             _pool(data,is),_depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.ntimes()*(data.dt()/365.0)),_lsctime(-1){};
 
-        /** Reinitializes the kernel if cell counts have changed. */
-        void reinitialize(Model& pool,RanGen& ran);
+        /** Reinitializes the kernel if cell counts or rates have changed. */
+        void reinitialize(Model& pool,RanGen& ran,double simtime);
 
 	void printAll();
 	double execute(RanGen& ran, double t, bool treat);

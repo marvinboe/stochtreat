@@ -253,15 +253,21 @@ bool Reaction::apply(Model& pool, double time){
 bool Treatment::apply(Model& pool, double time){
 	//Reaction format : Tp(k) -> Tp(k')
 	//decrease reactant, increase product
-//	cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+	// cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) 
+            // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << endl;
 	if(pool.retrieve(reactantComp(), reactant()) > 0){
 //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << endl; 
 		pool.decr(reactantComp(), reactant(),1);
 		pool.incr(product1Comp(), product1(),1);
-//		cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+		// cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) 
+                    // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << endl;
 		this->incrUsed();
 		return false; 
 	}
+        else{
+            std::cout <<"something wrong in treatment"<<std::endl;
+            exit(0);
+        }
 	return false;
 }
 

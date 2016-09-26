@@ -56,7 +56,7 @@ bool Kernel::nextMethod(RanGen& ran){
 		_lsctime = prev_t;
 	}
 	//4. update every reaction dependend upon the reaction that was just used.
-	//first set a_{i} the current reaction;
+	//first set a_{i} of the current reaction;
 	double next_estimate =numeric_limits<double>::infinity();
 	if(r->sufficientReactants(_pool)){
 		r->setPropensity(r->reactantFactor(_pool)); 
@@ -122,26 +122,50 @@ bool Kernel::nextMethod(RanGen& ran){
 	return lsc_moved;
 }
 
-void Kernel::reinitialize(Model& pool,RanGen& ran){
+void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
 
 
-    double sum=0.;
-    for (unsigned int r =0 ; r < _allr.size(); ++r){
-        // std::cout <<"propensity test "<<r<<" "<<_allr[r]->propensity()<<" "
-        //         <<_allr[r]->rate()<<" "<<_allr[r]->reactantFactor(pool)<<" "; 
-        if (_allr[r]->sufficientReactants(pool)){
-            _allr[r]->setPropensity(_allr[r]->reactantFactor(pool)); 
+    for (unsigned int r_id =0 ; r_id < _allr.size(); ++r_id){
+        // std::cout <<"propensity test "<<r<<" "<<_allr[r]->propensity()<<" " // <<_allr[r]->rate()<<" "<<_allr[r]->reactantFactor(pool)<<" "; 
+        Reaction* rd=_allr[r_id];
+        QueueElement* qed=_queue[r_id];
+	double next_estimate =numeric_limits<double>::infinity();
+
+        if(!rd->sufficientReactants(_pool) && qed->tau() < numeric_limits<double>::infinity()){
+            if(rd->getTZero() == -1.0){ // if it is the first time that the reactants are not sufficient
+                rd->setLasta();
+                rd->setTZero(prev_t);
+                rd->setLastPtime();
+                rd->setPropensity(0.0);  // only now is allowed TODO?
+            }
         }
-        else {
-            _allr[r]->setPropensity(0.);
+        else if(rd->sufficientReactants(_pool)) {//TODO unnesseccary "if"?
+            double prevtau = qed->tau(); // can also be infinity
+            double t1 = prev_t;
+            double t2 = prev_t;
+            double a_old = rd->propensity();		
+            if(rd->getTZero() >= 0.0){ //if the reactants were zero before and qed->tau = infinity
+                a_old = rd->last_a();
+                t1 = rd->getTZero();
+                prevtau = rd->last_ptime();
+                rd->setTZero(-1.0);
+            }	
+            rd->setPropensity(rd->reactantFactor(_pool));
+            //queuelement should be  in the same position in the indexedqueue as in the reaction pool
+            if(rd->getTZero() < 0.0 && qed->tau() == numeric_limits<double>::infinity()){ 
+                //rection has never been used before
+                next_estimate = rd->calcPutativeTime(ran.randouble(), prev_t);
+            }
+            else next_estimate = (a_old / rd->propensity()) * (prevtau - t1) + t2;	
+            rd->setPutativeTime(next_estimate);
+
         }
-        // std::cout <<"after "<<_allr[r]->propensity()<<" "
-        //         <<_allr[r]->rate()<<std::endl; 
-        // std::cout <<"debug : "<<r<<" "<<_allr[r]->inType()<<" "<<_allr[r]->propensity()<<" "<<sum<<std::endl;
-        sum+=_allr[r]->propensity();
+
+        qed->setTau(next_estimate); 
+        _queue.update(qed->queueLoc());
+
+        // std::cout <<"after "<<_allr[r]->propensity()<<" " // <<_allr[r]->rate()<<std::endl; 
     }
-    _allr.setPropSum(sum);
-    _queue.init(ran,_allr);
 
 }
 
@@ -221,65 +245,64 @@ void Kernel::detUpdate(){
 }
 
 double Kernel::execute(RanGen& ran, double t, bool treat){
+
     //turn treatment on or off
-    for (unsigned int r=0; r< _allr.size(); ++r){
-        // std::cout <<"setting rate "<<r<<" "<<_allr[r]->inType()<<" ";
-        if (_allr[r]->inType()==3){
-            _allr[r]->setRate((treat?_pool.getTreatRate():0.));
-            // std::cout <<"set to "<<(treat?_pool.getTreatRate():0.);
+    for (unsigned int r_id=0; r_id< _allr.size(); ++r_id){
+        if (_allr[r_id]->inType()==3){
+            _allr[r_id]->setRate((treat?_pool.getTreatRate():0.));
         }
-        // std::cout <<std::endl;
     }
-    reinitialize(_pool,ran);
-    
-	_time = (t*365.0); // _time is in the function expressed in days
-	double  _time_step = _data.dt();
-//	cout << "##execute starts " << _time << endl;
-	int iters = (int)ceil(_time / _data.dt());
-	int endsim = _data.ntimes();
 
-	if(treat) {
-		endsim = iters + (int) (_data.treatment()*365.0/_data.dt());	
-//		cout << "treatment ends at " <<  treatmentend << " iterations ("<< (t + _data.treatment()) << " years)" << endl;
-	}
-	double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
-	
-        // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
-	while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
-		
-		//treat cells -> affects reactions in priorityqueue !!
-		// if(treat) {
-		// 	treatCells(ran); // treat fraction of cells
-		// 	next_stoch = (_queue.top())->tau();
-		// }
+    reinitialize(_pool,ran,treat);
 
-		//start new update
-		_pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
-                _pool.check_LSCvanished(_time);
-                // if (_time/365. >= yearscounter ){
-                //     _pool.print_cells(std::cout,_time);
-                //     ++yearscounter;
-                // }
-		while(_time >= next_stoch)	{
-			nextMethod(ran);
-			next_stoch = (_queue.top())->tau();
-		}
-		detUpdate();
-		
-		iters++;
-		_time += _time_step; 
-	}
-	if(!treat) {
-		_pool.calcAlpha(); // required to recalculate disease burden
-		_pool.setDiagRes((_time/365.0));
-	}
-	else {
-		_pool.setWhenReduction((_time/365.0));
-	}
-//	cout << "laste iter  " << iters << "\t  " << (_time/365.0) << endl;
+    _time = (t*365.0); // _time is in the function expressed in days
+    double  _time_step = _data.dt();
+    //	cout << "##execute starts " << _time << endl;
+    int iters = (int)ceil(_time / _data.dt());
+    int endsim = _data.ntimes();
 
-        // std::cout <<"debug after: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
-	return ( _time / 365.0);
+    if(treat) {
+        endsim = iters + (int) (_data.treatment()*365.0/_data.dt());	
+        //		cout << "treatment ends at " <<  treatmentend << " iterations ("<< (t + _data.treatment()) << " years)" << endl;
+    }
+    double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
+
+    // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
+    while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
+
+        //treat cells -> affects reactions in priorityqueue !!
+        // if(treat) {
+        // 	treatCells(ran); // treat fraction of cells
+        // 	next_stoch = (_queue.top())->tau();
+        // }
+
+        //start new update
+        _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
+        _pool.check_LSCvanished(_time);
+        // if (_time/365. >= yearscounter ){
+        //     _pool.print_cells(std::cout,_time);
+        //     ++yearscounter;
+        // }
+        while(_time >= next_stoch)	{
+            nextMethod(ran);
+            next_stoch = (_queue.top())->tau();
+        }
+        detUpdate();
+
+        iters++;
+        _time += _time_step; 
+    }
+    if(!treat) {
+        _pool.calcAlpha(); // required to recalculate disease burden
+        _pool.setDiagRes((_time/365.0));
+    }
+    else {
+        _pool.setWhenReduction((_time/365.0));
+    }
+    //	cout << "laste iter  " << iters << "\t  " << (_time/365.0) << endl;
+
+    // std::cout <<"debug after: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
+    return ( _time / 365.0);
 
 }
 

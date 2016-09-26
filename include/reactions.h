@@ -120,7 +120,7 @@ protected:
 	double _ptime; // exponential function _a * exp (- (time*sum_a)) * dt
 	double _lasta;
 	double _lastptime;
-	double _time_zero;
+	double _time_zero; //TODO what is this?
 	unsigned _intype;
 	unsigned _ingraph;
 	unsigned _used;

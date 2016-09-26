@@ -62,18 +62,16 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
         pos=all.add(treat);
         DependencyNode *treatnode=new DependencyNode(pos);
         treatnode->affects(treatnode);
-        pos=add(TREATMENT,treatnode);
-        treat->setDG(TREATMENT,pos);
 
-        for(unsigned type = 0; type < numtypes; ++type) {
-            //			cout << "(1-eps) = " << (1.0-data.eps(type)) << "\t rate= " << pool.getRate(k) << endl; 
-            SelfRenewal *self= new SelfRenewal(k,type,(1.0 - data.eps(type))*pool.getRate(k));// type(k) -> type(k)+type(k)
+        for(unsigned cell_type_id = 0; cell_type_id < numtypes; ++cell_type_id) {
+            // cout << "(1-eps) = " << (1.0-data.eps(cell_type_id)) << "\t rate= " << pool.getRate(k) << endl; 
+            SelfRenewal *self= new SelfRenewal(k,cell_type_id,(1.0 - data.eps(cell_type_id))*pool.getRate(k));// cell_type_id(k) -> cell_type_id(k)+cell_type_id(k)
             self->setPropensity((self->sufficientReactants(pool)?self->reactantFactor(pool):0.0)); 
             sum += self->propensity();
             pos=all.add(self);
             DependencyNode *selfnode=new DependencyNode(pos);
 
-            Differentation *diff= new Differentation(k,type,data.eps(type)*pool.getRate(k));// type(k) -> type(k+1)+type(k+1)
+            Differentation *diff= new Differentation(k,cell_type_id,data.eps(cell_type_id)*pool.getRate(k));// cell_type_id(k) -> cell_type_id(k+1)+cell_type_id(k+1)
             diff->setPropensity((diff->sufficientReactants(pool)?diff->reactantFactor(pool):0.0)); 
             sum += diff->propensity();
             pos=all.add(diff);
@@ -85,11 +83,11 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             selfnode->affects(diffnode);
             diffnode->affects(diffnode);
             diffnode->affects(selfnode);
-            if (type==1) { // type is cancer cell or treated cell
+            if (cell_type_id==1) { // cell_type_id is cancer cell
                 selfnode->affects(treatnode);
                 diffnode->affects(treatnode);
             }
-            if (type==1 || type==3){
+            if (cell_type_id==1 || cell_type_id==3){
                 treatnode->affects(selfnode);
                 treatnode->affects(diffnode);
             }
@@ -98,10 +96,10 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             //both nodes are also affected by certain reactions from the previous compartment.			
             //need to add them. Carefull with the reactions in compartment 0.
             if( (k-1) > 0){ //starting from k=2
-                _diffnodes[((k-2)*4 + type)]->affects(selfnode);
-                _diffnodes[((k-2)*4 + type)]->affects(diffnode);
-                if (type==1){
-                    _diffnodes[((k-2)*4 + type)]->affects(treatnode);
+                _diffnodes[((k-2)*4 + cell_type_id)]->affects(selfnode);
+                _diffnodes[((k-2)*4 + cell_type_id)]->affects(diffnode);
+                if (cell_type_id==1){
+                    _diffnodes[((k-2)*4 + cell_type_id)]->affects(treatnode);
                 }
             }
             //add both nodes to their corresponding vectors.
@@ -112,6 +110,9 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             //			cout << "Self renewal, K=" << k << ", reaction " << *self << endl;
             //			cout << "Differentiation, K=" << k << ", reaction " << *diff << endl;
         }
+
+        pos=add(TREATMENT,treatnode);//add treatment node to vector
+        treat->setDG(TREATMENT,pos);
     }
     //add reactions for the stem cell compartment:
     for(int first_tp = 0; first_tp < 3; ++first_tp) { // excluding the bound type, i.e.tp = 3
@@ -157,6 +158,7 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
         }
     }
     all.setPropSum(sum);
+    // display(std::cout);
     // cout << "#finished creation DependencyGraph, number of reactions = "<< all.size() << endl;
 }
 
@@ -183,7 +185,15 @@ ostream& DependencyGraph::display(ostream& os){
         os << endl << **startdiff;
         ++startdiff;
     }
-    os << "]";
+
+    os << endl << "Treatment";
+    vector<DependencyNode*>::iterator treat_it = _treatnodes.begin();
+    vector<DependencyNode*>::iterator stoptreat = _treatnodes.end();
+    while(treat_it !=stoptreat){
+        os << endl << **treat_it;
+        ++treat_it;
+    }
+    os << "]"<<std::endl;
     return os;
 }
 
