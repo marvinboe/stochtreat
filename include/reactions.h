@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 #include <gsl/gsl_sf_log.h>
 #include "model.h"
@@ -99,7 +100,7 @@ public:
 	friend ostream & operator<<(ostream &o, Reaction& r){return r.display(o);}
 	
         /** applies this reaction to the stem cell pool.
-         * returns false (TODO ?!). */
+         * returns true if lsc vanished. */
 	virtual bool apply(Model& pool,double time);
 	virtual bool sufficientReactants(Model& pool);
         

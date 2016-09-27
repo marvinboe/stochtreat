@@ -247,6 +247,14 @@ bool Reaction::apply(Model& pool, double time){
 		this->incrUsed();
 		return false; 
 	}
+        else{
+            //TODO this should never happen, but it does, why?
+            throw std::logic_error("reaction without reactants");
+            // std::cout <<"something wrong in reaction "<<propensity()<<" "<<putativeTime()<<" "<<reactantComp()<<" "<<reactant()
+            //     <<" "<<used()<<std::endl;
+            // exit(0);
+        }
+
 	return false;
 }
 
@@ -266,7 +274,9 @@ bool Treatment::apply(Model& pool, double time){
 	}
         else{
             //TODO this should never happen, but it does, why?
-            // std::cout <<"something wrong in treatment"<<std::endl;
+            throw std::logic_error("reaction without reactants");
+            // std::cout <<"something wrong in treatment "<<propensity()<<" "<<putativeTime()<<" "<<reactantComp()<<" "<<reactant()
+            //     <<" "<<used()<<std::endl;
             // exit(0);
         }
 	return false;
@@ -301,6 +311,13 @@ bool StemCellRenewal::apply(Model& pool, double time){
 		this->incrUsed();
 		return lsc_moved; 
 	}
+        else{
+            //TODO this should never happen, but it does, why?
+            throw std::logic_error("reaction without reactants");
+            // std::cout <<"something wrong in stem cell reaction "<<propensity()<<" "<<putativeTime()<<" "<<reactantComp()<<" "<<reactant()
+            //     <<" "<<used()<<std::endl;
+            // exit(0);
+        }
 	return false;
 }
 

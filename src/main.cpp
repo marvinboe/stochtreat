@@ -136,9 +136,9 @@ int main (int argc, char *argv[]) {
             }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
             time=ker.execute(ran,time,true);
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
 
 
             if(ker.reachedReduction()){
@@ -157,7 +157,7 @@ int main (int argc, char *argv[]) {
             }
             if (treattest){
 
-                time=ker.execute(ran,0.,false);
+                time=ker.execute(ran,time,false);
                 if(ker.reachedDiagnosis()) {
                     recurrence_count++;
                 }

@@ -124,11 +124,10 @@ bool Kernel::nextMethod(RanGen& ran){
 
 void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
 
-
     for (unsigned int r_id =0 ; r_id < _allr.size(); ++r_id){
-        // std::cout <<"propensity test "<<r<<" "<<_allr[r]->propensity()<<" " // <<_allr[r]->rate()<<" "<<_allr[r]->reactantFactor(pool)<<" "; 
         Reaction* rd=_allr[r_id];
         QueueElement* qed=_queue[r_id];
+        // std::cout <<"reinitialize "<<prev_t<<" "<<r_id<<" "<<_allr[r_id]->propensity()<<" " <<_allr[r_id]->rate()<<" "<<qed->tau()<<" "<<_allr[r_id]->reactantFactor(pool)<<" "; 
 	double next_estimate =numeric_limits<double>::infinity();
 
         if(!rd->sufficientReactants(_pool) && qed->tau() < numeric_limits<double>::infinity()){
@@ -164,7 +163,7 @@ void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
         qed->setTau(next_estimate); 
         _queue.update(qed->queueLoc());
 
-        // std::cout <<"after "<<_allr[r]->propensity()<<" " // <<_allr[r]->rate()<<std::endl; 
+        // std::cout <<"after "<<_allr[r_id]->propensity()<<" " <<_allr[r_id]->rate() <<" "<<qed->tau()<<std::endl; 
     }
 
 }
@@ -246,6 +245,8 @@ void Kernel::detUpdate(){
 
 double Kernel::execute(RanGen& ran, double t, bool treat){
 
+    _time = (t*365.0); // _time is in the function expressed in days
+
     //turn treatment on or off
     for (unsigned int r_id=0; r_id< _allr.size(); ++r_id){
         if (_allr[r_id]->inType()==3){
@@ -253,9 +254,8 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         }
     }
 
-    reinitialize(_pool,ran,treat);
+    reinitialize(_pool,ran,_time);
 
-    _time = (t*365.0); // _time is in the function expressed in days
     double  _time_step = _data.dt();
     //	cout << "##execute starts " << _time << endl;
     int iters = (int)ceil(_time / _data.dt());
@@ -269,12 +269,6 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 
     // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
     while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
-
-        //treat cells -> affects reactions in priorityqueue !!
-        // if(treat) {
-        // 	treatCells(ran); // treat fraction of cells
-        // 	next_stoch = (_queue.top())->tau();
-        // }
 
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
