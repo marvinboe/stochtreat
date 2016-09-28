@@ -106,7 +106,7 @@ class Data {
 		void setPimm (double v) {_p_imm = v;} 
 
 
-                /** returns the percentage of cells that is affected by treatment per day. */
+                /** returns the treatment rate of all cancer cells. */
 		double treatment_rate() const {return _treatment_rate;}
 
                 /** sets the percentage of cells that is affected by treatment. */

@@ -50,11 +50,11 @@ public:
 	unsigned int product2() const {return _product2;}
 	double rate() const {return _r;}
 	
+        /** Returns the index of the reaction in the dependency graph.*/
 	unsigned int inGraph() const {return _ingraph;}
 
         /** Returns type of reaction:
-         * MORAN=0,SELF_RENEWAL=1,DIFFERENTATION=2,TREATMENT=3};
-         */
+         * MORAN=0,SELF_RENEWAL=1,DIFFERENTATION=2,TREATMENT=3. */
 	unsigned int inType() const {return _intype;}
 
         /** Storing node type and the index of the node (in the graph)*/

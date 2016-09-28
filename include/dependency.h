@@ -83,6 +83,9 @@ class DependencyGraph {
         DependencyNode* getDiffNode(unsigned pos) {return _diffnodes[pos];}
         DependencyNode* getTreatNode(unsigned pos) {return _treatnodes[pos];}
 
+        /** Returns the dependency node object corresponding to the 
+         * type of the reaction and the number in the reaction-specific
+         * container. */
         DependencyNode* get(unsigned which, unsigned pos){
             switch(which){
                 case MORAN:

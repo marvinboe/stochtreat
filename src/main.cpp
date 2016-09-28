@@ -59,7 +59,7 @@ int main (int argc, char *argv[]) {
     if (ntime > 0.){ //non-default
         data.setNtimes(ntime);
     }
-    data.set_treatment_rate(0.05); //sets the rate (?) of treatment per cell
+    data.set_treatment_rate(0.05); //sets the rate (?) of treatment (TODO per day?)
     data.setStop(12); // Diagnosis limit
     data.setReduction(reduction); //treatment stop 
     data.setLimit(size);
@@ -136,9 +136,9 @@ int main (int argc, char *argv[]) {
             }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
-            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
             time=ker.execute(ran,time,true);
-            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
 
 
             if(ker.reachedReduction()){

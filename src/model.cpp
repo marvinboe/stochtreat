@@ -68,7 +68,7 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(
 	storeC(0,0);
 	storeI(0,0);
 
-        _treatrate=data.treatment_rate();
+        setTreatRate(data.treatment_rate());
 	
 	
 	//initialize Model: 2. other compartments
@@ -442,7 +442,7 @@ void Model::store(unsigned k, unsigned t, double v){
 ostream& Model::display(ostream& os){
     os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
-        os << k <<" " << setprecision(6) << getRate(k) <<" "; 
+        os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
         os << getN(k) << " " << getH(k) <<" " << getC(k) <<" " << getI(k);
         if (k>0) os  <<" "<< getB(k);
         os << std::endl; 
@@ -502,50 +502,50 @@ void Model::memorize(){
 
 
 bool Model::updateDet(unsigned k, Data& data){	
-	double p = data.dt() *getRate(k);
-	double prev_p = data.dt() *getRate(k-1); 
-	double prev_epsh = data.epsh(); 
+    double p = data.dt() *getRate(k);
+    double prev_p = data.dt() *getRate(k-1); 
+    double prev_epsh = data.epsh(); 
 
-//	cout << k-1 << " : " << getN(k-1) << "\t" << getH(k-1) << "\t" << getC(k-1) << endl;
-//	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << retrieveN(k) << "\t" << retrieveH(k) << "\t" << retrieveC(k) << endl;
-//	cout << p << "\t" << data.epsh() << "\t" << data.epsc() << endl;
-	
-	if(k<=_numstoch){
-//		cout << "#influx " << (2.0 * prev_epsh * prev_p * retrieveH(k-1)) << endl;
-		prev_epsh = 0.0;
-	}
-	double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_p * retrieveH(k-1)) + 
-				(p * (1.0 - data.epsh()) * retrieveH(k)) - 
-				(p * data.epsh() * retrieveH(k));
-//	cout << "#current H("<<k<<")=" << getH(k) << endl; 
-	incr(k, H,tempH);
-//	cout << "#new H " << getH(k) << endl; 
-	
-	double prev_epsc = data.epsc();
-	if(k<=_numstoch)
-		prev_epsc = 0.0;
+    //	cout << k-1 << " : " << getN(k-1) << "\t" << getH(k-1) << "\t" << getC(k-1) << endl;
+    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << retrieveN(k) << "\t" << retrieveH(k) << "\t" << retrieveC(k) << endl;
+    //	cout << p << "\t" << data.epsh() << "\t" << data.epsc() << endl;
+
+    if(k<=_numstoch){
+        //		cout << "#influx " << (2.0 * prev_epsh * prev_p * retrieveH(k-1)) << endl;
+        prev_epsh = 0.0;
+    }
+    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_p * retrieveH(k-1)) + 
+        (p * (1.0 - data.epsh()) * retrieveH(k)) - 
+        (p * data.epsh() * retrieveH(k));
+    //	cout << "#current H("<<k<<")=" << getH(k) << endl; 
+    incr(k, H,tempH);
+    //	cout << "#new H " << getH(k) << endl; 
+
+    double prev_epsc = data.epsc();
+    if(k<=_numstoch)
+        prev_epsc = 0.0;
     double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_p * retrieveC(k-1)) +
-			(p * (1.0 - data.epsc()) * retrieveC(k)) -
-			(p * data.epsc() * retrieveC(k));
-	incr(k, C,tempC);
-	
-	double prev_epsi = data.epsi();
-	if(k<=_numstoch)
-		prev_epsi = 0.0;
-	double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_p * retrieveI(k-1)) +
-			(p * (1.0 - data.epsi()) * retrieveI(k-1)) -
-			(p * data.epsi() * retrieveI(k-1));
-	incr(k, I, tempI);
-	
-	double prev_epsb = data.epsb();
-	if(k<=_numstoch || k == 1 )
-		prev_epsb = 0.0;
-	double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_p * ((k-1)>0?retrieveB(k-1):0.0)) +
-			(p * (1.0 - data.epsb()) * retrieveB(k)) -
-			(p * data.epsb() * retrieveB(k));
-	incr(k, B,tempB);
-//	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << endl;
-	return true;
+        (p * (1.0 - data.epsc()) * retrieveC(k)) -
+        (p * data.epsc() * retrieveC(k));
+    incr(k, C,tempC);
+
+    double prev_epsi = data.epsi();
+    if(k<=_numstoch)
+        prev_epsi = 0.0;
+    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_p * retrieveI(k-1)) +
+        (p * (1.0 - data.epsi()) * retrieveI(k-1)) -
+        (p * data.epsi() * retrieveI(k-1));
+    incr(k, I, tempI);
+
+    double prev_epsb = data.epsb();
+    if(k<=_numstoch || k == 1 )
+        prev_epsb = 0.0;
+    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_p * ((k-1)>0?retrieveB(k-1):0.0)) +
+        (p * (1.0 - data.epsb()) * retrieveB(k)) -
+        (p * data.epsb() * retrieveB(k));
+    incr(k, B,tempB);
+    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << endl;
+    return true;
 }
 
 bool Model::treatDeterministically(unsigned k, double amount){	

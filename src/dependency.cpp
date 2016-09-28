@@ -83,13 +83,13 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             selfnode->affects(diffnode);
             diffnode->affects(diffnode);
             diffnode->affects(selfnode);
-            if (cell_type_id==1) { // cell_type_id is cancer cell
-                selfnode->affects(treatnode);
-                diffnode->affects(treatnode);
-            }
             if (cell_type_id==1 || cell_type_id==3){
                 treatnode->affects(selfnode);
                 treatnode->affects(diffnode);
+                if (cell_type_id==1) { // cell_type_id is cancer cell
+                 selfnode->affects(treatnode);
+                 diffnode->affects(treatnode);
+                }
             }
 
 

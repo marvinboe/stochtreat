@@ -114,7 +114,7 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	_ofname = "result.txt";
 	_hdlocation ="./";
 
-	//not relevant for the moment
+	//not relevant for the moment TODO???
 	_epsb=0.89; //imatinib;
 	_epsi=_epsc;
 	_p_csc=0;

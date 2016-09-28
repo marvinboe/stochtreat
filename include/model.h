@@ -89,10 +89,15 @@ public:
 	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
 
+        /** Returns the number of cells of type t in compartment k
+         * that are stored into previous container.*/
 	double retrieve(unsigned k, unsigned t);
 	void store(unsigned k, unsigned t, double v);
 
+        /** Returns actual number of cells in pool of type t and 
+         * in compartment k. */
 	double get(unsigned k, unsigned t);
+
 	void set(unsigned k, unsigned t, double v);
 	void incr(unsigned k, unsigned t, double v);
 	void decr(unsigned k, unsigned t, double v);
