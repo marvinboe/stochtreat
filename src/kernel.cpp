@@ -12,18 +12,6 @@
 #include <limits>
 #include <iomanip>
 
-class description {
-    public:
-        description(unsigned int& count):_count(count){};
-        void operator()(Reaction* r){
-            cout << _count << "\t" << *r << endl;_count++;
-        }
-        unsigned count() {return _count;}
-    private:
-        unsigned int& _count;
-};
-
-
 
 
 void Kernel::printAll(){
@@ -253,11 +241,11 @@ void Kernel::treatCells(RanGen& ran){
 
 void Kernel::detUpdate(){
     //update the deterministic compartments using the standard formula's
-    float tobetreated=(_data.dt() * _pool.getTreatRate());
+    double treatamount=(_data.dt() * _pool.getTreatRate());
 
     for(unsigned k = _pool.numStoch(); k < _pool.numComp(); ++k){
         _pool.updateDet(k,_data);
-        _pool.treatDeterministically(k,tobetreated);
+        _pool.treatDeterministically(k,treatamount);
     }
 
     // for(unsigned k = _pool.numStoch(); k < _pool.numComp(); ++k){
@@ -284,17 +272,17 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 
     double  _time_step = _data.dt();
     //	cout << "##execute starts " << _time << endl;
-    int iters = (int)ceil(_time / _data.dt());
-    int endsim = _data.ntimes();
+    int iters =0.;// (int)ceil(_time / _data.dt());
+    double t_max=_data.getTmax_in_years()*365.-_time;
 
     if(treat) {
-        endsim = iters + (int) (_data.treatment()*365.0/_data.dt());	
-        //		cout << "treatment ends at " <<  treatmentend << " iterations ("<< (t + _data.treatment()) << " years)" << endl;
+        t_max=_time+_data.treatment_dur()*365.;
     }
-    double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
+    std::cout <<"#timing debug: "<<_time<<" "<<t_max<<" "<<_data.getTmax_in_years()<<" "<<_data.treatment_dur()<<std::endl;
 
+    double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
     // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
-    while(iters < endsim && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
+    while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
 
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
@@ -304,11 +292,23 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         //     ++yearscounter;
         // }
         _time += _time_step;  //TODO this must be called here, not at end of loop?!
+        int reactions_count=0;
+        double starttime_reacts=next_stoch;
         while(_time >= next_stoch)	{
             nextMethod(ran);
+            // std::cout <<std::setprecision(9)<<next_stoch<<" ";
             next_stoch = (_queue.top())->tau();
+            ++reactions_count;
         }
+        // std::cout <<std::endl;
+        // std::cout <<"reaction debug: "<<reactions_count<<" "<<next_stoch-starttime_reacts<<" "<<_time<<std::endl;
         detUpdate();
+
+        // std::cout <<"########debug output "<<_time<<std::endl;
+        // for (int k=0; k<_data.ncompartments();++k){
+        //     std::cout << k << " : "<< _pool.getH(k) << " " << _pool.getC(k) << " " << _pool.retrieveH(k) << " " << _pool.retrieveC(k) << endl;
+        // }
+        // std::cin.ignore();
 
         iters++;
     }

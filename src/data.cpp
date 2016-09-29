@@ -46,10 +46,11 @@ Data::Data(){
 	_frac_csc=0.0;
 	_numlsc = 0;
 	//are the same accross mamals
-	_epsh=0.8476;
+	_epsh=0.85; //TODO in paper 0.85 0.8476;
 	_epsc=0.72;
 	_epsi=_epsc;
-	_ntimes=91250; //TODO this is the time looking for a diagnosis?!  what unit?! days?
+	_epsb=0.89;
+        _tmax=25.;
 	_age=25;
 	_ncompartments=32;
 	_stop=10.39;//DP RAT
@@ -65,13 +66,11 @@ Data::Data(){
 	_hdlocation ="./";
 
 	//not relevant for the moment
-	_epsb=0.90;
-	_epsi=0.8476; // what value?
-	_p_csc=0;
-	_p_imm=0;
-	_treatment_rate=0.0;
-	_treatment=3.0;
-	_rcancer = 1.0;
+	// _p_csc=0;
+	// _p_imm=0;
+	// _treatment_rate=0.0;
+	// _treatment=3.0;
+	// _rcancer = 1.0;
 }
 
 
@@ -93,33 +92,28 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	_dt=T*pow(mass,0.25);	
 	
 	_age=(L*pow(mass,0.25));
-	_ntimes = int((365.0/_dt)*(L*pow(mass,0.25)));
+        _tmax=(L*pow(mass,0.25));
 	
 	_step=int(nummonth*(30./_dt)); //output per x months
 	
 	//are the same accross mamals or changd by command line
-	_rbase=1.263;
-	_epsh=0.8476;
+	_rbase=1.26;//TODO in paper 1.26// 1.263;
+	_epsh=0.85;//TODO in paper 0.85// 0.8476;
 	_epsc=0.72;
+	_epsb=0.89; //imatinib;
+	_epsi=_epsc;
 	_ncompartments=32;
 	_stop=12;//log value at diagnosis
 	_reduction = 3; //required log reduction
+	_treatment_rate=0.05;
 	_limit=7;
 	_additional=0;
 	_threshold = 0.2;
 	
-	//for storing data
-	_ofcompartment="iterresult.txt";
-	_offinal="mammal.txt";
-	_ofname = "result.txt";
-	_hdlocation ="./";
 
 	//not relevant for the moment TODO???
-	_epsb=0.89; //imatinib;
-	_epsi=_epsc;
-	_p_csc=0;
-	_p_imm=0;
-	_treatment_rate=0.05;
+	// _p_csc=0;
+	// _p_imm=0;
 	_treatment=3.0;
 	_rcancer = 1.0;
 }
@@ -135,7 +129,7 @@ Data::Data(const Data& other){
 	_frac_csc=other.frac_csc();
 	_numlsc = other.numlsc();
 	_treatment_rate=other.treatment_rate();
-	_ntimes=other.ntimes();
+        _tmax=other.getTmax_in_years();
 	_age=other.age();
 	_rbase=other.rbase();
 	_ncompartments=other.ncompartments();
@@ -143,11 +137,11 @@ Data::Data(const Data& other){
 	_reduction=other.reduction();
 	_N0=other.N0();
 	_tau=other.tau();
-	_limit=other.limit();
+	_limit=other.nstochcomp();
 	_threshold = other.threshold();
 	_additional=other.additional();
 	_step=other.step();
-	_treatment=other.treatment();
+	_treatment=other.treatment_dur();
 	_ofcompartment=other.ofcompartment();
 	_offinal=other.offinal();
 	_ofname = other.ofname();
@@ -163,7 +157,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    N0 " << _N0 << endl;
 	os << "    tau " << _tau << endl;
 	os << "    dt " << _dt << endl;
-	os << "    ntimes " << _ntimes << " iterations = " << _age << " years" << endl;
+	os << "    Tmax " << _tmax<<" iterations=" << _age << " years" << endl;
 	os << "  command line :: " << endl;
 	os << "    mass " << _mass << endl;
 	os << "    limit " << _limit << endl;

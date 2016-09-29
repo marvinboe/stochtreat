@@ -102,7 +102,12 @@ public:
 	void incr(unsigned k, unsigned t, double v);
 	void decr(unsigned k, unsigned t, double v);
 	
+        /** Stores all compartments cell counts.
+         * Stores the cell counts of all cell types in each compartment
+         * in the corresponding vector. !!!also sets the cell count 
+         * of each cell type in the deterministic compartments to zero!!!.*/
 	void memorize();
+
 	bool updateDet(unsigned k, Data& data);
 
         /** returns True if diagnosis is reached.*/

@@ -50,8 +50,11 @@ class Data {
 		void setRbase (double v) {_rbase = v;}
 		double N0() const {return _N0;}
 		void setN0(double v) {_N0 = v;}
+
+                /** TODO what is tau? */
 		double tau() const {return _tau;}
 		void setTau(double v) {_tau = v;}
+
 		double mass() const {return _mass;}
 		void setMass(double v) {_mass = v;}
 
@@ -112,15 +115,14 @@ class Data {
                 /** sets the percentage of cells that is affected by treatment. */
 		void set_treatment_rate(double v) {_treatment_rate = v;}
 		
-                /** sets the end time for no treatment runs. TODO unit and setting unclear.*/
-		int ntimes() const {return _ntimes;}
 
-		void setNtimes(int v) {_ntimes = v;}
 		double age() const {return _age;}
 		void setAge(double v) {_age=v;}
 		
+                /** returns the total number of compartments in the model. */
 		int ncompartments() const {return _ncompartments;}
 		void setNCompartments(int v) {_ncompartments = v;}
+
 		double stop() const {return _stop;}
 		void setStop(double v) {_stop = v;}
 		double reduction() const {return _reduction	;}
@@ -130,7 +132,7 @@ class Data {
 		void setAdditional(double a)  {_additional=a;}
 
                 /** returns the number of stochstic compartments */
-		int limit() const {return _limit;}
+		int nstochcomp() const {return _limit;}
 
                 /** Sets the number of stochastic compartments.*/
 		void setLimit(int l) {_limit = l;}
@@ -149,7 +151,13 @@ class Data {
 		string ofname() const {return _ofname;}
 
                 /** returns treatment time in years.*/
-		double treatment() const {return _treatment;}
+		double treatment_dur() const {return _treatment;}
+
+                /** Returns the maximum time a simulation runs in years.*/
+                double getTmax_in_years() const {return _tmax;}
+
+                /** Sets maximum simulation time. */
+                void setTmax(double v){_tmax=v;}
 
                 /** Sets treatment time in years(TODO?) that will be used 
                  * in the treatment phase of the simulation. */
@@ -179,7 +187,7 @@ class Data {
 		double _numlsc; //number of LSC
 		double _treatment_rate; //percentage of cells bound to imatinib
 		double _rbase; //basal metabolic rate
-		int _ntimes;  // number of maximum iteractions of the simulation (=duration)
+                double _tmax; // maximum simulation time in years
 		double _age; //maximum age TODO really?
 		int _ncompartments;  //number of compartmens in the hematopoeitic system
 		double _N0; //Numbe of cells in the stem cell compartment

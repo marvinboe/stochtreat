@@ -76,6 +76,7 @@ void IndexedQueue::init(RanGen& ran, AllReactions& all){
 			exit(0);
 		}
 	}
+        // all.print(std::cout);
 }
 
 IndexedQueue::~IndexedQueue(){

@@ -49,7 +49,7 @@ double Model::mylog(double p1, double base){
 
 
 
-Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(-1.){ //ns = 1 is alleen de stem cell Model
+Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(-1.){
 	assert(_numstoch > 0);
 	_numcomp = data.ncompartments()+1;
 	
@@ -484,63 +484,63 @@ std::istream& Model::read(std::istream& is){
 }
 
 void Model::memorize(){
-	for(unsigned k=0 ; k < _numcomp; ++k){
-		storeH(k,getH(k));
-		storeC(k,getC(k));
-		storeI(k,getI(k));
-		if(k>0)
-			storeB(k,getB(k));
-		if(k >= _numstoch){
-			setH(k, 0.0);
-			setC(k, 0.0);
-			setI(k, 0.0);
-			if(k>0)
-				setB(k,0.0);
-		}
-	}
+    for(unsigned k=0 ; k < _numcomp; ++k){
+        storeH(k,getH(k));
+        storeC(k,getC(k));
+        storeI(k,getI(k));
+        if(k>0)
+            storeB(k,getB(k));
+        if(k >= _numstoch){
+            setH(k, 0.0);
+            setC(k, 0.0);
+            setI(k, 0.0);
+            if(k>0)
+                setB(k,0.0);
+        }
+    }
 }
 
 
 bool Model::updateDet(unsigned k, Data& data){	
+    assert(k>=_numstoch);
+
     double p = data.dt() *getRate(k);
-    double prev_p = data.dt() *getRate(k-1); 
+    double prev_comp_p = data.dt() *getRate(k-1); 
+
+
     double prev_epsh = data.epsh(); 
-
-    //	cout << k-1 << " : " << getN(k-1) << "\t" << getH(k-1) << "\t" << getC(k-1) << endl;
-    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << retrieveN(k) << "\t" << retrieveH(k) << "\t" << retrieveC(k) << endl;
-    //	cout << p << "\t" << data.epsh() << "\t" << data.epsc() << endl;
-
-    if(k<=_numstoch){
-        //		cout << "#influx " << (2.0 * prev_epsh * prev_p * retrieveH(k-1)) << endl;
+    double prev_epsc = data.epsc();
+    double prev_epsi = data.epsi();
+    double prev_epsb = data.epsb();
+    if(k==_numstoch){
         prev_epsh = 0.0;
+        prev_epsc = 0.0;
+        prev_epsi = 0.0;
+        prev_epsb = 0.0;
     }
-    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_p * retrieveH(k-1)) + 
+
+    // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << endl;
+    // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << endl;
+    // std::cout <<p << " " << data.epsh() << " " << data.epsc() << endl;
+
+    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) + 
         (p * (1.0 - data.epsh()) * retrieveH(k)) - 
         (p * data.epsh() * retrieveH(k));
     //	cout << "#current H("<<k<<")=" << getH(k) << endl; 
     incr(k, H,tempH);
     //	cout << "#new H " << getH(k) << endl; 
 
-    double prev_epsc = data.epsc();
-    if(k<=_numstoch)
-        prev_epsc = 0.0;
-    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_p * retrieveC(k-1)) +
+    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1)) +
         (p * (1.0 - data.epsc()) * retrieveC(k)) -
         (p * data.epsc() * retrieveC(k));
     incr(k, C,tempC);
 
-    double prev_epsi = data.epsi();
-    if(k<=_numstoch)
-        prev_epsi = 0.0;
-    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_p * retrieveI(k-1)) +
+    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) +
         (p * (1.0 - data.epsi()) * retrieveI(k-1)) -
         (p * data.epsi() * retrieveI(k-1));
     incr(k, I, tempI);
 
-    double prev_epsb = data.epsb();
-    if(k<=_numstoch || k == 1 )
-        prev_epsb = 0.0;
-    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_p * ((k-1)>0?retrieveB(k-1):0.0)) +
+    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0)) +
         (p * (1.0 - data.epsb()) * retrieveB(k)) -
         (p * data.epsb() * retrieveB(k));
     incr(k, B,tempB);
@@ -549,11 +549,18 @@ bool Model::updateDet(unsigned k, Data& data){
 }
 
 bool Model::treatDeterministically(unsigned k, double amount){	
-	double ccells = getC(k);
-	double bcells = getB(k);
+	// double ccells = getC(k);
+	// double bcells = getB(k);
+	// double tmp = ccells * amount;
+	// setC(k, ccells - tmp);
+	// setB(k, bcells + tmp);
+
+        double ccells=retrieveC(k);
 	double tmp = ccells * amount;
-	setC(k, ccells - tmp);
-	setB(k, bcells + tmp);
+        // if (amount >0.)
+        //     std::cout <<"#treatment: "<<k<<" "<<tmp<<" "<<ccells<<std::endl;
+        incr(k,C,-tmp);
+        incr(k,B,tmp);
 	return true;
 }
 

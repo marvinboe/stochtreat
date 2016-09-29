@@ -235,6 +235,8 @@ public:
 	
 	double propSum() const {return _sumprop;}
 	void setPropSum(double v) { _sumprop = v;}
+
+        void print(std::ostream &);
 	
 	vector<Reaction*>::iterator begin() {return _all.begin();}
 	vector<Reaction*>::iterator end() {return _all.end();}

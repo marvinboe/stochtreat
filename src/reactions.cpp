@@ -212,12 +212,13 @@ MoranDifferentiation& MoranDifferentiation::operator=(const MoranDifferentiation
 
 
 ostream& Reaction::display(ostream& os){
+    os <<"["<< _r <<","<<_a<<","<<_ptime<<"] ";
     os << "{";
     os <<_comp_reactant<<":" <<_reactant<<" -> ";
     os <<_comp_product1<<":" <<_product1<<" + ";
     os <<_comp_product2<<":" <<_product2;
     os << "}[";
-    os << _a <<" - " << _intype << " - " << _ingraph;
+    os  << _intype << " - " << _ingraph;
     os << "]"<< "(" << _used << ")";
     return os;
 }
@@ -229,7 +230,7 @@ ostream& MoranReaction::display(ostream& os){
     os <<"2*"<<_comp_product1<<":" <<_product1<<" + ";
     os <<"2*"<<_comp_product2<<":" <<_product2;
     os << "}[";
-    os << _a <<" - " << _intype << " - " << _ingraph;
+    os << _intype << " - " << _ingraph;
     os << "]" << "(" << _used << ")";
     return os;
 }
@@ -238,7 +239,6 @@ bool Reaction::apply(Model& pool, double time){
     //Reaction format : Tp(k) -> Tp(k') + Tp(k'')
     //decrease reactants, increase products
     //	cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
-    //	//TODO there was a severe bug here, pool.retrieve was used instead of pool.get. Why?
     if(pool.get(reactantComp(), reactant()) > 0){
         //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << endl; 
         pool.decr(reactantComp(), reactant(),1);
@@ -382,5 +382,12 @@ unsigned int AllReactions::add(Reaction* r){
 
 Reaction* AllReactions::operator[](unsigned pos){
     return _all[pos];
+}
+
+void AllReactions::print(std::ostream & os){
+    std::cout <<"#list of all reactions [<rate>,<prop>,<ptime>] {reaction} [<type>-<dependID>](#)"<<std::endl;
+    for (unsigned r_id=0 ; r_id< _all.size(); ++r_id){
+        os << *_all[r_id]<<std::endl;
+    }
 }
 
