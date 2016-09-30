@@ -255,6 +255,12 @@ void Kernel::detUpdate(){
 double Kernel::execute(RanGen& ran, double t, bool treat){
 
     _time = (t*365.0); // _time is in the function expressed in days
+    double t_max=_data.getTmax_in_years()*365.;
+    double  _time_step = _data.dt();
+    if(treat) {
+        t_max=_time+_data.treatment_dur()*365.;
+    }
+    // std::cout <<"#timing debug: "<<_time<<" "<<t_max<<" "<<_data.getTmax_in_years()<<" "<<_data.treatment_dur()<<std::endl;
 
     if (treat) 
         _pool.setTreatRate(_data.treatment_rate());
@@ -267,22 +273,14 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
             _allr[r_id]->setRate(_pool.getTreatRate());
         }
     }
-
     reinitialize(_pool,ran,_time);
 
-    double  _time_step = _data.dt();
     //	cout << "##execute starts " << _time << endl;
     int iters =0.;// (int)ceil(_time / _data.dt());
-    double t_max=_data.getTmax_in_years()*365.-_time;
-
-    if(treat) {
-        t_max=_time+_data.treatment_dur()*365.;
-    }
-    std::cout <<"#timing debug: "<<_time<<" "<<t_max<<" "<<_data.getTmax_in_years()<<" "<<_data.treatment_dur()<<std::endl;
 
     double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
-    // std::cout <<"debug before: "<<_pool.diagnosis(_data)<<" "<<_pool.lastN()<<" "<<_pool.containsLSC()<<" "<<_pool.diseaseBurden()<<std::endl;
-    while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
+    // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
+    while(_time<t_max && (!treat && !_pool.diagnosis(_data))){
 
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
@@ -377,6 +375,12 @@ std::istream& Kernel::readModel(std::istream& input){
     return input;
 }
 
+void Kernel::reset_treatment(RanGen& ran,double t){
+
+    _pool.reset_treatment();
+    reinitialize(_pool,ran,t);
+
+}
 
 
 

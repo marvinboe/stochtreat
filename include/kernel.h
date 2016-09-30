@@ -48,6 +48,12 @@ public:
         /** Returns "true" if LSC is present in stem cell pool */
 	bool hasLSC();
 
+        /** sets the time (in years) until simulations  stop*/
+        void set_ntime(double t){ _data.setTmax(t);}
+
+        /** Makes all bound cells to cancer cells again*/
+        void reset_treatment(RanGen& ran,double t);
+
 	float burden();
 	void addStochCompSizes(double* data);
 

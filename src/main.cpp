@@ -17,12 +17,12 @@ int main (int argc, char *argv[]) {
     float treatmenttime (10);
     float mass(70); //human mass
     float reduction(4.5);
-    unsigned patients(2);
+    unsigned patients(1);
     double months(1); /**< TODO what is that? */
     double factor(1.0); /**< TODO what is that? */
     std::string path("./outinput/");
     std::string inpath(path);
-    double ntime(-1.0);
+    double ntime(25.);
     int output_specifier(0);
     bool treattest=false;
 
@@ -34,10 +34,10 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("treattime", "Years of treatment (default 10 year)", treatmenttime);
     parameters.SetValue("mass",	"animal mass (default 70 kg)",	mass);
     parameters.SetValue("reduction", "Required reduction level (default 4.5 logs)", reduction);
-    parameters.SetValue("patients", "Number of patients (default 2)", patients);
+    parameters.SetValue("patients", "Number of patients (default 1)", patients);
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
-    parameters.SetValue("ntime", "Maximum simulation time", ntime);
+    parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
     parameters.SetValue("output", "Specifiy kind of output", output_specifier);
     parameters.SetValue("treattest", "test the treatment", treattest);
 
@@ -134,9 +134,9 @@ int main (int argc, char *argv[]) {
             }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
-            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
             time=ker.execute(ran,time,true);
-            cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
 
 
             if(ker.reachedReduction()){
@@ -155,7 +155,9 @@ int main (int argc, char *argv[]) {
             }
             if (treattest){
 
-                time=ker.execute(ran,time,false);
+                ker.reset_treatment(ran,time);
+                // ker.set_ntime(time+10.);
+                time=ker.execute(ran,time,false); //look for diagnosis again
                 if(ker.reachedDiagnosis()) {
                     recurrence_count++;
                 }
@@ -194,6 +196,7 @@ int main (int argc, char *argv[]) {
     }//end loop over patients
 
     if (treattest||recurrence_run){
+        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <diagnosed w/o LSC>"<<std::endl;
         std::cout <<recurrence_count/double(no_recurrence_patients)
          <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " " << diagnosed_nolsc<< std::endl;
     }

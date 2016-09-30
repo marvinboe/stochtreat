@@ -94,6 +94,10 @@ public:
 	double retrieve(unsigned k, unsigned t);
 	void store(unsigned k, unsigned t, double v);
 
+
+        /** Makes all bound cells to cancer cells again*/
+        void reset_treatment();
+
         /** Returns actual number of cells in pool of type t and 
          * in compartment k. */
 	double get(unsigned k, unsigned t);

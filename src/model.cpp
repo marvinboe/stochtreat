@@ -500,6 +500,13 @@ void Model::memorize(){
     }
 }
 
+void Model::reset_treatment(){
+
+    for(unsigned k=1 ; k < _numcomp; ++k){
+        setC(k,getB(k));
+    }
+}
+
 
 bool Model::updateDet(unsigned k, Data& data){	
     assert(k>=_numstoch);
@@ -507,7 +514,10 @@ bool Model::updateDet(unsigned k, Data& data){
     double p = data.dt() *getRate(k);
     double prev_comp_p = data.dt() *getRate(k-1); 
 
-
+    double epsh = data.epsh(); 
+    double epsc = data.epsc();
+    double epsi = data.epsi();
+    double epsb = data.epsb();
     double prev_epsh = data.epsh(); 
     double prev_epsc = data.epsc();
     double prev_epsi = data.epsi();
@@ -523,26 +533,26 @@ bool Model::updateDet(unsigned k, Data& data){
     // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << endl;
     // std::cout <<p << " " << data.epsh() << " " << data.epsc() << endl;
 
-    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) + 
-        (p * (1.0 - data.epsh()) * retrieveH(k)) - 
-        (p * data.epsh() * retrieveH(k));
+    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
+        + (p * (1.0 - epsh) * retrieveH(k)) 
+        - (p * epsh * retrieveH(k));
     //	cout << "#current H("<<k<<")=" << getH(k) << endl; 
     incr(k, H,tempH);
     //	cout << "#new H " << getH(k) << endl; 
 
-    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1)) +
-        (p * (1.0 - data.epsc()) * retrieveC(k)) -
-        (p * data.epsc() * retrieveC(k));
+    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
+        + (p * (1.0 - epsc) * retrieveC(k))
+        - (p * epsc * retrieveC(k));
     incr(k, C,tempC);
 
-    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) +
-        (p * (1.0 - data.epsi()) * retrieveI(k-1)) -
-        (p * data.epsi() * retrieveI(k-1));
+    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
+        + (p * (1.0 - epsi) * retrieveI(k-1))
+        - (p * epsi * retrieveI(k-1));
     incr(k, I, tempI);
 
-    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0)) +
-        (p * (1.0 - data.epsb()) * retrieveB(k)) -
-        (p * data.epsb() * retrieveB(k));
+    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0))
+        + (p * (1.0 - epsb) * retrieveB(k))
+        - (p * epsb * retrieveB(k));
     incr(k, B,tempB);
     //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << endl;
     return true;
@@ -558,9 +568,10 @@ bool Model::treatDeterministically(unsigned k, double amount){
         double ccells=retrieveC(k);
 	double tmp = ccells * amount;
         // if (amount >0.)
-        //     std::cout <<"#treatment: "<<k<<" "<<tmp<<" "<<ccells<<std::endl;
+            // std::cout <<"#treatment: "<<k<<" "<<tmp<<" "<<ccells<<" "<<amount<<" "<<getC(k);
         incr(k,C,-tmp);
         incr(k,B,tmp);
+        // std::cout <<" "<<getC(k)<<std::endl;
 	return true;
 }
 
