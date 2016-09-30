@@ -156,7 +156,7 @@ int main (int argc, char *argv[]) {
             if (treattest){
 
                 ker.reset_treatment(ran,time);
-                // ker.set_ntime(time+10.);
+                ker.set_ntime(time+10.);
                 time=ker.execute(ran,time,false); //look for diagnosis again
                 if(ker.reachedDiagnosis()) {
                     recurrence_count++;

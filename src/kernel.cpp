@@ -280,7 +280,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 
     double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
     // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
-    while(_time<t_max && (!treat && !_pool.diagnosis(_data))){
+    while(_time<t_max &&  (treat || (!treat && !_pool.diagnosis(_data)))){
 
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
@@ -289,7 +289,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         //     _pool.print_cells(std::cout,_time);
         //     ++yearscounter;
         // }
-        _time += _time_step;  //TODO this must be called here, not at end of loop?!
+        _time += _time_step; 
         int reactions_count=0;
         double starttime_reacts=next_stoch;
         while(_time >= next_stoch)	{
