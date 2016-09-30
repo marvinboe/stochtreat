@@ -121,10 +121,17 @@ class Data {
 		
                 /** returns the total number of compartments in the model. */
 		int ncompartments() const {return _ncompartments;}
+                /** Sets the total number of compartments in the model. */
 		void setNCompartments(int v) {_ncompartments = v;}
 
+                /** Returns the threshold power of 10 when diagnosis is reached:
+                 * When 10^(stop) cells are in the compartment -> diagnosis. */
 		double stop() const {return _stop;}
+
+                /** Sets the threshold power of 10 when diagnosis is reached:
+                 * When 10^(stop) cells are in the compartment -> diagnosis. */
 		void setStop(double v) {_stop = v;}
+
 		double reduction() const {return _reduction	;}
 		void setReduction(double v) {_reduction = v;}
 

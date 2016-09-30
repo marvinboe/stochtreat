@@ -12,6 +12,7 @@
 
 #include <string>
 #include <istream>
+#include <cmath>
 #include <iostream>
 #include "data.h"
 #include "rangen.h"

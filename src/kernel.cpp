@@ -122,10 +122,11 @@ bool Kernel::nextMethod(RanGen& ran){
 
 void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
 
+    // std::cout <<"reinitialize debug: prev_t="<<prev_t<<std::endl;
     for (unsigned int r_id =0 ; r_id < _allr.size(); ++r_id){
         Reaction* rd=_allr[r_id];
         QueueElement* qed=_queue[r_id];
-        // std::cout <<"reinitialize "<<prev_t<<" "<<r_id<<" "<<_allr[r_id]->propensity()<<" " <<_allr[r_id]->rate()<<" "<<qed->tau()<<" "<<_allr[r_id]->reactantFactor(pool)<<" "; 
+        // std::cout <<r_id<<" "<<qed->tau()<<" "<<_allr[r_id]->propensity()<<" " <<_allr[r_id]->rate()<<" "<<_allr[r_id]->reactantFactor(pool)<<" "; 
         double next_estimate =numeric_limits<double>::infinity();
 
         if(!rd->sufficientReactants(_pool) && qed->tau() < numeric_limits<double>::infinity()){
@@ -157,6 +158,10 @@ void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
             }
             else 
                 next_estimate = (a_old / rd->propensity()) * (prevtau - t1) + t2;	
+            // if (next_estimate<0.){
+            //     std::cout <<std::endl<<"critical error in setting propensities: "<<next_estimate<<" "<<prevtau<<" "<<t1<<" "<<t2<<" "<<a_old<<" "<<rd->propensity()<<std::endl;
+            //     throw std::logic_error("critical error in setting propensities");
+            // }
 
             rd->setPutativeTime(next_estimate);
 
@@ -262,24 +267,26 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
     }
     // std::cout <<"#timing debug: "<<_time<<" "<<t_max<<" "<<_data.getTmax_in_years()<<" "<<_data.treatment_dur()<<std::endl;
 
+    //######turn treatment on or off
     if (treat) 
         _pool.setTreatRate(_data.treatment_rate());
     else
         _pool.setTreatRate(0.);
 
-    //turn treatment on or off
     for (unsigned int r_id=0; r_id< _allr.size(); ++r_id){
         if (_allr[r_id]->inType()==3){
             _allr[r_id]->setRate(_pool.getTreatRate());
         }
     }
     reinitialize(_pool,ran,_time);
+    //#####done switching treatment
 
     //	cout << "##execute starts " << _time << endl;
     int iters =0.;// (int)ceil(_time / _data.dt());
 
     double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
     // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
+
     while(_time<t_max &&  (treat || (!treat && !_pool.diagnosis(_data)))){
 
         //start new update
@@ -378,7 +385,7 @@ std::istream& Kernel::readModel(std::istream& input){
 void Kernel::reset_treatment(RanGen& ran,double t){
 
     _pool.reset_treatment();
-    reinitialize(_pool,ran,t);
+    reinitialize(_pool,ran,t*365.);
 
 }
 

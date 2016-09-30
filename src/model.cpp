@@ -32,18 +32,20 @@ double Model::mylog(double p1, double base){
 	if(p1<=0)
 		return 0.0;
 	else {
-		gsl_sf_result logp1,logbase;
-		int status_p1=gsl_sf_log_e(p1,&logp1);
-		if(status_p1 != GSL_SUCCESS){
-			cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << endl;
-			exit(-1);
-		}
-		int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
-		if(status_base != GSL_SUCCESS){
-			cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << endl;
-			exit(-1);
-		}
-		return logp1.val/logbase.val;
+            return std::log(p1)/std::log(base);
+            //TODO why this complex function below?
+		// gsl_sf_result logp1,logbase;
+		// int status_p1=gsl_sf_log_e(p1,&logp1);
+		// if(status_p1 != GSL_SUCCESS){
+		// 	cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << endl;
+		// 	exit(-1);
+		// }
+		// int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
+		// if(status_base != GSL_SUCCESS){
+		// 	cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << endl;
+		// 	exit(-1);
+		// }
+		// return logp1.val/logbase.val;
 	}
 }
 
@@ -503,7 +505,10 @@ void Model::memorize(){
 void Model::reset_treatment(){
 
     for(unsigned k=1 ; k < _numcomp; ++k){
-        setC(k,getB(k));
+        // std::cout <<"before: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+        incr(k,C,getB(k));
+        setB(k,0);
+        // std::cout <<"after: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
     }
 }
 
