@@ -74,10 +74,11 @@ int main (int argc, char *argv[]) {
     bool recurrence_run=false;
     int no_recurrence_patients=0;
     unsigned recurrence_count=0;
+    unsigned nolsc_recurrence_count=0;
+    bool nolsc_treattest=false;
     for (int i=0; i< size+1; i++) {
         avgsize[i]=0.0;
     }
-
 
     clock_t timer=clock();
     vector<unsigned> redresult;
@@ -122,8 +123,12 @@ int main (int argc, char *argv[]) {
             if (treattest) no_recurrence_patients++;
 
             total_diagnosis_time += time;
-            if(!ker.hasLSC())
+            if(!ker.hasLSC()){
                 diagnosed_nolsc +=1;
+                if (treattest){
+                    nolsc_treattest=true;
+                }
+            }
 
             if (recurrence_run){
                 if (output_specifier==1){
@@ -160,7 +165,10 @@ int main (int argc, char *argv[]) {
                 time=ker.execute(ran,time,false); //look for diagnosis again
                 if(ker.reachedDiagnosis()) {
                     recurrence_count++;
+                    if (nolsc_treattest) 
+                        nolsc_recurrence_count++;
                 }
+                nolsc_treattest=false;
             }
             //			cout << "Reduction is " << ker.getReduction() << endl;
             //
@@ -195,10 +203,10 @@ int main (int argc, char *argv[]) {
 
     }//end loop over patients
 
-    if (treattest||recurrence_run){
-        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <diagnosed w/o LSC>"<<std::endl;
+    if (treattest){
+        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         std::cout <<recurrence_count/double(no_recurrence_patients)
-         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " " << diagnosed_nolsc<< std::endl;
+         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " "<<nolsc_recurrence_count/double(diagnosed_nolsc)<<" "<<nolsc_recurrence_count <<" "<< diagnosed_nolsc<< std::endl;
     }
 
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-timer)/CLOCKS_PER_SEC << std::endl;
