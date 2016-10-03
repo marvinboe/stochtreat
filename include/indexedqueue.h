@@ -37,6 +37,7 @@ public:
 	double tau() const {return _tau;}
 	void setTau(double tau) {_tau=tau;}
 	unsigned queueLoc() const {return _queloc;}
+        /** set location of queue element to l*/
 	void setQueueLoc(unsigned l) { _queloc = l;}
 	
 	
@@ -86,13 +87,18 @@ public:
 	QueueElement* operator[](int location) {return _indices[location];}
 
 	void update(int index) {_pqueue.update(index);}
+
+        
+        void init(RanGen& ran, AllReactions & all);
 	
 	void printQ() {_pqueue.print();} 
 	
 protected:
 	QL_Compare _compare;
 	QL_swap _swap;
+        /** this is the queue which internally uses a heap.*/
 	PriorityQueue<QueueElement*,QL_Compare, QL_swap> _pqueue;
+        /** Stores all queue elements with index.*/
 	vector<QueueElement*> _indices;
 	QueueElement* _sentinel;
 };

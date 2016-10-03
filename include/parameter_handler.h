@@ -35,8 +35,6 @@
 
 const char* const DEFAULT_PARAMETER_FILE = "parameters.dat";
 
-const int MAX_LENGHT_OF_PARAMETER=1024;     //the name of a parameter can only have this amount of characters
-
 class ParameterHandler {
 public:
     ParameterHandler();
@@ -106,6 +104,8 @@ public:
     double ReturnDouble(const char* parameter_name);
     bool ReturnBool(const char* parameter_name);
     void PrintAll();
+
+    void print_help(std::ostream & os);
    
 private:
 
@@ -121,6 +121,8 @@ private:
     std::map<std::string,std::string> parameters;
 
     std::map<std::string,std::string> keys_and_help;
+
+    bool help;
     
     
     bool ParseString(std::string input,s_parameter &new_parameter);

@@ -3,4 +3,7 @@ build/
 doc/
 stochtreat
 seed.out
+cscope.out
 tags
+outinput/
+.ycm*

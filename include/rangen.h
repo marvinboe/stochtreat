@@ -1,7 +1,6 @@
 #ifndef __RANGEN_H_
 #define __RANGEN_H_
 
-using namespace std;
 
 class RanGen {
 	public:
