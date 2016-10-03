@@ -12,8 +12,8 @@
 DependencyNode::DependencyNode(const DependencyNode& other){
     _affecting.clear();
     _idx = other.reaction();
-    vector<DependencyNode*>::const_iterator start = other.begin();
-    vector<DependencyNode*>::const_iterator stop = other.end();
+    std::vector<DependencyNode*>::const_iterator start = other.begin();
+    std::vector<DependencyNode*>::const_iterator stop = other.end();
     while(start !=stop){
         affects(*start);
         ++start;
@@ -23,8 +23,8 @@ DependencyNode::DependencyNode(const DependencyNode& other){
 DependencyNode& DependencyNode::operator=(const DependencyNode& other){
     _affecting.clear();
     _idx =other.reaction();
-    vector<DependencyNode*>::const_iterator start = other.begin();
-    vector<DependencyNode*>::const_iterator stop = other.end();
+    std::vector<DependencyNode*>::const_iterator start = other.begin();
+    std::vector<DependencyNode*>::const_iterator stop = other.end();
     while(start !=stop){
         affects(*start);
         ++start;
@@ -32,7 +32,7 @@ DependencyNode& DependencyNode::operator=(const DependencyNode& other){
     return *this;
 }
 
-ostream& DependencyNode::display(ostream& os){
+std::ostream& DependencyNode::display(std::ostream& os){
     os << "<" << _idx << "|"<< _affecting.size()<<"|";
     for(unsigned i=0; i< _affecting.size(); ++i){
         unsigned tmp =  _affecting[i]->reaction();
@@ -107,11 +107,9 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             self->setDG(SELF_RENEWAL,pos);
             pos=add(DIFFERENTATION,diffnode);
             diff->setDG(DIFFERENTATION, pos);	
-            //			cout << "Self renewal, K=" << k << ", reaction " << *self << endl;
-            //			cout << "Differentiation, K=" << k << ", reaction " << *diff << endl;
         }
 
-        pos=add(TREATMENT,treatnode);//add treatment node to vector
+        pos=add(TREATMENT,treatnode);//add treatment node to std::vector
         treat->setDG(TREATMENT,pos);
     }
     //add reactions for the stem cell compartment:
@@ -126,12 +124,12 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
         //		cout << "# stem cell renewal : " << *scr << "\t propensity " << <<endl;
 
         scrnode->affects(scrnode);
-        //		cout << "#added loop dependency \n";
 
-        if (_selfnodes.size() > 0 && _diffnodes.size() > 0){//TODO if first condition is true, other one automatically
-            DependencyNode *nexttreat=get(TREATMENT,0); //TODO really needed for all types?
+        if (_selfnodes.size() > 0 && _diffnodes.size() > 0){
+            //Stem Cell reaction moves random cell to next comp. -> adding links to all other cell types
+            DependencyNode *nexttreat=get(TREATMENT,0);
             scrnode->affects(nexttreat);
-            for(int second_type = 0; second_type < 3; ++second_type) { //TODO why adding links to all cell types???
+            for(int second_type = 0; second_type < 3; ++second_type) {
                 DependencyNode *nextself, *nextdiff;
                 nextself = get(SELF_RENEWAL,second_type); 
                 nextdiff = get(DIFFERENTATION,second_type);
@@ -140,7 +138,6 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
                 scrnode->affects(nextdiff);
                 //				cout << *(all[scrnode->reaction()]) << "is linked to " << *(all[nextdiff->reaction()]) << endl;
             }
-            //			cout << "#added all dependencies between stem cell reactions and those in the next compartment\n";
         }
 
     }
@@ -163,34 +160,34 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
 }
 
 
-ostream& DependencyGraph::display(ostream& os){
-    os << "DependencyGraph [" << endl << "Moran reactions";
-    vector<DependencyNode*>::iterator startmoran = _morannodes.begin();
-    vector<DependencyNode*>::iterator stopmoran = _morannodes.end();
+std::ostream& DependencyGraph::display(std::ostream& os){
+    os << "DependencyGraph [" << std::endl << "Moran reactions";
+    std::vector<DependencyNode*>::iterator startmoran = _morannodes.begin();
+    std::vector<DependencyNode*>::iterator stopmoran = _morannodes.end();
     while(startmoran !=stopmoran){
-        os << endl << **startmoran;
+        os << std::endl << **startmoran;
         ++startmoran;
     }
-    os << endl<< "Selfrenewal";
-    vector<DependencyNode*>::iterator startself = _selfnodes.begin();
-    vector<DependencyNode*>::iterator stopself = _selfnodes.end();
+    os << std::endl<< "Selfrenewal";
+    std::vector<DependencyNode*>::iterator startself = _selfnodes.begin();
+    std::vector<DependencyNode*>::iterator stopself = _selfnodes.end();
     while(startself !=stopself){
-        os << endl << **startself;
+        os << std::endl << **startself;
         ++startself;
     }
-    os << endl << "Differentiation";
-    vector<DependencyNode*>::iterator startdiff = _diffnodes.begin();
-    vector<DependencyNode*>::iterator stopdiff = _diffnodes.end();
+    os << std::endl << "Differentiation";
+    std::vector<DependencyNode*>::iterator startdiff = _diffnodes.begin();
+    std::vector<DependencyNode*>::iterator stopdiff = _diffnodes.end();
     while(startdiff !=stopdiff){
-        os << endl << **startdiff;
+        os << std::endl << **startdiff;
         ++startdiff;
     }
 
-    os << endl << "Treatment";
-    vector<DependencyNode*>::iterator treat_it = _treatnodes.begin();
-    vector<DependencyNode*>::iterator stoptreat = _treatnodes.end();
+    os << std::endl << "Treatment";
+    std::vector<DependencyNode*>::iterator treat_it = _treatnodes.begin();
+    std::vector<DependencyNode*>::iterator stoptreat = _treatnodes.end();
     while(treat_it !=stoptreat){
-        os << endl << **treat_it;
+        os << std::endl << **treat_it;
         ++treat_it;
     }
     os << "]"<<std::endl;

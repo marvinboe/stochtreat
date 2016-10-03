@@ -37,12 +37,12 @@ double Model::mylog(double p1, double base){
 		// gsl_sf_result logp1,logbase;
 		// int status_p1=gsl_sf_log_e(p1,&logp1);
 		// if(status_p1 != GSL_SUCCESS){
-		// 	cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << endl;
+		// 	cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << std::endl;
 		// 	exit(-1);
 		// }
 		// int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
 		// if(status_base != GSL_SUCCESS){
-		// 	cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << endl;
+		// 	cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << std::endl;
 		// 	exit(-1);
 		// }
 		// return logp1.val/logbase.val;
@@ -104,39 +104,6 @@ Model::Model(Data data,std::istream & is):_diagnosis(0),_nolsctime(-1.){
 	_rates = new double[_numcomp];
 	
         read(is);
-
-
-	// //initialize Model: 1. Stem Cell compartment
-	// setH(0,data.N0());
-	// setC(0,0);
-	// setI(0,0);//initially no resistant mutants
-	// setRate(0, 1.0/data.tau());
-	// storeH(0,0);
-	// storeC(0,0);
-	// storeI(0,0);
-	//
-	//
-	// //initialize Model: 2. other compartments
-	// double gamma =( (2.0*data.epsh()) / (2.0*data.epsh() - 1.0) ) / data.rbase();
-	// for(unsigned k=1; k < _numcomp; ++k){
-	// 	double tempHk=getH(k-1)*gamma;
-	// 	if(k == 1)
-	// 		tempHk*=(1.0/ (2.0*data.epsh()));
-	// 	double Hk=myround(tempHk);
-	// 	setH(k,Hk);
-	// 	setC(k,0);
-	// 	setI(k,0);
-	// 	setB(k,0);
-	// 	storeH(k,0);
-	// 	storeC(k,0);
-	// 	storeI(k,0);
-	// 	storeB(k,0);
-	// 	
-	// 	setRate(k, getRate(k-1)*data.rbase());
-	// }
-	// //initialize CML
-	// setH(0, getH(0)-data.numlsc());
-	// setC(0, data.numlsc());
 }
 
 Model::Model(const Model& other){
@@ -441,7 +408,7 @@ void Model::store(unsigned k, unsigned t, double v){
 	}
 }
 
-ostream& Model::display(ostream& os){
+std::ostream& Model::display(std::ostream& os){
     os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
         os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
@@ -449,12 +416,12 @@ ostream& Model::display(ostream& os){
         if (k>0) os  <<" "<< getB(k);
         os << std::endl; 
     }
-    os << "# " << _numstoch << endl;
-    os << "# " << _numcomp << endl;
-    os << "# " << _alpha << endl;
-    os << "# " << _diagnosis << endl;
-    os << "# " << getReduction() << endl;
-    os << "# " << when() << endl;
+    os << "# " << _numstoch << std::endl;
+    os << "# " << _numcomp << std::endl;
+    os << "# " << _alpha << std::endl;
+    os << "# " << _diagnosis << std::endl;
+    os << "# " << getReduction() << std::endl;
+    os << "# " << when() << std::endl;
     return os;
 }
 
@@ -534,16 +501,16 @@ bool Model::updateDet(unsigned k, Data& data){
         prev_epsb = 0.0;
     }
 
-    // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << endl;
-    // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << endl;
-    // std::cout <<p << " " << data.epsh() << " " << data.epsc() << endl;
+    // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << std::endl;
+    // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << std::endl;
+    // std::cout <<p << " " << data.epsh() << " " << data.epsc() << std::endl;
 
     double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
         + (p * (1.0 - epsh) * retrieveH(k)) 
         - (p * epsh * retrieveH(k));
-    //	cout << "#current H("<<k<<")=" << getH(k) << endl; 
+    //	cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
     incr(k, H,tempH);
-    //	cout << "#new H " << getH(k) << endl; 
+    //	cout << "#new H " << getH(k) << std::endl; 
 
     double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
         + (p * (1.0 - epsc) * retrieveC(k))
@@ -559,7 +526,7 @@ bool Model::updateDet(unsigned k, Data& data){
         + (p * (1.0 - epsb) * retrieveB(k))
         - (p * epsb * retrieveB(k));
     incr(k, B,tempB);
-    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << endl;
+    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << std::endl;
     return true;
 }
 
@@ -593,7 +560,7 @@ bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){
     if (changed){
         setC(k, ccells - tmp);
         setB(k, bcells + tmp);
-        		// cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << endl;
+        		// cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << std::endl;
     }
     return changed;	
 }
@@ -601,7 +568,7 @@ bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){
 
 bool Model::diagnosis(Data& data){
 	// double res = mylog(getN(_numcomp-1),10);
-	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << endl;
+	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << std::endl;
 	return mylog(lastN(),10)>= data.stop();
 }
 
@@ -624,7 +591,7 @@ void Model::calcAlpha(){
 	double NB=lastB();
 	double NH=lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
-//	cout << "Alpha = " << _alpha << endl;
+//	cout << "Alpha = " << _alpha << std::endl;
 }
 
 double Model::diseaseBurden(){
@@ -632,7 +599,7 @@ double Model::diseaseBurden(){
 	double NB=lastB();
 	double NH=lastH();
 	double burden = (_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
-//	cout << burden << endl;
+//	cout << burden << std::endl;
 	return burden;
 }
 

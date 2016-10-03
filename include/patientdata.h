@@ -16,12 +16,11 @@
 #include <vector>
 #include "model.h"
 
-using namespace std;
 
 
 class PatientData {
 public:
-	PatientData(string str, int p);
+	PatientData(std::string str, int p);
 	PatientData(const PatientData&);
 	
 	unsigned sizeData() const {return (unsigned)_data.size();} // should be the same as the timepoints size
@@ -60,34 +59,34 @@ public:
 	
 	PatientData& operator=(const PatientData& other);
 	
-	friend ostream & operator<<(ostream &o, PatientData& pd){return pd.display(o);}
+	friend std::ostream & operator<<(std::ostream &o, PatientData& pd){return pd.display(o);}
 	
 private:
-	ostream& display(ostream&);
-	void tokenize(const string& str, vector<string>& tokens, const string& delimiters="\t ");
-	void processTimepoints(vector<string>& tokens, int p);
-	void processPatientdata(vector<string>& tokens, int p);
-	void processData(vector<string>& tokens, int p);
-	void transformAllData(vector< vector<float> >& transformed);
+	std::ostream& display(std::ostream&);
+	void tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters="\t ");
+	void processTimepoints(std::vector<std::string>& tokens, int p);
+	void processPatientdata(std::vector<std::string>& tokens, int p);
+	void processData(std::vector<std::string>& tokens, int p);
+	void transformAllData(std::vector< std::vector<float> >& transformed);
 	void calculateStatistics();
-	void parseBuffer(stringstream& ss);
-	void readBinaryFile(istream& is);
+	void parseBuffer(std::stringstream& ss);
+	void readBinaryFile(std::istream& is);
 	
 	unsigned _patient;
-	vector<float> _timepoints;
-	vector<float> _data;
-	vector<float> _estimate;
-	vector<float> _monthly;
+	std::vector<float> _timepoints;
+	std::vector<float> _data;
+	std::vector<float> _estimate;
+	std::vector<float> _monthly;
 	
-	vector<float> _fquartile;
-	vector<float> _tquartile;
-	vector<float> _min;
-	vector<float> _max;
-	vector<float> _median;
+	std::vector<float> _fquartile;
+	std::vector<float> _tquartile;
+	std::vector<float> _min;
+	std::vector<float> _max;
+	std::vector<float> _median;
 	unsigned _lasttime;
 	float _lastmonth;
 	//temporary variable
-	vector< vector<float> > _alldata;
+	std::vector< std::vector<float> > _alldata;
 	
 };
 

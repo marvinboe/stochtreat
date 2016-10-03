@@ -19,7 +19,6 @@
 #include "model.h"
 #include "rangen.h"
 
-using namespace std;
 
 class Reaction { //X0 ->X0 + X1 or X0 -> X0 + X0
 public:
@@ -97,7 +96,7 @@ public:
 	void resetUsed() {_used = 0;}
 
 	virtual Reaction& operator=(const Reaction& other);
-	friend ostream & operator<<(ostream &o, Reaction& r){return r.display(o);}
+	friend std::ostream & operator<<(std::ostream &o, Reaction& r){return r.display(o);}
 	
         /** applies this reaction to the stem cell pool.
          * returns true if lsc vanished. */
@@ -109,7 +108,7 @@ public:
 	
 	
 protected:
-	virtual ostream& display(ostream& os);
+	virtual std::ostream& display(std::ostream& os);
 	unsigned int _comp_reactant;
 	unsigned int _reactant;
 	unsigned int _comp_product1;
@@ -121,7 +120,7 @@ protected:
 	double _ptime; // exponential function _a * exp (- (time*sum_a)) * dt
 	double _lasta;
 	double _lastptime;
-	double _time_zero; //TODO what is this?
+	double _time_zero; // < timepoint when propensity reached zero
 	unsigned _intype;
 	unsigned _ingraph;
 	unsigned _used;
@@ -188,7 +187,7 @@ public:
 //	virtual double reactantFactor(Model& pool);
 	
 protected:
-	virtual ostream& display(ostream& os);
+	virtual std::ostream& display(std::ostream& os);
 	unsigned int _comp_reactant2;
 	unsigned int _reactant2;
 };
@@ -238,13 +237,13 @@ public:
 
         void print(std::ostream &);
 	
-	vector<Reaction*>::iterator begin() {return _all.begin();}
-	vector<Reaction*>::iterator end() {return _all.end();}
-	vector<Reaction*>::const_iterator begin() const{return _all.begin();}
-	vector<Reaction*>::const_iterator end() const {return _all.end();}
+        std::vector<Reaction*>::iterator begin() {return _all.begin();}
+        std::vector<Reaction*>::iterator end() {return _all.end();}
+        std::vector<Reaction*>::const_iterator begin() const{return _all.begin();}
+        std::vector<Reaction*>::const_iterator end() const {return _all.end();}
 	
 protected:
-	vector<Reaction*> _all;
+        std::vector<Reaction*> _all;
 	double _sumprop;
 };
 

@@ -17,7 +17,6 @@
 #include "data.h"
 #include "rangen.h"
 
-using namespace std;
 
 enum celltypes {H=0,C,I,B}; //H=healthy, C=cancer, I=resitant to TKI and B=Bound to TKI.
 
@@ -69,30 +68,30 @@ public:
 	double lastI() const {return getI(_numcomp-1);}
 	double lastB() const {return getB(_numcomp-1);}
 	
-        /** returns the time of diagnosis.  */
+        /** Returns the time of diagnosis.*/
 	double diagRes() const {return _diagnosis;}
 
-        /** sets the time of diagnosis.  */
+        /** Sets the time of diagnosis.*/
 	void setDiagRes(double v) {_diagnosis = v;}
 
-        /** return time of CML reduction (in years?!). */
+        /** Returns time of CML reduction. */
 	double when() const {return _when;}
-
+        /** Sets the time when reduction is reached. */
 	void setWhenReduction(double v) {_when = v;}
 
         /** set time when LSCvanished.  */
         void setWhenLSCvanished(double t) {_nolsctime=t;}
-
         /** check if LSC is in pool, otherwise save time.  */
         void check_LSCvanished(double t);
 	
-	friend ostream & operator<<(ostream &o, Model& p){return p.display(o);}
+	friend std::ostream & operator<<(std::ostream &o, Model& p){return p.display(o);}
 	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
 
-        /** Returns the number of cells of type t in compartment k
-         * that are stored into previous container.*/
+        /** Returns the number of cells of type t in compartment k after last deterministic
+         * time step. Returns values from _previous container.*/
 	double retrieve(unsigned k, unsigned t);
+        /** Sets the number of cells of type t in compartment k in _previous container.*/
 	void store(unsigned k, unsigned t, double v);
 
 
@@ -103,8 +102,11 @@ public:
          * in compartment k. */
 	double get(unsigned k, unsigned t);
 
+        /** Sets number of cells of type t in compartment k to v.*/
 	void set(unsigned k, unsigned t, double v);
+        /** Increments number of cells of type t in compartment k by v.*/
 	void incr(unsigned k, unsigned t, double v);
+        /** Decrements number of cells of type t in compartment k by v.*/
 	void decr(unsigned k, unsigned t, double v);
 	
         /** Stores all compartments cell counts.
@@ -126,26 +128,25 @@ public:
 	bool treatDeterministically(unsigned k, double amount);
 	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
-        /** get time when LSCvanished.
-         */
+        /** get time when LSCvanished.  */
         double get_nolsctime() {return _nolsctime;}
 	
-        /** calculates alpha from cell numbers TODO what is that? */
+        /** Calculates alpha from cell numbers. Required to 
+         * calculate reduction of disease burden later.*/
 	void calcAlpha();
 	double getAlpha() const {return _alpha;}
 	
 	double diseaseBurden();
 
         /** print cell numbers.
-         * <HSC> <LSC>
-         */
+         * <HSC> <LSC> */
         void print_cells(std::ostream &,double _time);
 	
 private:
 	double myround(double val);
 	double mylog(double p1, double base);
 
-	ostream& display(ostream&);
+        std::ostream& display(std::ostream&);
         std::istream& read(std::istream& is);
 
 	unsigned int _endstoch;

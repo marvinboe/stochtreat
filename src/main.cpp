@@ -18,8 +18,7 @@ int main (int argc, char *argv[]) {
     float mass(70); //human mass
     float reduction(4.5);
     unsigned patients(1);
-    double months(1); /**< TODO what is that? */
-    double factor(1.0); /**< TODO what is that? */
+    double months(1); //how often output is written
     std::string path("./outinput/");
     std::string inpath(path);
     double ntime(25.);
@@ -45,10 +44,11 @@ int main (int argc, char *argv[]) {
 
 
 
-    double Nbase(16.52861491); // TODO what is that? */
-    double Bbase(2.892507609); // TODO what is that? */
-    double Sbase(0.034572078); // TODO what is that? */
-    double Lbase(8.643019616); //elephant 8.54663017, human 8.643019616
+    double Nbase(16.52861491); // Number of HSCs=Nbase*mass^(0.75)
+    double Bbase(2.892507609); // division rate HSC: 1/tau; tau = 365.0/(Bbase*pow(mass,-0.25))
+    double Sbase(0.034572078); // deterministic timestep dt=Sbase*pow(mass,0.25)
+    double Lbase(8.643019616); // maximum simulation time Tmax=(Lbase*pow(mass,0.25)); elephant 8.54663017, human 8.643019616
+    double factor(1.0); // maximum simulation time factor
 
     RanGen ran;
     Data data;
@@ -56,7 +56,7 @@ int main (int argc, char *argv[]) {
     if (ntime > 0.){ //non-default
         data.setTmax(ntime);
     }
-    data.set_treatment_rate(0.05); //sets the rate (?) of treatment (TODO per day?)
+    data.set_treatment_rate(0.05); //sets the rate of new bound cell under treatment (per day)
     data.setStop(12); // Diagnosis limit
     data.setReduction(reduction); //treatment stop 
     data.setLimit(size);
@@ -132,7 +132,7 @@ int main (int argc, char *argv[]) {
 
             if (recurrence_run){
                 if (output_specifier==1){
-                    std::cout << ker.getDiagnosis() << "  " 
+                    std::cout << ker.getDiagnosisTime() << "  " 
                         << ker.get_nolsctime() << endl;
                 }
                 continue; // end this if we only check for recurrence
@@ -146,12 +146,12 @@ int main (int argc, char *argv[]) {
 
             if(ker.reachedReduction()){
                 reachedreduction +=1;
-                timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
+                timetoreduction=(ker.whenReduction() - ker.getDiagnosisTime());
                 total_timetoreduction +=timetoreduction;
-                redresult.push_back(ker.whenReduction() - ker.getDiagnosis());
+                redresult.push_back(ker.whenReduction() - ker.getDiagnosisTime());
                 if (output_specifier==3){
                     cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
-                        << ker.getDiagnosis() << "  " 
+                        << ker.getDiagnosisTime() << "  " 
                         << timetoreduction << "  "
                         << ker.whenReduction() << " "
                         << ker.get_nolsctime() << endl;
@@ -191,13 +191,13 @@ int main (int argc, char *argv[]) {
             cout  << ker.get_nolsctime() << endl;
         }
         else if (output_specifier==2){
-            std::cout << ker.getDiagnosis() << "  " 
+            std::cout << ker.getDiagnosisTime() << "  " 
                 << timetoreduction << "  "
                 << ker.whenReduction() << " "
                 << ker.get_nolsctime() << endl;
         }
         if (recurrence_run&&output_specifier==1){
-            std::cout << ker.getDiagnosis() << "  " 
+            std::cout << ker.getDiagnosisTime() << "  " 
                 << ker.get_nolsctime() << endl;
         }
 

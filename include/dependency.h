@@ -29,7 +29,7 @@ class DependencyNode {
         }
         DependencyNode& operator=(const DependencyNode& other);
 
-        /** returns index of reaction? TODO */
+        /** returns index of reaction in list of all reactions. */
         unsigned reaction() const {return _idx;}
 
         /** adds pointer to other DependencyNode to _affecting std::vector.*/
@@ -37,16 +37,16 @@ class DependencyNode {
             _affecting.push_back(other);
         }
 
-        vector<DependencyNode*>::iterator begin() {return _affecting.begin();}
-        vector<DependencyNode*>::iterator end() {return _affecting.end();}
-        vector<DependencyNode*>::const_iterator begin() const {return _affecting.begin();}
-        vector<DependencyNode*>::const_iterator end() const {return _affecting.end();}
-        friend ostream & operator<<(ostream &o, DependencyNode& dn){return dn.display(o);}
+        std::vector<DependencyNode*>::iterator begin() {return _affecting.begin();}
+        std::vector<DependencyNode*>::iterator end() {return _affecting.end();}
+        std::vector<DependencyNode*>::const_iterator begin() const {return _affecting.begin();}
+        std::vector<DependencyNode*>::const_iterator end() const {return _affecting.end();}
+        friend std::ostream & operator<<(std::ostream &o, DependencyNode& dn){return dn.display(o);}
 
     protected:
-        ostream& display(ostream& os);
-        unsigned _idx;
-        vector<DependencyNode*> _affecting;
+        std::ostream& display(std::ostream& os);
+        unsigned _idx; /** < index in list of all reactions. */
+        std::vector<DependencyNode*> _affecting;
 };
 
 enum reaction_type {MORAN=0,SELF_RENEWAL,DIFFERENTATION,TREATMENT};
@@ -132,14 +132,14 @@ class DependencyGraph {
             return 999;
         }
 
-        friend ostream & operator<<(ostream &o, DependencyGraph& dg){return dg.display(o);}
+        friend std::ostream & operator<<(std::ostream &o, DependencyGraph& dg){return dg.display(o);}
 
     private:
-        ostream& display(ostream& os);
-        vector<DependencyNode*> _morannodes;
-        vector<DependencyNode*> _selfnodes;
-        vector<DependencyNode*> _diffnodes;
-        vector<DependencyNode*> _treatnodes;
+        std::ostream& display(std::ostream& os);
+        std::vector<DependencyNode*> _morannodes;
+        std::vector<DependencyNode*> _selfnodes;
+        std::vector<DependencyNode*> _diffnodes;
+        std::vector<DependencyNode*> _treatnodes;
 };
 
 

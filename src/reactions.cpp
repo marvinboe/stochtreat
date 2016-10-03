@@ -211,7 +211,7 @@ MoranDifferentiation& MoranDifferentiation::operator=(const MoranDifferentiation
 }
 
 
-ostream& Reaction::display(ostream& os){
+std::ostream& Reaction::display(std::ostream& os){
     os <<"["<< _r <<","<<_a<<","<<_ptime<<"] ";
     os << "{";
     os <<_comp_reactant<<":" <<_reactant<<" -> ";
@@ -223,7 +223,7 @@ ostream& Reaction::display(ostream& os){
     return os;
 }
 
-ostream& MoranReaction::display(ostream& os){
+std::ostream& MoranReaction::display(std::ostream& os){
     os << "{";
     os <<_comp_reactant<<":" <<_reactant<<" + ";
     os <<_comp_reactant2<<":" <<_reactant2<<" -> ";
@@ -238,13 +238,13 @@ ostream& MoranReaction::display(ostream& os){
 bool Reaction::apply(Model& pool, double time){
     //Reaction format : Tp(k) -> Tp(k') + Tp(k'')
     //decrease reactants, increase products
-    //	cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+    //	cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << std::endl;
     if(pool.get(reactantComp(), reactant()) > 0){
-        //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << endl; 
+        //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << std::endl; 
         pool.decr(reactantComp(), reactant(),1);
         pool.incr(product1Comp(), product1(),1);
         pool.incr(product2Comp(), product2(),1);
-        //		cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << endl;
+        //		cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]" << std::endl;
         this->incrUsed();
         return false; 
     }
@@ -259,13 +259,13 @@ bool Treatment::apply(Model& pool, double time){
     //Reaction format : Tp(k) -> Tp(k')
     //decrease reactant, increase product
     // cout << "before[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) 
-    // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << endl;
+    // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << std::endl;
     if(pool.get(reactantComp(), reactant()) > 0){
-        //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << endl; 
+        //		if(reactant() == C) cout << "#reaction on C " << pool.getC(reactantComp()) << std::endl; 
         pool.decr(reactantComp(), reactant(),1);
         pool.incr(product1Comp(), product1(),1);
         // cout << "after[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) 
-        // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << endl;
+        // <<"|"<<product1Comp()<<","<<product1()<<","<<pool.get(product1Comp(),product1())<< "]" << std::endl;
         this->incrUsed();
         return false; 
     }
@@ -338,18 +338,18 @@ bool MoranReaction::apply(Model& pool, double time){
     //Reaction format : Tp(k) + oTp(k) -> 2Tp(k') + 2oTp(k'')
     //decrease reactants, increase products
     //	cout << "before1[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]\t";
-    //	cout << "before2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << endl;
+    //	cout << "before2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << std::endl;
 
     if( (pool.retrieve(reactantComp(), reactant()) > 0) && (pool.retrieve(reactant2Comp(), reactant2()) > 0) ){
         pool.decr(reactantComp(), reactant(),1);
         pool.decr(reactant2Comp(), reactant2(),1);
         //		cout << "after1[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]\t";
-        //		cout << "after2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << endl;
+        //		cout << "after2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << std::endl;
 
         pool.incr(product1Comp(), product1(),2);
         pool.incr(product2Comp(), product2(),2);
         //		cout << "after1[" << product1Comp() << ", " << product1() << ", " << pool.get(product1Comp(), product1()) << "]\t";
-        //		cout << "after2[" << product2Comp() << ", " << product2() << ", " << pool.get(product2Comp(), product2()) << "]" << endl;
+        //		cout << "after2[" << product2Comp() << ", " << product2() << ", " << pool.get(product2Comp(), product2()) << "]" << std::endl;
         return false; 
     }
     return false;

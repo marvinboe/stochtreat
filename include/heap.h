@@ -6,20 +6,19 @@
 #include <iostream>
 #include <exception>
 
-using namespace std;
 /**
  * @Mainpage
  * HEAP Template Class Implementation
  * Note that position 0 of the heap is not used, a sentinel is placed there
  */
 
-class noSentinelException: public exception {
+class noSentinelException: public std::exception {
 	virtual const char* what() const throw(){
 		return "Heap was not initialized with a sentinel";
 	}
 };
 
-class emptyHeapException: public exception {
+class emptyHeapException: public std::exception {
 	virtual const char* what() const throw(){
 		return "Heap does not contain any elements";
 	}
