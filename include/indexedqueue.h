@@ -87,6 +87,9 @@ public:
 	QueueElement* operator[](int location) {return _indices[location];}
 
 	void update(int index) {_pqueue.update(index);}
+
+        
+        void init(RanGen& ran, AllReactions & all);
 	
 	void printQ() {_pqueue.print();} 
 	
@@ -95,8 +98,7 @@ protected:
 	QL_swap _swap;
         /** this is the queue which internally uses a heap.*/
 	PriorityQueue<QueueElement*,QL_Compare, QL_swap> _pqueue;
-        /** TODO why is this called indices?
-         * it stores the queue elements... */
+        /** Stores all queue elements with index.*/
 	vector<QueueElement*> _indices;
 	QueueElement* _sentinel;
 };

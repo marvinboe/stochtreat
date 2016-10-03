@@ -6,20 +6,19 @@
 #include <iostream>
 #include <exception>
 
-using namespace std;
 /**
  * @Mainpage
  * HEAP Template Class Implementation
  * Note that position 0 of the heap is not used, a sentinel is placed there
  */
 
-class noSentinelException: public exception {
+class noSentinelException: public std::exception {
 	virtual const char* what() const throw(){
 		return "Heap was not initialized with a sentinel";
 	}
 };
 
-class emptyHeapException: public exception {
+class emptyHeapException: public std::exception {
 	virtual const char* what() const throw(){
 		return "Heap does not contain any elements";
 	}
@@ -65,9 +64,9 @@ public:
 	
 	void print() const  {
 		if(contents_.size() > 1){
-			for (unsigned i = 1; i < contents_.size(); i++)
-			{
-				contents_[i]->print();
+			for (unsigned i = 1; i < contents_.size(); i++){
+                            std::cout <<i<<" "<<compare_->smaller(contents_[i],contents_[parent(i)])<<" ";
+                            contents_[i]->print();
 			}
 		}
 		else throw emptyHeapException();
@@ -207,7 +206,7 @@ private:
          * Heap minus 1. Therefore parentnode for index or index+1 is always the rounded 
          * down value of the index divided by 2.
 	 */
-	int parent(int index){
+	int parent(int index) const{
 		int tmp = (int)floor(index / 2);
 		return (tmp >= 1?tmp:1); 
 	};

@@ -4,14 +4,11 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
-#include <boost/lexical_cast.hpp>
+#include <algorithm>
 #include "data.h"
 #include "rangen.h"
-#include "dependency.h"
-#include "PriorityQueue.h"
 #include "kernel.h"
 #include "parameter_handler.h"
-#include <algorithm>
 
 int main (int argc, char *argv[]) {
 
@@ -20,12 +17,11 @@ int main (int argc, char *argv[]) {
     float treatmenttime (10);
     float mass(70); //human mass
     float reduction(4.5);
-    unsigned patients(2);
-    double months(1); /**< TODO what is that? */
-    double factor(1.0); /**< TODO what is that? */
+    unsigned patients(1);
+    double months(1); //how often output is written
     std::string path("./outinput/");
     std::string inpath(path);
-    double ntime(-1.0);
+    double ntime(25.);
     int output_specifier(0);
     bool treattest=false;
 
@@ -37,10 +33,10 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("treattime", "Years of treatment (default 10 year)", treatmenttime);
     parameters.SetValue("mass",	"animal mass (default 70 kg)",	mass);
     parameters.SetValue("reduction", "Required reduction level (default 4.5 logs)", reduction);
-    parameters.SetValue("patients", "Number of patients (default 2)", patients);
+    parameters.SetValue("patients", "Number of patients (default 1)", patients);
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
-    parameters.SetValue("ntime", "Maximum simulation time", ntime);
+    parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
     parameters.SetValue("output", "Specifiy kind of output", output_specifier);
     parameters.SetValue("treattest", "test the treatment", treattest);
 
@@ -48,23 +44,24 @@ int main (int argc, char *argv[]) {
 
 
 
-    double Nbase(16.52861491); // TODO what is that? */
-    double Bbase(2.892507609); // TODO what is that? */
-    double Sbase(0.034572078); // TODO what is that? */
-    double Lbase(8.643019616); //elephant 8.54663017, human 8.643019616
+    double Nbase(16.52861491); // Number of HSCs=Nbase*mass^(0.75)
+    double Bbase(2.892507609); // division rate HSC: 1/tau; tau = 365.0/(Bbase*pow(mass,-0.25))
+    double Sbase(0.034572078); // deterministic timestep dt=Sbase*pow(mass,0.25)
+    double Lbase(8.643019616); // maximum simulation time Tmax=(Lbase*pow(mass,0.25)); elephant 8.54663017, human 8.643019616
+    double factor(1.0); // maximum simulation time factor
 
     RanGen ran;
     Data data;
     data.calcFromMass(mass, Nbase, Bbase, Sbase, (Lbase * factor), months);
     if (ntime > 0.){ //non-default
-        data.setNtimes(ntime);
+        data.setTmax(ntime);
     }
-    data.setPercBound(0.05); //sets the rate (?) of treatment per cell
+    data.set_treatment_rate(0.05); //sets the rate of new bound cell under treatment (per day)
     data.setStop(12); // Diagnosis limit
     data.setReduction(reduction); //treatment stop 
     data.setLimit(size);
     data.setTreatment(treatmenttime);
-    //	cout << data << endl;
+    	// cout << data << endl;
 
     double nolsc = 0;
     double diagnosed_nolsc = 0;
@@ -77,10 +74,11 @@ int main (int argc, char *argv[]) {
     bool recurrence_run=false;
     int no_recurrence_patients=0;
     unsigned recurrence_count=0;
+    unsigned nolsc_recurrence_count=0;
+    bool nolsc_treattest=false;
     for (int i=0; i< size+1; i++) {
         avgsize[i]=0.0;
     }
-
 
     clock_t timer=clock();
     vector<unsigned> redresult;
@@ -89,6 +87,7 @@ int main (int argc, char *argv[]) {
             cout << "#patient " << i << endl;
         }
         Kernel ker(ran, data, size);
+        // ker.writeModel(std::cout);
 
         // //#################read compartment data from file##########
         // stringstream ssin;
@@ -113,6 +112,7 @@ int main (int argc, char *argv[]) {
         
         //make run without treatment until diagnosis (or time exceeded).
         double time = ker.execute(ran,0.0,false);
+        ker.addStochCompSizes(avgsize);
         if(!ker.hasLSC())
             nolsc +=1;
 
@@ -123,16 +123,20 @@ int main (int argc, char *argv[]) {
             if (treattest) no_recurrence_patients++;
 
             total_diagnosis_time += time;
-            if(!ker.hasLSC())
+            if(!ker.hasLSC()){
                 diagnosed_nolsc +=1;
+                if (treattest){
+                    nolsc_treattest=true;
+                }
+            }
 
-            // if (recurrence_run){
-            //     if (output_specifier==1){
-            //         std::cout << ker.getDiagnosis() << "  " 
-            //             << ker.get_nolsctime() << endl;
-            //     }
-            //     continue; // end this if we only check for recurrence
-            // }
+            if (recurrence_run){
+                if (output_specifier==1){
+                    std::cout << ker.getDiagnosisTime() << "  " 
+                        << ker.get_nolsctime() << endl;
+                }
+                continue; // end this if we only check for recurrence
+            }
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
@@ -142,12 +146,12 @@ int main (int argc, char *argv[]) {
 
             if(ker.reachedReduction()){
                 reachedreduction +=1;
-                timetoreduction=(ker.whenReduction() - ker.getDiagnosis());
+                timetoreduction=(ker.whenReduction() - ker.getDiagnosisTime());
                 total_timetoreduction +=timetoreduction;
-                redresult.push_back(ker.whenReduction() - ker.getDiagnosis());
+                redresult.push_back(ker.whenReduction() - ker.getDiagnosisTime());
                 if (output_specifier==3){
                     cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
-                        << ker.getDiagnosis() << "  " 
+                        << ker.getDiagnosisTime() << "  " 
                         << timetoreduction << "  "
                         << ker.whenReduction() << " "
                         << ker.get_nolsctime() << endl;
@@ -156,10 +160,15 @@ int main (int argc, char *argv[]) {
             }
             if (treattest){
 
-                time=ker.execute(ran,0.,false);
+                ker.set_ntime(time+10.);
+                ker.reset_treatment(ran,time);
+                time=ker.execute(ran,time,false); //look for diagnosis again
                 if(ker.reachedDiagnosis()) {
                     recurrence_count++;
+                    if (nolsc_treattest) 
+                        nolsc_recurrence_count++;
                 }
+                nolsc_treattest=false;
             }
             //			cout << "Reduction is " << ker.getReduction() << endl;
             //
@@ -182,22 +191,22 @@ int main (int argc, char *argv[]) {
             cout  << ker.get_nolsctime() << endl;
         }
         else if (output_specifier==2){
-            std::cout << ker.getDiagnosis() << "  " 
+            std::cout << ker.getDiagnosisTime() << "  " 
                 << timetoreduction << "  "
                 << ker.whenReduction() << " "
                 << ker.get_nolsctime() << endl;
         }
         if (recurrence_run&&output_specifier==1){
-            std::cout << ker.getDiagnosis() << "  " 
+            std::cout << ker.getDiagnosisTime() << "  " 
                 << ker.get_nolsctime() << endl;
         }
 
-        ker.addStochCompSizes(avgsize);
-    }
+    }//end loop over patients
 
-    if (treattest||recurrence_run){
+    if (treattest){
+        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         std::cout <<recurrence_count/double(no_recurrence_patients)
-         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " " << diagnosed_nolsc<< std::endl;
+         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " "<<nolsc_recurrence_count/double(diagnosed_nolsc)<<" "<<nolsc_recurrence_count <<" "<< diagnosed_nolsc<< std::endl;
     }
 
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-timer)/CLOCKS_PER_SEC << std::endl;
