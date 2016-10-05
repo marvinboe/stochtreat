@@ -12,6 +12,7 @@
 
 #include <fstream>
 #include "model.h"
+#include "doctor.h"
 #include "reactions.h"
 #include "dependency.h"
 #include "indexedqueue.h"
@@ -33,8 +34,6 @@ class Kernel {
         Kernel(RanGen& ran, Data& data,std::istream& is, double time=0.0):_time(time),_data(data), _dt(data.dt()),
         _pool(data,is),_depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.getTmax_in_years()),_lsctime(-1){};
 
-        /** Reinitializes the kernel if cell counts or rates have changed. */
-        void reinitialize(Model& pool,RanGen& ran,double simtime);
 
         /** Prints cell pool and reactions data to std::cout.*/
         void printAll();
@@ -92,6 +91,9 @@ class Kernel {
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);
         void detUpdate();
+
+        /** Reinitializes the kernel if cell counts or rates have changed. */
+        void reinitialize(Model& pool,RanGen& ran,double simtime);
 
         double _time;
         Data _data;
