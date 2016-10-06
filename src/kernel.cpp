@@ -177,9 +177,12 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         t_max=_time+_data.treatment_dur()*365.;
     }
 
+
     //######turn treatment on or off
-    if (treat) 
+    if (treat) {
         _pool.setTreatRate(_data.treatment_rate());
+        _doctor.calc_initial_reference(_pool);
+    }
     else
         _pool.setTreatRate(0.);
 
@@ -198,6 +201,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
     // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
     while(_time<t_max &&  (treat || (!treat && !_pool.diagnosis(_data)))){
 
+        if (treat) _doctor.consult(_time,_pool);
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
         _pool.check_LSCvanished(_time);
