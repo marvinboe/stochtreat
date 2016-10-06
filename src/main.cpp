@@ -86,6 +86,9 @@ int main (int argc, char *argv[]) {
         if (output_specifier==0){
             cout << "#patient " << i << endl;
         }
+
+        bool lsc_at_diagnosis=true;
+
         Kernel ker(ran, data, size);
         // ker.writeModel(std::cout);
 
@@ -124,6 +127,7 @@ int main (int argc, char *argv[]) {
 
             total_diagnosis_time += time;
             if(!ker.hasLSC()){
+                lsc_at_diagnosis=false;
                 diagnosed_nolsc +=1;
                 if (treattest){
                     nolsc_treattest=true;
@@ -174,6 +178,7 @@ int main (int argc, char *argv[]) {
 
             if (output_specifier==4){
                 std::cout <<ker.initial_treatment_response();
+                std::cout <<" "<<lsc_at_diagnosis<<" "<<ker.hasLSC();
                 if (treattest)
                     std::cout << " "<<ker.reachedDiagnosis();
                 std::cout <<std::endl;
