@@ -213,6 +213,7 @@ int main (int argc, char *argv[]) {
 
     if (treattest){
         std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
+        if (output_specifier==4) std::cout <<"# ";
         std::cout <<recurrence_count/double(no_recurrence_patients)
          <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " "<<nolsc_recurrence_count/double(diagnosed_nolsc)<<" "<<nolsc_recurrence_count <<" "<< diagnosed_nolsc<< std::endl;
     }
