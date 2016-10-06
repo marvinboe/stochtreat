@@ -25,7 +25,7 @@ class Kernel {
          * 2. Calls constructor of DependencyGraph to initialize list of reactions (_allr) and the dependency graph _depend.
          * 3. Calls constructor of IndexedQueue with _pool and _allr as argument to initialize reaction queue.  */
         Kernel(RanGen& ran, Data& data, unsigned numstochs, double time=0.0):_time(time),_data(data), _dt(data.dt()), _pool(data,numstochs), 
-        _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.getTmax_in_years()),_lsctime(-1){};
+        _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.getTmax_in_years()),_lsctime(-1),_doctor(){};
 
         /** Kernel contructor that reads model data from std::istream& is instead of initialising new. Steps:
          * 1. Calls constructor of Model to initialize system in _pool.
@@ -87,6 +87,12 @@ class Kernel {
          * Requires same format as writeModel(ostream&).  */
         std::istream& readModel(std::istream& input);
 
+        /** Returns the treatment response at start of treatment. */
+        double initial_treatment_response(){ return _doctor.calc_response(); }
+
+        /** Prints full doctors report to ostream. */
+        void print_full_doctors_report(std::ostream& os) {_doctor.print_patient_record(os);}
+
     private:
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);
@@ -104,6 +110,8 @@ class Kernel {
         IndexedQueue _queue;
         double _endtime;
         double _lsctime;
+
+        Doctor _doctor;
 
 };
 

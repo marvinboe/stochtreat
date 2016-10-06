@@ -26,7 +26,6 @@ class Doctor{
     public:
         typedef double recorddata;
         Doctor();
-        Doctor(double starttime, const Model & patient);
         
         /** Reads the patient data at a single time point and adds to the
          * patients record in _data. */
@@ -59,8 +58,11 @@ class Doctor{
         double _next_timepoint;
         double _sampling_timestep;
         double _starttime;
+        double _slope_timeintervall;
 
         double _alpha;
+
+        bool _first_time_consulted;
 
         int find_timepoint(double t);
 

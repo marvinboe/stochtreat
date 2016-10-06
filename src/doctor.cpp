@@ -5,16 +5,11 @@ Doctor::Doctor(){
     //do nothing
     _next_timepoint=0.;
     _sampling_timestep=1.;
+    _slope_timeintervall=62.;
     _starttime=0.;
+    _first_time_consulted=true;
 }
 
-Doctor::Doctor(double starttime, const Model& patient){
-    //do nothing
-    _starttime=starttime;
-    _next_timepoint=starttime;
-    _sampling_timestep=1.;
-    calc_initial_reference(patient);
-}
 
 double Doctor::get_tumor_burden(double t){
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
@@ -66,7 +61,7 @@ double Doctor::calc_response(double from_time, double end_time, double timespan)
         const auto x_begin=_timepoints.begin();
         const auto y_begin=_data.begin();
         
-        int i = find_timepoint(_starttime+40.);
+        int i = find_timepoint(_starttime+_slope_timeintervall);
 
         if (i<0){
             return 100.;
@@ -94,8 +89,13 @@ double Doctor::slope(const std::vector<recorddata>::const_iterator x_begin,const
 }
 
 void Doctor::consult(double t, const Model& patient){
+    if (_first_time_consulted){
+        _starttime=t;
+        _next_timepoint=t;
+        _first_time_consulted=false;
+    }
 
-    while (_next_timepoint <= t-0.0000001){
+    while (_next_timepoint <= t){
         take_bloodsample(_next_timepoint,patient);
         _next_timepoint+=_sampling_timestep;
     }

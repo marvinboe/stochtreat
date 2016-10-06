@@ -22,7 +22,7 @@ int main (int argc, char *argv[]) {
     std::string path("./outinput/");
     std::string inpath(path);
     double ntime(25.);
-    int output_specifier(0);
+    int output_specifier(0); //0-> normal;-1 -> only results in the end; 1-> nolsctime data; 2-> time to diag. etc. ; 3-> same as 2, but only if reduction reached; 4-> initial treatment response
     bool treattest=false;
 
     ParameterHandler parameters(argc,argv);
@@ -158,6 +158,7 @@ int main (int argc, char *argv[]) {
                 }
 
             }
+
             if (treattest){
 
                 ker.set_ntime(time+10.);
@@ -169,6 +170,13 @@ int main (int argc, char *argv[]) {
                         nolsc_recurrence_count++;
                 }
                 nolsc_treattest=false;
+            }
+
+            if (output_specifier==4){
+                std::cout <<ker.initial_treatment_response();
+                if (treattest)
+                    std::cout << " "<<ker.reachedDiagnosis();
+                std::cout <<std::endl;
             }
             //			cout << "Reduction is " << ker.getReduction() << endl;
             //
