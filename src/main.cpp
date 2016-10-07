@@ -22,7 +22,7 @@ int main (int argc, char *argv[]) {
     std::string path("./outinput/");
     std::string inpath(path);
     double ntime(25.);
-    int output_specifier(0); //0-> normal;-1 -> only results in the end; 1-> nolsctime data; 2-> time to diag. etc. ; 3-> same as 2, but only if reduction reached; 4-> initial treatment response
+    int output_specifier(0); //0-> normal;-1 -> only results in the end; 1-> nolsctime data; 2-> time to diag. etc. ; 3-> same as 2, but only if reduction reached; 4-> initial treatment response; 5-> full doctor output of burden
     bool treattest=false;
 
     ParameterHandler parameters(argc,argv);
@@ -182,6 +182,9 @@ int main (int argc, char *argv[]) {
                 if (treattest)
                     std::cout << " "<<ker.reachedDiagnosis();
                 std::cout <<std::endl;
+            }
+            if (output_specifier==5){
+                ker.print_full_doctors_report(std::cout);
             }
             //			cout << "Reduction is " << ker.getReduction() << endl;
             //
