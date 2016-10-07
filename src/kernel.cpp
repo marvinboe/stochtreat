@@ -282,4 +282,15 @@ void Kernel::reset_treatment(RanGen& ran,double t){
 }
 
 
+void Kernel::introduce_immunity_inlowest(){
+
+    unsigned int k =0;
+    bool cancer_cell_replaced=false;
+    while (k< _data.ncompartments() &&  !cancer_cell_replaced){
+        cancer_cell_replaced=_pool.manual_mutation(k);
+        ++k;
+    }
+
+
+}
 

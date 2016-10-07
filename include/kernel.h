@@ -92,6 +92,9 @@ class Kernel {
 
         /** Returns reference to doctor to give treatment information.*/
         const Doctor & doctor() const{ return _doctor; }
+
+        /** Replaces a cancer cell with an immune cell in the lowest possible compartment */
+        void introduce_immunity_inlowest();
     private:
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);

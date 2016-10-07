@@ -21,14 +21,14 @@ double Doctor::get_tumor_burden(double t) const{
 
 
 void Doctor::calc_initial_reference(const Model& patient){
-	double NC=patient.lastC();
+	double NC=patient.lastC()+patient.lastI();
 	double NB=patient.lastB();
 	double NH=patient.lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
 }
 
 double Doctor::calc_tumor_burden(const Model& patient) const{
-	double NC=patient.lastC();
+	double NC=patient.lastC()+patient.lastI();
 	double NB=patient.lastB();
 	double NH=patient.lastH();
 

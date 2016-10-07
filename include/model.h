@@ -141,6 +141,10 @@ public:
         /** print cell numbers.
          * <HSC> <LSC> */
         void print_cells(std::ostream &,double _time);
+
+        /** makes one cancer cell in compartment k immune. Returns true 
+         * if successfull (at least one cell existed), otherwise false.*/
+        bool manual_mutation(unsigned int k,unsigned int celltype_from=C,unsigned int celltype_to=I);
 	
 private:
 	double myround(double val);

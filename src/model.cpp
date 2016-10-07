@@ -508,9 +508,9 @@ bool Model::updateDet(unsigned k, Data& data){
     double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
         + (p * (1.0 - epsh) * retrieveH(k)) 
         - (p * epsh * retrieveH(k));
-    //	cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
+    //	std::cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
     incr(k, H,tempH);
-    //	cout << "#new H " << getH(k) << std::endl; 
+    //	std::cout << "#new H " << getH(k) << std::endl; 
 
     double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
         + (p * (1.0 - epsc) * retrieveC(k))
@@ -520,7 +520,9 @@ bool Model::updateDet(unsigned k, Data& data){
     double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
         + (p * (1.0 - epsi) * retrieveI(k-1))
         - (p * epsi * retrieveI(k-1));
+    // std::cout << "#current I("<<k<<")=" << retrieveI(k) << std::endl; 
     incr(k, I, tempI);
+    // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 
 
     double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0))
         + (p * (1.0 - epsb) * retrieveB(k))
@@ -587,7 +589,7 @@ bool Model::containsLSC() const{
 }
 
 void Model::calcAlpha(){
-	double NC=lastC();
+	double NC=lastC()+lastI();
 	double NB=lastB();
 	double NH=lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
@@ -595,7 +597,7 @@ void Model::calcAlpha(){
 }
 
 double Model::diseaseBurden() const{
-	double NC=lastC();
+	double NC=lastC()+lastI();
 	double NB=lastB();
 	double NH=lastH();
 	double burden = (_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
@@ -620,5 +622,18 @@ void Model::check_LSCvanished(double t){
 }
 
 
+bool Model::manual_mutation(unsigned int k,unsigned int celltype_from,unsigned int celltype_to){
+    if ( get(k,celltype_from)>=1.){
+        //do fun stuff
+        incr(k,celltype_to,1.);
+        decr(k,celltype_from,1.);
+        return true;
+    }
+    else {
+        return false;
+    }
+
+
+}
 
 
