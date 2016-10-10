@@ -294,3 +294,17 @@ void Kernel::introduce_immunity_inlowest(){
 
 }
 
+void Kernel::introduce_resistance(unsigned k){
+    if (k==0){
+        if (_pool.getC(0)>0)
+            _pool.decr(0,C,1.);
+        else 
+            _pool.decr(0,H,1.);
+        _pool.incr(0,I,1.);
+    }
+    else{
+        _pool.incr(k,I,1.);
+    }
+
+}
+

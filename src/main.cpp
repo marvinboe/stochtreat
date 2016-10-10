@@ -25,7 +25,7 @@ int main (int argc, char *argv[]) {
     double ntime(25.);
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     bool treattest=false;
-    bool introduce_resistance=false;
+    int introduce_resistance=-1;
 
     ParameterHandler parameters(argc,argv);
 
@@ -79,7 +79,9 @@ int main (int argc, char *argv[]) {
 
         //#### check if diagnosis is reached
         if(ker.reachedDiagnosis()) {
-            if (introduce_resistance) ker.introduce_immunity_inlowest();
+            if (introduce_resistance==100) ker.introduce_immunity_inlowest();
+            else if (introduce_resistance>=0 && introduce_resistance<=32)
+                ker.introduce_resistance(introduce_resistance);
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
@@ -95,7 +97,7 @@ int main (int argc, char *argv[]) {
 
         }//######### everything for case of diagnosis done
         out.print_patient(ker);
-        if (introduce_resistance) ker.printAll();
+        if (introduce_resistance>=0) ker.printAll();
 
     }//end loop over patients
 

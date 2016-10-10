@@ -95,6 +95,10 @@ class Kernel {
 
         /** Replaces a cancer cell with an immune cell in the lowest possible compartment */
         void introduce_immunity_inlowest();
+
+        /** Introduces resistance in compartment k.*/
+        void introduce_resistance(unsigned k);
+
     private:
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);
