@@ -50,10 +50,10 @@ class Kernel {
 
         /** Returns true if cell count in cell pool reached diagnosis level. */
         bool reachedDiagnosis() const;
-        /** Returns the time of (first) diagnosis for the cell pool. */
-        float getDiagnosisTime() const;
+
         /** Returns true if reduction is reached in cell pool. Depends on the number of cells.*/
         bool reachedReduction() const;
+
         /** Returns the reduction after (or while treatment).
          * reduction = 2.0 - log_10(burden)*/
         float getReduction() const;
@@ -87,13 +87,10 @@ class Kernel {
          * Requires same format as writeModel(ostream&).  */
         std::istream& readModel(std::istream& input);
 
-        /** Returns the treatment response at start of treatment. */
-        double initial_treatment_response() const{ return _doctor.calc_response(); }
-
         /** Prints full doctors report to ostream. */
         void print_full_doctors_report(std::ostream& os) const{_doctor.print_patient_record(os);}
 
-
+        /** Returns reference to doctor to give treatment information.*/
         const Doctor & doctor() const{ return _doctor; }
     private:
         bool directMethod(RanGen& ran);

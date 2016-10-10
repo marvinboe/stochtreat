@@ -44,6 +44,7 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
         _nolsc +=1;
 
     if (ker.reachedDiagnosis()){
+        _diagnosis_time=time;
         _diagnosed +=1;
         _diagnosis_reached=true;
         if (_treattest) _no_recurrence_patients++;
@@ -63,12 +64,12 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
             if(ker.reachedReduction()){
                 _reachedreduction +=1;
-                _timetoreduction=(ker.whenReduction() - ker.getDiagnosisTime());
+                _timetoreduction=(ker.whenReduction() - _diagnosis_time);
                 _total_timetoreduction +=_timetoreduction;
                 _redresult.push_back(_timetoreduction);
                 if (_output_specifier==3){
                     cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
-                        << ker.getDiagnosisTime() << "  " 
+                        << _diagnosis_time<< "  " 
                         << _timetoreduction << "  "
                         << ker.whenReduction() << " "
                         << ker.get_nolsctime() << endl;
@@ -90,7 +91,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
     if (_diagnosis_reached){
 
             if (_output_specifier==4){
-                std::cout <<ker.initial_treatment_response();
+                std::cout <<ker.doctor().calc_response();
                 std::cout <<" "<<_lsc_at_diagnosis;
                 if (!_treattest){
                     std::cout <<" "<<ker.doctor().get_tumor_burden();
@@ -111,7 +112,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             cout  << ker.get_nolsctime() << endl;
         }
         else if (_output_specifier==2){
-            std::cout << ker.getDiagnosisTime() << "  " 
+            std::cout << _diagnosis_time << "  " 
                 << _timetoreduction << "  "
                 << ker.whenReduction() << " "
                 << ker.get_nolsctime() << endl;

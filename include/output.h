@@ -63,6 +63,7 @@ class Stats_Output{
 
     double _nolsc;
     double _diagnosed_nolsc;
+    double _diagnosis_time;
     double _total_diagnosis_time;
     double _diagnosed;
     double _reachedreduction;

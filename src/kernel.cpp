@@ -47,7 +47,6 @@ bool Kernel::nextMethod(RanGen& ran){
         std::cout <<"error reaction without reactants: debug output <tau> <index> <reactantType> <reactantComp> <reactionType> <queueindex> <propensity>"<<std::endl;
         std::cout <<next->tau()<<" "<<next->index()<<" " <<r->reactant()<<" "<<r->reactantComp()<<" "
             <<r->inType()<<" "<<r->inGraph()<<" "<<r->propensity()<<std::endl;
-        std::cout <<"further diag time: " <<getDiagnosisTime()*365.<<" "<<_pool.get(r->reactantComp(),r->reactant())<< " <cs in 0comp>="<<_pool.getC(0)<<" <Cs in 1comp>="<<_pool.getC(1)<<std::endl;
         exit(1);
     }
     if(lsc_moved & (_lsctime == -1)) {
@@ -234,10 +233,6 @@ float Kernel::burden(){
 
 bool Kernel::reachedDiagnosis() const{
     return _pool.diagnosis(_data);
-}
-
-float Kernel::getDiagnosisTime() const{
-    return _pool.diagRes();
 }
 
 

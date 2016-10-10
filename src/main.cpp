@@ -95,7 +95,7 @@ int main (int argc, char *argv[]) {
 
     }//end loop over patients
 
-
+    out.print_at_end();
 
     return 0;
 }
