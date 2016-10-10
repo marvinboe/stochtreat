@@ -178,7 +178,10 @@ int main (int argc, char *argv[]) {
 
             if (output_specifier==4){
                 std::cout <<ker.initial_treatment_response();
-                std::cout <<" "<<lsc_at_diagnosis<<" "<<ker.hasLSC();
+                std::cout <<" "<<lsc_at_diagnosis;
+                if (!treattest){
+                    std::cout <<" "<<ker.doctor().get_tumor_burden();
+                }
                 if (treattest)
                     std::cout << " "<<ker.reachedDiagnosis();
                 std::cout <<std::endl;

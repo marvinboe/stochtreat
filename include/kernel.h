@@ -93,6 +93,8 @@ class Kernel {
         /** Prints full doctors report to ostream. */
         void print_full_doctors_report(std::ostream& os) {_doctor.print_patient_record(os);}
 
+
+        const Doctor & doctor() { return _doctor; }
     private:
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);

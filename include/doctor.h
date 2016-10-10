@@ -32,17 +32,17 @@ class Doctor{
         void take_bloodsample(double t, const Model& patient);
 
         /** Caclulates and returns the slope of burden decline based on the given patient record. */
-        double calc_response(double from_time=-1., double end_time=-1., double timespan=-1.);
+        double calc_response(double from_time=-1., double end_time=-1., double timespan=-1.) const;
 
         /** Sets the initial reference value per patient to calculate the tumor
          * burden later. 1/initial_burden=_alpha = (NC + NB + (2.0 * NH)) / (NC + NB). */
         void calc_initial_reference(const Model& patient);
 
         /** Caculates and returns the tumor burden based on patient data.*/
-        double calc_tumor_burden(const Model& patient);
+        double calc_tumor_burden(const Model& patient) const;
 
         /** Caculates and returns the tumor burden at a specific already recorded timepoint (defaults to the last).*/
-        double get_tumor_burden(double t=-1.);
+        double get_tumor_burden(double t=-1.) const;
 
         /** Takes a bloodsample every _sampling_timestep timesteps .*/
         void consult(double t, const Model & patient);
@@ -64,9 +64,9 @@ class Doctor{
 
         bool _first_time_consulted;
 
-        int find_timepoint(double t);
+        int find_timepoint(double t) const;
 
-        double slope(const std::vector<recorddata>::const_iterator x_begin,const std::vector<recorddata>::const_iterator y_begin,unsigned int elements);
+        double slope(const std::vector<recorddata>::const_iterator x_begin,const std::vector<recorddata>::const_iterator y_begin,unsigned int elements) const;
 
 };
 #endif

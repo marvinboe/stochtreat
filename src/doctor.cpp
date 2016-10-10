@@ -11,7 +11,7 @@ Doctor::Doctor(){
 }
 
 
-double Doctor::get_tumor_burden(double t){
+double Doctor::get_tumor_burden(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 
     unsigned int i=find_timepoint(t);
@@ -27,7 +27,7 @@ void Doctor::calc_initial_reference(const Model& patient){
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
 }
 
-double Doctor::calc_tumor_burden(const Model& patient){
+double Doctor::calc_tumor_burden(const Model& patient) const{
 	double NC=patient.lastC();
 	double NB=patient.lastB();
 	double NH=patient.lastH();
@@ -47,13 +47,13 @@ void Doctor::take_bloodsample(double t, const Model & patient){
 }
 
 
-int Doctor::find_timepoint(double t){
+int Doctor::find_timepoint(double t) const{
     int i =_timepoints.size()-1;
     while (i > 0 && _timepoints[i] > t) --i; 
     return i;
 }
 
-double Doctor::calc_response(double from_time, double end_time, double timespan){
+double Doctor::calc_response(double from_time, double end_time, double timespan) const{
 
     if (from_time<0. && end_time <0. && timespan <0.){
 
@@ -77,7 +77,7 @@ double Doctor::calc_response(double from_time, double end_time, double timespan)
     }
 }
 
-double Doctor::slope(const std::vector<recorddata>::const_iterator x_begin,const std::vector<recorddata>::const_iterator y_begin,unsigned int elements) {
+double Doctor::slope(const std::vector<recorddata>::const_iterator x_begin,const std::vector<recorddata>::const_iterator y_begin,unsigned int elements) const {
     const auto n    = elements;
     const auto s_x  = std::accumulate(x_begin,x_begin+elements, 0.0);
     const auto s_y  = std::accumulate(y_begin,y_begin+elements, 0.0);
