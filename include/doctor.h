@@ -48,7 +48,7 @@ class Doctor{
         void consult(double t, const Model & patient);
 
         /** Returns patient record to specified outstream. */
-        void print_patient_record(std::ostream &os);
+        void print_patient_record(std::ostream &os) const;
 
 
     private:

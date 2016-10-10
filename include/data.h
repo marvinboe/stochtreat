@@ -128,6 +128,7 @@ class Data {
                  * When 10^(stop) cells are in the compartment -> diagnosis. */
 		void setStop(double v) {_stop = v;}
 
+                /** Returns the recuction level that is required to stop treatment.*/
 		double reduction() const {return _reduction	;}
 		void setReduction(double v) {_reduction = v;}
 

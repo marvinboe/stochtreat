@@ -8,6 +8,7 @@
 #include "data.h"
 #include "rangen.h"
 #include "kernel.h"
+#include "output.h"
 #include "parameter_handler.h"
 
 int main (int argc, char *argv[]) {
@@ -63,33 +64,43 @@ int main (int argc, char *argv[]) {
     data.setTreatment(treatmenttime);
     	// cout << data << endl;
 
-    double nolsc = 0;
-    double diagnosed_nolsc = 0;
-    double total_diagnosis_time=0;
-    double diagnosed=0;
-    double reachedreduction = 0;
-    double total_timetoreduction = 0;
-    double avgsize[size+1];
+    Stats_Output out(output_specifier,size,treattest);
 
-    bool recurrence_run=false;
-    int no_recurrence_patients=0;
-    unsigned recurrence_count=0;
-    unsigned nolsc_recurrence_count=0;
-    bool nolsc_treattest=false;
-    for (int i=0; i< size+1; i++) {
-        avgsize[i]=0.0;
-    }
-
-    clock_t timer=clock();
     vector<unsigned> redresult;
     for(unsigned i=0 ; i < patients; ++i){
-        if (output_specifier==0){
-            cout << "#patient " << i << endl;
-        }
-
-        bool lsc_at_diagnosis=true;
-
+        out.initialize_per_patient(i);
         Kernel ker(ran, data, size);
+        
+        //make run without treatment until diagnosis (or time exceeded).
+        double time = ker.execute(ran,0.0,false);
+        out.save_data_after_diagnosisrun(ker,time);
+
+        //#### check if diagnosis is reached
+        if(ker.reachedDiagnosis()) {
+
+            //start treatment until limit is reached or maxmum time of treatment has passed
+            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
+            time=ker.execute(ran,time,true);
+            out.save_data_after_treatment(ker,time);
+
+            if (treattest){
+                ker.set_ntime(time+10.);
+                ker.reset_treatment(ran,time);
+                time=ker.execute(ran,time,false); //look for diagnosis again
+                out.save_data_after_relapse(ker,time);
+            }
+
+        }//######### everything for case of diagnosis done
+        out.print_patient(ker);
+
+    }//end loop over patients
+
+
+
+    return 0;
+}
+
+
         // ker.writeModel(std::cout);
 
         // //#################read compartment data from file##########
@@ -112,85 +123,7 @@ int main (int argc, char *argv[]) {
         //     no_recurrence_patients+=1;
         // }
         // //#############end reading model data ######################
-        
-        //make run without treatment until diagnosis (or time exceeded).
-        double time = ker.execute(ran,0.0,false);
-        ker.addStochCompSizes(avgsize);
-        if(!ker.hasLSC())
-            nolsc +=1;
-
-        //#### check if diagnosis is reached
-        double timetoreduction=-1.;
-        if(ker.reachedDiagnosis()) {
-            diagnosed +=1;
-            if (treattest) no_recurrence_patients++;
-
-            total_diagnosis_time += time;
-            if(!ker.hasLSC()){
-                lsc_at_diagnosis=false;
-                diagnosed_nolsc +=1;
-                if (treattest){
-                    nolsc_treattest=true;
-                }
-            }
-
-            if (recurrence_run){
-                if (output_specifier==1){
-                    std::cout << ker.getDiagnosisTime() << "  " 
-                        << ker.get_nolsctime() << endl;
-                }
-                continue; // end this if we only check for recurrence
-            }
-
-            //start treatment until limit is reached or maxmum time of treatment has passed
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-            time=ker.execute(ran,time,true);
-            // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-
-
-            if(ker.reachedReduction()){
-                reachedreduction +=1;
-                timetoreduction=(ker.whenReduction() - ker.getDiagnosisTime());
-                total_timetoreduction +=timetoreduction;
-                redresult.push_back(ker.whenReduction() - ker.getDiagnosisTime());
-                if (output_specifier==3){
-                    cout << "#<years to diag.> <years to red.> <total> <nolsctime> "<<std::endl
-                        << ker.getDiagnosisTime() << "  " 
-                        << timetoreduction << "  "
-                        << ker.whenReduction() << " "
-                        << ker.get_nolsctime() << endl;
-                }
-
-            }
-
-            if (treattest){
-
-                ker.set_ntime(time+10.);
-                ker.reset_treatment(ran,time);
-                time=ker.execute(ran,time,false); //look for diagnosis again
-                if(ker.reachedDiagnosis()) {
-                    recurrence_count++;
-                    if (nolsc_treattest) 
-                        nolsc_recurrence_count++;
-                }
-                nolsc_treattest=false;
-            }
-
-            if (output_specifier==4){
-                std::cout <<ker.initial_treatment_response();
-                std::cout <<" "<<lsc_at_diagnosis;
-                if (!treattest){
-                    std::cout <<" "<<ker.doctor().get_tumor_burden();
-                }
-                if (treattest)
-                    std::cout << " "<<ker.reachedDiagnosis();
-                std::cout <<std::endl;
-            }
-            if (output_specifier==5){
-                ker.print_full_doctors_report(std::cout);
-            }
-            //			cout << "Reduction is " << ker.getReduction() << endl;
-            //
+        //
             // //##########write compartment data to file
             // stringstream ss;
             // ss << path<< "patient-"<< runid << "-"<< i << ".txt";
@@ -203,56 +136,3 @@ int main (int argc, char *argv[]) {
             // ker.writeModel(output);
             // output.close();
             // //######end writing patient data to file
-        }//######### everything for case of diagnosis done
-        
-
-        if (output_specifier==1){
-            cout  << ker.get_nolsctime() << endl;
-        }
-        else if (output_specifier==2){
-            std::cout << ker.getDiagnosisTime() << "  " 
-                << timetoreduction << "  "
-                << ker.whenReduction() << " "
-                << ker.get_nolsctime() << endl;
-        }
-        if (recurrence_run&&output_specifier==1){
-            std::cout << ker.getDiagnosisTime() << "  " 
-                << ker.get_nolsctime() << endl;
-        }
-
-    }//end loop over patients
-
-    if (treattest){
-        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
-        if (output_specifier==4) std::cout <<"# ";
-        std::cout <<recurrence_count/double(no_recurrence_patients)
-         <<" "<<recurrence_count   <<" "  << no_recurrence_patients<< " "<<nolsc_recurrence_count/double(diagnosed_nolsc)<<" "<<nolsc_recurrence_count <<" "<< diagnosed_nolsc<< std::endl;
-    }
-
-    std::cout << "#Real time elapsed in seconds: " << ((double)clock()-timer)/CLOCKS_PER_SEC << std::endl;
-    std::cout << "#Average time to diagnosis " << (diagnosed > 0?(total_diagnosis_time / (double) diagnosed):0) << endl;
-    std::cout << "#Fraction diagnosed "<< (diagnosed /(double) patients) << std::endl;
-    std::cout << "#Fraction with no LSC " << (nolsc / (double) patients) << std::endl;
-    std::cout << "#Fraction diagnosed with no LSC " << (diagnosed > 0?(diagnosed_nolsc / (double) diagnosed):0) << endl;
-    std::cout << "#Fraction that reached "<< reduction 
-        << " log reduction : <reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << endl;
-    if (output_specifier!=3) std::cout <<"# ";
-    std::cout << ((reachedreduction > 0&&diagnosed>0)?(reachedreduction / (double) diagnosed):0)
-        << " " << reachedreduction << " " << diagnosed << " " << diagnosed_nolsc<< std::endl;
-    double stddev = 0;
-    double avg = (reachedreduction > 0?(total_timetoreduction / (double) reachedreduction):0) ;
-    for(unsigned int i=0; i < redresult.size(); i++){
-        stddev += pow((double)(redresult[i] - avg), 2.0);
-    }
-    stddev = stddev / (double)redresult.size();
-    stddev = sqrt(stddev);
-    cout << "#Average time to reduction "<< avg << "\t" << stddev << endl;
-    for (int i=0; i< size+1; i++) {
-        cout << "#avg size comp " << i << " = " << (avgsize[i]/(double)patients) << endl;
-    }
-
-
-    return 0;
-}
-
-

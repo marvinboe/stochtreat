@@ -232,39 +232,39 @@ float Kernel::burden(){
     return _pool.diseaseBurden();
 }
 
-bool Kernel::reachedDiagnosis(){
+bool Kernel::reachedDiagnosis() const{
     return _pool.diagnosis(_data);
 }
 
-float Kernel::getDiagnosisTime(){
+float Kernel::getDiagnosisTime() const{
     return _pool.diagRes();
 }
 
 
-bool Kernel::reachedReduction(){
+bool Kernel::reachedReduction() const{
     return _pool.reduction(_data);
 }
 
-float Kernel::getReduction(){
+float Kernel::getReduction() const{
     return _pool.getReduction();
 }
 
-float Kernel::whenReduction(){
+float Kernel::whenReduction() const{
     return _pool.when();
 }
 
 
-float Kernel::get_nolsctime(){
+float Kernel::get_nolsctime() const{
     return _pool.get_nolsctime();
 }
 
 
-bool Kernel::hasLSC(){
+bool Kernel::hasLSC() const{
     return _pool.containsLSC();
 }
 
-void Kernel::addStochCompSizes(double* data){
-    for (unsigned i=0; i < (_pool.numStoch()+1); ++i) {
+void Kernel::addStochCompSizes(std::vector<double>& data) const{
+    for (unsigned i=0; i < data.size(); ++i) {
         data[i] += _pool.getN(i);
     }
 }

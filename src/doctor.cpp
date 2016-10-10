@@ -102,7 +102,7 @@ void Doctor::consult(double t, const Model& patient){
 }
 
 
-void Doctor::print_patient_record(std::ostream &os){
+void Doctor::print_patient_record(std::ostream &os) const{
     os <<"# patient data: <time> <burden>"<<std::endl;
     for (unsigned int i=0; i< _timepoints.size(); ++i){
         os <<_timepoints[i]<<" "<<_data[i]<<std::endl;

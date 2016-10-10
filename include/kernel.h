@@ -49,23 +49,23 @@ class Kernel {
         double execute(RanGen& ran, double t, bool treat);
 
         /** Returns true if cell count in cell pool reached diagnosis level. */
-        bool reachedDiagnosis();
+        bool reachedDiagnosis() const;
         /** Returns the time of (first) diagnosis for the cell pool. */
-        float getDiagnosisTime();
+        float getDiagnosisTime() const;
         /** Returns true if reduction is reached in cell pool. Depends on the number of cells.*/
-        bool reachedReduction();
+        bool reachedReduction() const;
         /** Returns the reduction after (or while treatment).
          * reduction = 2.0 - log_10(burden)*/
-        float getReduction();
+        float getReduction() const;
 
         /** Returns time when required reduction level is reached. */
-        float whenReduction();
+        float whenReduction() const;
 
         /**  get first timepoint without LSC in population.  */
-        float get_nolsctime();
+        float get_nolsctime() const;
 
         /** Returns "true" if LSC is present in stem cell pool */
-        bool hasLSC();
+        bool hasLSC() const;
 
         /** sets the time (in years) until simulations  stop*/
         void set_ntime(double t){ _data.setTmax(t);}
@@ -78,7 +78,7 @@ class Kernel {
          * typically when diagnosis is reached. */
         float burden();
 
-        void addStochCompSizes(double* data);
+        void addStochCompSizes(std::vector<double>& data) const;
 
         /** write all model data to the std::ostream */
         ostream& writeModel(ostream&);
@@ -88,13 +88,13 @@ class Kernel {
         std::istream& readModel(std::istream& input);
 
         /** Returns the treatment response at start of treatment. */
-        double initial_treatment_response(){ return _doctor.calc_response(); }
+        double initial_treatment_response() const{ return _doctor.calc_response(); }
 
         /** Prints full doctors report to ostream. */
-        void print_full_doctors_report(std::ostream& os) {_doctor.print_patient_record(os);}
+        void print_full_doctors_report(std::ostream& os) const{_doctor.print_patient_record(os);}
 
 
-        const Doctor & doctor() { return _doctor; }
+        const Doctor & doctor() const{ return _doctor; }
     private:
         bool directMethod(RanGen& ran);
         bool nextMethod(RanGen& ran);

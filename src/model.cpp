@@ -28,7 +28,7 @@ double Model::myround(double val){
 	return temp;
 }
 
-double Model::mylog(double p1, double base){
+double Model::mylog(double p1, double base) const{
 	if(p1<=0)
 		return 0.0;
 	else {
@@ -408,7 +408,7 @@ void Model::store(unsigned k, unsigned t, double v){
 	}
 }
 
-std::ostream& Model::display(std::ostream& os){
+std::ostream& Model::display(std::ostream& os) const{
     os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
         os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
@@ -566,23 +566,23 @@ bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){
 }
 
 
-bool Model::diagnosis(Data& data){
+bool Model::diagnosis(const Data& data) const{
 	// double res = mylog(getN(_numcomp-1),10);
 	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << std::endl;
 	return mylog(lastN(),10)>= data.stop();
 }
 
-bool Model::reduction(Data& data){
+bool Model::reduction(const Data& data) const{
 	return getReduction() >= data.reduction();
-}
+    }
 
-float Model::getReduction(){
+float Model::getReduction() const{
 	double b = diseaseBurden();
 	return (2.0 - mylog(b,10));
 }
 
 
-bool Model::containsLSC(){
+bool Model::containsLSC() const{
 	return (getC(0) > 0);
 }
 
@@ -594,7 +594,7 @@ void Model::calcAlpha(){
 //	cout << "Alpha = " << _alpha << std::endl;
 }
 
-double Model::diseaseBurden(){
+double Model::diseaseBurden() const{
 	double NC=lastC();
 	double NB=lastB();
 	double NH=lastH();

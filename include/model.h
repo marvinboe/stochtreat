@@ -118,25 +118,25 @@ public:
 	bool updateDet(unsigned k, Data& data);
 
         /** returns True if diagnosis is reached.*/
-	bool diagnosis(Data& data);
-	bool reduction(Data& data);
-	float getReduction();
+	bool diagnosis(const Data& data) const;
+	bool reduction(const Data& data) const;
+	float getReduction() const;
 
         /** returns true if LSC is in stem cell pool */
-	bool containsLSC();
+	bool containsLSC() const;
 
 	bool treatDeterministically(unsigned k, double amount);
 	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
         /** get time when LSCvanished.  */
-        double get_nolsctime() {return _nolsctime;}
+        double get_nolsctime() const {return _nolsctime;}
 	
         /** Calculates alpha from cell numbers. Required to 
          * calculate reduction of disease burden later.*/
 	void calcAlpha();
 	double getAlpha() const {return _alpha;}
 	
-	double diseaseBurden();
+	double diseaseBurden() const;
 
         /** print cell numbers.
          * <HSC> <LSC> */
@@ -144,9 +144,9 @@ public:
 	
 private:
 	double myround(double val);
-	double mylog(double p1, double base);
+	double mylog(double p1, double base) const;
 
-        std::ostream& display(std::ostream&);
+        std::ostream& display(std::ostream&) const;
         std::istream& read(std::istream& is);
 
 	unsigned int _endstoch;
