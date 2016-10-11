@@ -81,7 +81,7 @@ class Kernel {
         void addStochCompSizes(std::vector<double>& data) const;
 
         /** write all model data to the std::ostream */
-        ostream& writeModel(ostream&);
+        std::ostream& writeModel(std::ostream&);
 
         /** Reads all model data from the std::istream.
          * Requires same format as writeModel(ostream&).  */

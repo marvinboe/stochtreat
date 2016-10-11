@@ -24,10 +24,25 @@ limitations under the License.
 #include <sstream>
 #include <string>
 
+
+struct Print_specifiers{
+
+    Print_specifiers(std::string output_choice);
+    bool per_patient=false;
+    bool nolsctime=false;
+    bool initialresponse=false;
+    bool timetodiagnosis=false;
+    bool fullburden=false;
+    bool overview_at_end=true;
+
+    operator bool() const {return (per_patient||nolsctime||initialresponse||timetodiagnosis);}
+
+};
+
 class Stats_Output{
     public:
 
-        Stats_Output(int output_specifier,unsigned no_stochcomps,bool treattest);
+        Stats_Output(std::string output_choice,unsigned no_stochcomps,bool treattest);
 
         /** Initialises per patient variables .*/
         void initialize_per_patient(int patient_id);
@@ -82,6 +97,8 @@ class Stats_Output{
     bool _diagnosis_reached;
 
     bool _treattest;
+
+    Print_specifiers _print;
 
 };
 

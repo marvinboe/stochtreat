@@ -15,15 +15,15 @@
 
 
 void Kernel::printAll(){
-    std::cout << endl << "#pool " << endl;
-    std::cout << _pool<< endl;
-    std::cout << "#reactions " << endl;
+    std::cout << std::endl << "#pool " << std::endl;
+    std::cout << _pool<< std::endl;
+    std::cout << "#reactions " << std::endl;
     for(unsigned r = 0; r < _allr.size() ; ++r){
-        std::cout << r << "\t" << *_allr[r] << endl;
+        std::cout << r << "\t" << *_allr[r] << std::endl;
     }
-    std::cout << "#Number of reactions " << _allr.size() << endl;
-    std::cout << "#Sum propensity " << _allr.propSum() << endl;
-    std::cout << endl << _depend << endl;
+    std::cout << "#Number of reactions " << _allr.size() << std::endl;
+    std::cout << "#Sum propensity " << _allr.propSum() << std::endl;
+    std::cout << std::endl << _depend << std::endl;
 }
 
 bool Kernel::directMethod(RanGen& ran){
@@ -54,7 +54,7 @@ bool Kernel::nextMethod(RanGen& ran){
     }
     //4. update every reaction dependend upon the reaction that was just used.
     //first set a_{i} of the current reaction;
-    double next_estimate =numeric_limits<double>::infinity();
+    double next_estimate =std::numeric_limits<double>::infinity();
     if(r->sufficientReactants(_pool)){
         r->setPropensity(r->reactantFactor(_pool)); 
         next_estimate = r->calcPutativeTime(ran.randouble(), prev_t);
@@ -74,14 +74,14 @@ bool Kernel::nextMethod(RanGen& ran){
     unsigned type = r->inType();
     unsigned graph = r->inGraph();
     DependencyNode* node = _depend.get(type, graph);
-    vector<DependencyNode*>::iterator start = node->begin();
-    vector<DependencyNode*>::iterator stop = node->end();
+    std::vector<DependencyNode*>::iterator start = node->begin();
+    std::vector<DependencyNode*>::iterator stop = node->end();
     while (start != stop){
         if((*start)->reaction() != next->index()){
-            next_estimate =numeric_limits<double>::infinity();
+            next_estimate =std::numeric_limits<double>::infinity();
             Reaction *rd = _allr[(*start)->reaction()];
             QueueElement *qed = _queue[(*start)->reaction()];
-            if(!rd->sufficientReactants(_pool) && qed->tau() < numeric_limits<double>::infinity()){
+            if(!rd->sufficientReactants(_pool) && qed->tau() < std::numeric_limits<double>::infinity()){
                 if(rd->getTZero() == -1.0){ // if it is the first time that the reactants are not sufficient
                     rd->setLasta();
                     rd->setTZero(prev_t);
@@ -102,7 +102,7 @@ bool Kernel::nextMethod(RanGen& ran){
                 }	
                 rd->setPropensity(rd->reactantFactor(_pool));
                 //queuelement should be  in the same position in the indexedqueue as in the reaction pool
-                if(rd->getTZero() < 0.0 && qed->tau() == numeric_limits<double>::infinity()){ 
+                if(rd->getTZero() < 0.0 && qed->tau() == std::numeric_limits<double>::infinity()){ 
                     //rection has never been used before
                     next_estimate = rd->calcPutativeTime(ran.randouble(), prev_t);
                 }
@@ -124,9 +124,9 @@ void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
     for (unsigned int r_id =0 ; r_id < _allr.size(); ++r_id){
         Reaction* rd=_allr[r_id];
         QueueElement* qed=_queue[r_id];
-        double next_estimate =numeric_limits<double>::infinity();
+        double next_estimate =std::numeric_limits<double>::infinity();
 
-        if(!rd->sufficientReactants(_pool) && qed->tau() < numeric_limits<double>::infinity()){
+        if(!rd->sufficientReactants(_pool) && qed->tau() < std::numeric_limits<double>::infinity()){
             if(rd->getTZero() == -1.0){ // if this is the first time that the reactants are not sufficient
                 rd->setLasta();
                 rd->setTZero(prev_t);
@@ -141,7 +141,7 @@ void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
             double a_old = rd->propensity();		
             rd->setPropensity(rd->reactantFactor(_pool));
 
-            if(qed->tau() == numeric_limits<double>::infinity()){ 
+            if(qed->tau() == std::numeric_limits<double>::infinity()){ 
                 if(rd->propensity() > 0.0){
                     next_estimate = rd->calcPutativeTime(ran.randouble(), prev_t);
                 }
@@ -264,7 +264,7 @@ void Kernel::addStochCompSizes(std::vector<double>& data) const{
     }
 }
 
-ostream& Kernel::writeModel(ostream& output){
+std::ostream& Kernel::writeModel(std::ostream& output){
     output << _pool;
     return output;
 }

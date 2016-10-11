@@ -23,7 +23,7 @@ int main (int argc, char *argv[]) {
     std::string path("./outinput/");
     std::string inpath(path);
     double ntime(25.);
-    int output_specifier(0); //0-> normal;-1 -> only results in the end; 1-> nolsctime data; 2-> time to diag. etc. ; 3-> same as 2, but only if reduction reached; 4-> initial treatment response; 5-> full doctor output of burden
+    std::string output; //"patient nolsctime diagtime initresponse fullburden"
     bool treattest=false;
 
     ParameterHandler parameters(argc,argv);
@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
-    parameters.SetValue("output", "Specifiy kind of output", output_specifier);
+    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview'", output);
     parameters.SetValue("treattest", "test the treatment", treattest);
 
     parameters.print_help(std::cout);
@@ -64,9 +64,9 @@ int main (int argc, char *argv[]) {
     data.setTreatment(treatmenttime);
     	// cout << data << endl;
 
-    Stats_Output out(output_specifier,size,treattest);
+    Stats_Output out(output,size,treattest);
 
-    vector<unsigned> redresult;
+    std::vector<unsigned> redresult;
     for(unsigned i=0 ; i < patients; ++i){
         out.initialize_per_patient(i);
         Kernel ker(ran, data, size);
