@@ -114,7 +114,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
     std::stringstream strs;
     for (auto x : yearlyburden){
-        strs << x<<",";
+        strs << x<<" ";
     }
     _yearlyburden=strs.str();
     if (_yearlyburden.length()>0){
