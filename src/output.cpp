@@ -33,6 +33,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
         _diagnosed=0;
         _reachedreduction = 0;
         _total_timetoreduction = 0;
+        _burden_after_treatment=-1.;
         _avgsize.resize(no_stochcomps+1);
 
         _redresult.clear();
@@ -50,11 +51,9 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
         if (_print.timetodiagnosis) std::cout <<"<time_to_diag><time to reduction>";
         if (_print.initialresponse){
             std::cout <<"<init. response>"<<"<lsc at diag>";
-            if (!_treattest){
-                std::cout <<"<burden>";
-            }
-            else if (_treattest)
-                std::cout <<"<relapse";
+            std::cout <<"<burden>";
+            if (_treattest)
+                std::cout <<"<relapse>";
         }
         std::cout << std::endl;
 }
@@ -63,6 +62,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _lsc_at_diagnosis=true;
     _nolsc_treattest=false;
     _diagnosis_reached=false;
+    _burden_after_treatment=-1.;
 
     _timetoreduction=0.;
     ++_patients;
@@ -98,12 +98,13 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
-            if(ker.reachedReduction()){
-                _reachedreduction +=1;
-                _timetoreduction=(ker.whenReduction() - _diagnosis_time);
-                _total_timetoreduction +=_timetoreduction;
-                _redresult.push_back(_timetoreduction);
-            }
+    if(ker.reachedReduction()){
+        _reachedreduction +=1;
+        _timetoreduction=(ker.whenReduction() - _diagnosis_time);
+        _total_timetoreduction +=_timetoreduction;
+        _redresult.push_back(_timetoreduction);
+    }
+    _burden_after_treatment=ker.doctor().get_tumor_burden();
 
 }
 
@@ -127,9 +128,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         if (_print.initialresponse){
             std::cout <<ker.doctor().calc_response()<<" ";
             std::cout <<_lsc_at_diagnosis<<" ";
-            if (!_treattest){
-                std::cout <<ker.doctor().get_tumor_burden()<<" ";
-            }
+            std::cout <<_burden_after_treatment<<" ";
             if (_treattest)
                 std::cout <<ker.reachedDiagnosis()<< " ";
         }

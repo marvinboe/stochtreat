@@ -84,6 +84,7 @@ class Stats_Output{
     double _reachedreduction;
     double _total_timetoreduction;
     double _timetoreduction;
+    double _burden_after_treatment;
     std::vector<double> _avgsize;
 
     std::vector<double> _redresult;
