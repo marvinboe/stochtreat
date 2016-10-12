@@ -32,6 +32,7 @@ struct Print_specifiers{
     bool nolsctime=false;
     bool initialresponse=false;
     bool timetodiagnosis=false;
+    bool timetoreduction=false;
     bool fullburden=false;
     bool yearlyburden=false;
     bool overview_at_end=true;

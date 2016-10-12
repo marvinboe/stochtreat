@@ -51,7 +51,8 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
 
         std::cout <<"#output info: ";
         if (_print.nolsctime) std::cout <<"<nolsctime>";
-        if (_print.timetodiagnosis) std::cout <<"<time_to_diag><time to reduction>";
+        if (_print.timetodiagnosis) std::cout <<"<time_to_diag>";
+        if (_print.timetoreduction) std::cout <<"<time to reduction>";
         if (_print.initialresponse){
             std::cout <<"<init. response>"<<"<lsc at diag>";
             if (!_print.yearlyburden) std::cout <<"<burden>";
@@ -134,10 +135,10 @@ void Stats_Output::print_patient(const Kernel& ker) const{
     if (_diagnosis_reached){
 
         if (_print.nolsctime)     std::cout  << ker.get_nolsctime() <<" ";
-        if (_print.timetodiagnosis) {
-            std::cout << _diagnosis_time << "  " 
-                << _timetoreduction << "  ";
-        }
+        if (_print.timetodiagnosis)
+            std::cout << _diagnosis_time << "  " ;
+        if (_print.timetoreduction)
+            std::cout << _timetoreduction << "  ";
 
         if (_print.initialresponse){
             std::cout <<ker.doctor().calc_response()<<" ";
