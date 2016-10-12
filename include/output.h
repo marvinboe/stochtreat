@@ -33,9 +33,10 @@ struct Print_specifiers{
     bool initialresponse=false;
     bool timetodiagnosis=false;
     bool fullburden=false;
+    bool yearlyburden=false;
     bool overview_at_end=true;
 
-    operator bool() const {return (per_patient||nolsctime||initialresponse||timetodiagnosis);}
+    operator bool() const {return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden);}
 
 };
 
@@ -85,6 +86,7 @@ class Stats_Output{
     double _total_timetoreduction;
     double _timetoreduction;
     double _burden_after_treatment;
+    std::string _yearlyburden;
     std::vector<double> _avgsize;
 
     std::vector<double> _redresult;

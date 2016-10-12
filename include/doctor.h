@@ -50,6 +50,8 @@ class Doctor{
         /** Returns patient record to specified outstream. */
         void print_patient_record(std::ostream &os) const;
 
+        /** Returns burden in yearly steps in a std::vector. */
+        std::vector<double> get_yearly_burden() const;
 
     private:
         std::vector<recorddata> _data;

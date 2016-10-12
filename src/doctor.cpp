@@ -109,3 +109,13 @@ void Doctor::print_patient_record(std::ostream &os) const{
     }
 }
 
+std::vector<double> Doctor::get_yearly_burden() const{
+    std::vector<double> returnvec;
+    double t=_starttime+364.; //TODO something is one day off here???
+    while (t<=_timepoints.back()){
+        returnvec.push_back(get_tumor_burden(t));
+        t+=365.;
+    }
+    // std::cout <<t<<" "<<_timepoints.back()<<std::endl;
+    return returnvec;
+}

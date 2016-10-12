@@ -18,6 +18,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
         if (output_choice.find("fullburden")!=std::string::npos){
             fullburden=true;
         }
+        if (output_choice.find("yearlyburden")!=std::string::npos){
+            yearlyburden=true;
+        }
         if (output_choice.find("nooverview")!=std::string::npos){
             overview_at_end=false;
         }
@@ -51,10 +54,11 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
         if (_print.timetodiagnosis) std::cout <<"<time_to_diag><time to reduction>";
         if (_print.initialresponse){
             std::cout <<"<init. response>"<<"<lsc at diag>";
-            std::cout <<"<burden>";
+            if (!_print.yearlyburden) std::cout <<"<burden>";
             if (_treattest)
                 std::cout <<"<relapse>";
         }
+        if (_print.yearlyburden) std::cout <<"<yearlyburden>";
         std::cout << std::endl;
 }
 
@@ -63,6 +67,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _nolsc_treattest=false;
     _diagnosis_reached=false;
     _burden_after_treatment=-1.;
+    _yearlyburden.clear();
 
     _timetoreduction=0.;
     ++_patients;
@@ -105,6 +110,15 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
         _redresult.push_back(_timetoreduction);
     }
     _burden_after_treatment=ker.doctor().get_tumor_burden();
+    std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
+    std::stringstream strs;
+    for (auto x : yearlyburden){
+        strs << x<<",";
+    }
+    _yearlyburden=strs.str();
+    if (_yearlyburden.length()>0){
+        _yearlyburden.pop_back();
+    }
 
 }
 
@@ -128,15 +142,17 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         if (_print.initialresponse){
             std::cout <<ker.doctor().calc_response()<<" ";
             std::cout <<_lsc_at_diagnosis<<" ";
-            std::cout <<_burden_after_treatment<<" ";
+            if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
             if (_treattest)
                 std::cout <<ker.reachedDiagnosis()<< " ";
         }
+        if (_print.yearlyburden) 
+            std::cout <<_yearlyburden<<" ";
+
         if (_print.fullburden){
-            std::cout <<"#full doctor report"<<std::endl;
+            std::cout <<std::endl<<"#full doctor report"<<std::endl;
             ker.print_full_doctors_report(std::cout);
         }
-
         if (_print) std::cout <<std::endl;
 
     }
