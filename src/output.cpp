@@ -21,6 +21,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
         if (output_choice.find("yearlyburden")!=std::string::npos){
             yearlyburden=true;
         }
+        if (output_choice.find("relapsetime")!=std::string::npos){
+            relapsetime=true;
+        }
         if (output_choice.find("nooverview")!=std::string::npos){
             overview_at_end=false;
         }
@@ -59,6 +62,9 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
             if (_treattest)
                 std::cout <<"<relapse>";
         }
+        if (_treattest && _print.relapsetime)
+            std::cout <<"<timetorelapse>";
+
         if (_print.yearlyburden) std::cout <<"<yearlyburden>";
         std::cout << std::endl;
 }
@@ -68,6 +74,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _nolsc_treattest=false;
     _diagnosis_reached=false;
     _burden_after_treatment=-1.;
+    _timetorelapse=-1.;
     _yearlyburden.clear();
 
     _timetoreduction=0.;
@@ -128,6 +135,7 @@ void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
         _recurrence_count++;
         if (_nolsc_treattest) 
             _nolsc_recurrence_count++;
+        _timetorelapse=time-(_timetoreduction+_diagnosis_time);
     }
 }
 
@@ -147,6 +155,9 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             if (_treattest)
                 std::cout <<ker.reachedDiagnosis()<< " ";
         }
+        if (_treattest && _print.relapsetime)
+            std::cout <<_timetorelapse<<" ";
+
         if (_print.yearlyburden) 
             std::cout <<_yearlyburden<<" ";
 
@@ -178,7 +189,7 @@ void Stats_Output::print_at_end() const{
     std::cout << "#Fraction diagnosed with no LSC " << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
 
     std::cout << "#<reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << std::endl;
-    if (_print && !_treattest) std::cout <<"# ";
+    if (_print || !_treattest) std::cout <<"# ";
     std::cout << ((_reachedreduction > 0&&_diagnosed>0)?(_reachedreduction / (double) _diagnosed):0)
         << " " << _reachedreduction << " " << _diagnosed << " " << _diagnosed_nolsc<< std::endl;
 

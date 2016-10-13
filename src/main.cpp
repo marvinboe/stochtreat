@@ -38,7 +38,7 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
-    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden'", output);
+    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime'", output);
     parameters.SetValue("treattest", "test the treatment", treattest);
 
     parameters.print_help(std::cout);
