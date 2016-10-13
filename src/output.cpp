@@ -133,10 +133,12 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
     if(ker.reachedDiagnosis()) {
         _recurrence_count++;
+        _timetorelapse=time-(_timetoreduction+_diagnosis_time);
         if (_nolsc_treattest) 
             _nolsc_recurrence_count++;
-        _timetorelapse=time-(_timetoreduction+_diagnosis_time);
     }
+    else
+        _timetorelapse=-2.;
 }
 
 void Stats_Output::print_patient(const Kernel& ker) const{
