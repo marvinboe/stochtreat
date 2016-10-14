@@ -29,8 +29,8 @@ Print_specifiers::Print_specifiers(std::string output_choice){
         }
 }
 
-Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool treattest):
-    _print(output_choice),_treattest(treattest){
+Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
+    _print(output_choice),_run_mode(run_mode){
 
 
         _nolsc = 0;
@@ -59,11 +59,16 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,bool
         if (_print.initialresponse){
             std::cout <<"<init. response>"<<"<lsc at diag>";
             if (!_print.yearlyburden) std::cout <<"<burden>";
-            if (_treattest)
+            if (_run_mode.treattest)
                 std::cout <<"<relapse>";
         }
-        if (_treattest && _print.relapsetime)
+        if (_run_mode.treattest && _print.relapsetime)
             std::cout <<"<timetorelapse>";
+
+        if (_run_mode.resistance>=0){
+            std::cout <<"<resistance_share_treat>";
+            if (_run_mode.treattest) std::cout <<"<resistance_share_relapse>";
+        }
 
         if (_print.yearlyburden) std::cout <<"<yearlyburden>";
         std::cout << std::endl;
@@ -96,13 +101,13 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
         _diagnosis_time=time;
         _diagnosed +=1;
         _diagnosis_reached=true;
-        if (_treattest) _no_recurrence_patients++;
+        if (_run_mode.treattest) _no_recurrence_patients++;
 
         _total_diagnosis_time += time;
         if(!ker.hasLSC()){
             _lsc_at_diagnosis=false;
             _diagnosed_nolsc +=1;
-            if (_treattest){
+            if (_run_mode.treattest){
                 _nolsc_treattest=true;
             }
         }
@@ -118,6 +123,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
         _redresult.push_back(_timetoreduction);
     }
     _burden_after_treatment=ker.doctor().get_tumor_burden();
+    _resshare_treat=ker.doctor().get_resistant_share();
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
     std::stringstream strs;
     for (auto x : yearlyburden){
@@ -131,6 +137,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 }
 
 void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
+    _resshare_relapse=ker.doctor().get_resistant_share();
     if(ker.reachedDiagnosis()) {
         _recurrence_count++;
         _timetorelapse=time-(_timetoreduction+_diagnosis_time);
@@ -154,20 +161,25 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             std::cout <<ker.doctor().calc_response()<<" ";
             std::cout <<_lsc_at_diagnosis<<" ";
             if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
-            if (_treattest)
+            if (_run_mode.treattest)
                 std::cout <<ker.reachedDiagnosis()<< " ";
         }
-        if (_treattest && _print.relapsetime)
+        if (_run_mode.treattest && _print.relapsetime)
             std::cout <<_timetorelapse<<" ";
 
         if (_print.yearlyburden) 
             std::cout <<_yearlyburden<<" ";
 
+        if (_run_mode.resistance>=0){
+            std::cout <<_resshare_treat<<" ";
+            if (_run_mode.treattest) std::cout <<_resshare_relapse<<" ";
+        }
+
         if (_print.fullburden){
             std::cout <<std::endl<<"#full doctor report"<<std::endl;
             ker.print_full_doctors_report(std::cout);
         }
-        if (_print) std::cout <<std::endl;
+        if (_print||_run_mode) std::cout <<std::endl;
 
     }
 
@@ -177,7 +189,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 void Stats_Output::print_at_end() const{
 
     if (!_print.overview_at_end) return;
-    if (_treattest){
+    if (_run_mode.treattest){
         std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         if (_print) std::cout <<"# ";
         std::cout <<_recurrence_count/double(_no_recurrence_patients)
@@ -191,7 +203,7 @@ void Stats_Output::print_at_end() const{
     std::cout << "#Fraction diagnosed with no LSC " << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
 
     std::cout << "#<reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << std::endl;
-    if (_print || !_treattest) std::cout <<"# ";
+    if (_print || !_run_mode.treattest) std::cout <<"# ";
     std::cout << ((_reachedreduction > 0&&_diagnosed>0)?(_reachedreduction / (double) _diagnosed):0)
         << " " << _reachedreduction << " " << _diagnosed << " " << _diagnosed_nolsc<< std::endl;
 

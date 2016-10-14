@@ -36,7 +36,7 @@ class Doctor{
 
         /** Sets the initial reference value per patient to calculate the tumor
          * burden later. 1/initial_burden=_alpha = (NC + NB + (2.0 * NH)) / (NC + NB). */
-        void calc_initial_reference(const Model& patient);
+        void calc_initial_reference(double time,const Model& patient);
 
         /** Caculates and returns the tumor burden based on patient data.*/
         double calc_tumor_burden(const Model& patient) const;
@@ -53,13 +53,20 @@ class Doctor{
         /** Returns burden in yearly steps in a std::vector. */
         std::vector<double> get_yearly_burden() const;
 
+        /** Calculates and returns the share of resistant cells in patient. */
+        double calc_resistant_share(const Model& patient) const;
+
+        /** Caculates and returns share of resistant cells at timepoint (defaults to the last).*/
+        double get_resistant_share(double t=-1.) const;
     private:
         std::vector<recorddata> _data;
+        std::vector<double> _res_share;
         std::vector<double> _timepoints;
 
         double _next_timepoint;
         double _sampling_timestep;
         double _starttime;
+        double _starttime_treatment;
         double _slope_timeintervall;
 
         double _alpha;

@@ -42,10 +42,17 @@ struct Print_specifiers{
 
 };
 
+struct Run_modes{
+    int resistance=-1;
+    bool treattest=false;
+    bool fixed_time_treatment=true;
+    operator bool() const { return (resistance>0||treattest);}
+};
+
 class Stats_Output{
     public:
 
-        Stats_Output(std::string output_choice,unsigned no_stochcomps,bool treattest);
+        Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode);
 
         /** Initialises per patient variables .*/
         void initialize_per_patient(int patient_id);
@@ -89,6 +96,8 @@ class Stats_Output{
     double _timetoreduction;
     double _timetorelapse;
     double _burden_after_treatment;
+    double _resshare_treat;
+    double _resshare_relapse;
     std::string _yearlyburden;
     std::vector<double> _avgsize;
 
@@ -102,7 +111,7 @@ class Stats_Output{
     bool _nolsc_treattest;
     bool _diagnosis_reached;
 
-    bool _treattest;
+    Run_modes _run_mode;
 
     Print_specifiers _print;
 

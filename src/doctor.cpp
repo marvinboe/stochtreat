@@ -7,6 +7,7 @@ Doctor::Doctor(){
     _sampling_timestep=1.;
     _slope_timeintervall=62.;
     _starttime=0.;
+    _starttime_treatment=-1.;
     _first_time_consulted=true;
 }
 
@@ -20,11 +21,12 @@ double Doctor::get_tumor_burden(double t) const{
 }
 
 
-void Doctor::calc_initial_reference(const Model& patient){
+void Doctor::calc_initial_reference(double time,const Model& patient){
 	double NC=patient.lastC()+patient.lastI();
 	double NB=patient.lastB();
 	double NH=patient.lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
+        _starttime_treatment=time;
 }
 
 double Doctor::calc_tumor_burden(const Model& patient) const{
@@ -37,12 +39,21 @@ double Doctor::calc_tumor_burden(const Model& patient) const{
 	return burden;
 }
 
+double Doctor::calc_resistant_share(const Model& patient) const{
+	double NC=patient.lastC();
+        double NI=patient.lastI();
+	double NB=patient.lastB();
+	double NH=patient.lastH();
+
+	return NI/(NC+NB+NH+NI);
+}
+
 void Doctor::take_bloodsample(double t, const Model & patient){
-    if (_data.size()==0){
-        calc_initial_reference(patient);
-    }
+
     double burden = calc_tumor_burden(patient);
+    double share = calc_resistant_share(patient);
     _data.push_back(burden);
+    _res_share.push_back(share);
     _timepoints.push_back(t);
 }
 
@@ -58,17 +69,20 @@ double Doctor::calc_response(double from_time, double end_time, double timespan)
     if (from_time<0. && end_time <0. && timespan <0.){
 
 
-        const auto x_begin=_timepoints.begin();
-        const auto y_begin=_data.begin();
+        auto x_begin=_timepoints.begin();
+        auto y_begin=_data.begin();
         
-        int i = find_timepoint(_starttime+_slope_timeintervall);
+        int i_start = find_timepoint(_starttime_treatment);
+        int reglength = find_timepoint(_starttime_treatment+_slope_timeintervall)-i_start;
+        std::advance(x_begin,i_start);
+        std::advance(y_begin,i_start);
 
-        if (i<0){
-            return 100.;
+        if (reglength<0||i_start<0){
+            return std::numeric_limits<double>::infinity();
             //this is bad TODO
         }
 
-        return slope(x_begin,y_begin,i);
+        return slope(x_begin,y_begin,reglength);
 
     }
     else {
@@ -111,11 +125,19 @@ void Doctor::print_patient_record(std::ostream &os) const{
 
 std::vector<double> Doctor::get_yearly_burden() const{
     std::vector<double> returnvec;
-    double t=_starttime+364.; //TODO something is one day off here???
+    double t=_starttime_treatment+364.; //TODO something is one day off here???
     while (t<=_timepoints.back()){
         returnvec.push_back(get_tumor_burden(t));
         t+=365.;
     }
     // std::cout <<t<<" "<<_timepoints.back()<<std::endl;
     return returnvec;
+}
+
+double Doctor::get_resistant_share(double t) const{
+    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
+
+    unsigned int i=find_timepoint(t);
+    return _res_share[i];
+    // do nothing
 }

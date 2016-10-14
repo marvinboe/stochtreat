@@ -24,8 +24,7 @@ int main (int argc, char *argv[]) {
     std::string inpath(path);
     double ntime(25.);
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
-    bool treattest=false;
-    int introduce_resistance=-1;
+    Run_modes run_mode;
 
     ParameterHandler parameters(argc,argv);
 
@@ -40,8 +39,8 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
     parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime'", output);
-    parameters.SetValue("treattest", "test the treatment", treattest);
-    parameters.SetValue("resistance", "introduce resistant cell at diagnosis", introduce_resistance);
+    parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
+    parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(=100)", run_mode.resistance);
 
     parameters.print_help(std::cout);
 
@@ -66,7 +65,7 @@ int main (int argc, char *argv[]) {
     data.setTreatment(treatmenttime);
     	// cout << data << endl;
 
-    Stats_Output out(output,size,treattest);
+    Stats_Output out(output,size,run_mode);
 
     std::vector<unsigned> redresult;
     for(unsigned i=0 ; i < patients; ++i){
@@ -79,16 +78,16 @@ int main (int argc, char *argv[]) {
 
         //#### check if diagnosis is reached
         if(ker.reachedDiagnosis()) {
-            if (introduce_resistance==100) ker.introduce_immunity_inlowest();
-            else if (introduce_resistance>=0 && introduce_resistance<=32)
-                ker.introduce_resistance(introduce_resistance);
+            if (run_mode.resistance==100) ker.introduce_immunity_inlowest();
+            else if (run_mode.resistance>=0 && run_mode.resistance<=32)
+                ker.introduce_resistance(run_mode.resistance);
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
             time=ker.execute(ran,time,true);
             out.save_data_after_treatment(ker,time);
 
-            if (treattest){
+            if (run_mode.treattest){
                 ker.set_ntime(time+10.);
                 ker.reset_treatment(ran,time);
                 time=ker.execute(ran,time,false); //look for diagnosis again
@@ -97,7 +96,6 @@ int main (int argc, char *argv[]) {
 
         }//######### everything for case of diagnosis done
         out.print_patient(ker);
-        if (introduce_resistance>=0) ker.printAll();
 
     }//end loop over patients
 
