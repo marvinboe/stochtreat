@@ -518,8 +518,8 @@ bool Model::updateDet(unsigned k, Data& data){
     incr(k, C,tempC);
 
     double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
-        + (p * (1.0 - epsi) * retrieveI(k-1))
-        - (p * epsi * retrieveI(k-1));
+        + (p * (1.0 - epsi) * retrieveI(k))
+        - (p * epsi * retrieveI(k));
     // std::cout << "#current I("<<k<<")=" << retrieveI(k) << std::endl; 
     incr(k, I, tempI);
     // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 
