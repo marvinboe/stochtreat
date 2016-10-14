@@ -49,7 +49,7 @@ bool Kernel::nextMethod(RanGen& ran){
             <<r->inType()<<" "<<r->inGraph()<<" "<<r->propensity()<<std::endl;
         exit(1);
     }
-    if(lsc_moved & (_lsctime == -1)) {
+    if((_lsctime < 0.)&&lsc_moved &&_pool.getC(0)==0 ) {
         _lsctime = prev_t;
     }
     //4. update every reaction dependend upon the reaction that was just used.
@@ -203,7 +203,6 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         _doctor.consult(_time,_pool);
         //start new update
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
-        _pool.check_LSCvanished(_time);
         _time += _time_step; 
         int reactions_count=0;
         double starttime_reacts=next_stoch;
@@ -250,7 +249,7 @@ float Kernel::whenReduction() const{
 
 
 float Kernel::get_nolsctime() const{
-    return _pool.get_nolsctime();
+    return _lsctime/365.;
 }
 
 

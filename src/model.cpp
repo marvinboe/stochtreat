@@ -51,7 +51,7 @@ double Model::mylog(double p1, double base) const{
 
 
 
-Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(-1.){
+Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){
 	assert(_numstoch > 0);
 	_numcomp = data.ncompartments()+1;
 	
@@ -96,7 +96,7 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(
 	setC(0, data.numlsc());
 }
 
-Model::Model(Data data,std::istream & is):_diagnosis(0),_nolsctime(-1.){ 
+Model::Model(Data data,std::istream & is):_diagnosis(0){ 
 	_numcomp = data.ncompartments()+1;
 	unsigned int tlen = ((_numcomp-1)*4) + 3;
 	_compartments=new double[tlen];
@@ -613,14 +613,6 @@ void Model::print_cells(std::ostream & os,double _time){
     os <<getI(0)<<" ";
     os <<std::endl;
 }
-
-void Model::check_LSCvanished(double t){
-    if (_nolsctime>0.)
-        return;
-    if (getC(0)==0)
-        _nolsctime=t/365.;
-}
-
 
 bool Model::manual_mutation(unsigned int k,unsigned int celltype_from,unsigned int celltype_to){
     if ( get(k,celltype_from)>=1.){

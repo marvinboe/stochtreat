@@ -79,11 +79,6 @@ public:
         /** Sets the time when reduction is reached. */
 	void setWhenReduction(double v) {_when = v;}
 
-        /** set time when LSCvanished.  */
-        void setWhenLSCvanished(double t) {_nolsctime=t;}
-        /** check if LSC is in pool, otherwise save time.  */
-        void check_LSCvanished(double t);
-	
 	friend std::ostream & operator<<(std::ostream &o, Model& p){return p.display(o);}
 	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
@@ -128,9 +123,6 @@ public:
 	bool treatDeterministically(unsigned k, double amount);
 	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
-        /** get time when LSCvanished.  */
-        double get_nolsctime() const {return _nolsctime;}
-	
         /** Calculates alpha from cell numbers. Required to 
          * calculate reduction of disease burden later.*/
 	void calcAlpha();
@@ -169,10 +161,6 @@ private:
         /** time of reduction (in years?!)
          */
 	double _when;
-
-        /** time when the LSC vanished from the stem cell pool.
-         */
-        double _nolsctime;
 };
 
 #endif
