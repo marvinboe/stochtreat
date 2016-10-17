@@ -9,6 +9,7 @@ Doctor::Doctor(){
     _starttime=0.;
     _starttime_treatment=-1.;
     _first_time_consulted=true;
+    _alpha=0.;
 }
 
 
@@ -140,4 +141,20 @@ double Doctor::get_resistant_share(double t) const{
     unsigned int i=find_timepoint(t);
     return _res_share[i];
     // do nothing
+}
+
+double Doctor::get_reduction(double t) const{ 
+    double burden=get_tumor_burden(t);
+    if (burden >0.)
+        return -std::log10(burden);
+    else 
+        return 0.;
+}
+
+double Doctor::reduction_time(double l) const{
+
+    for (unsigned int ti=0 ; ti < _timepoints.size(); ++ti){
+        if (get_reduction(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
+    }
+    return -1.;
 }

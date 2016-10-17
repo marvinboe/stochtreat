@@ -74,11 +74,6 @@ public:
         /** Sets the time of diagnosis.*/
 	void setDiagRes(double v) {_diagnosis = v;}
 
-        /** Returns time of CML reduction. */
-	double when() const {return _when;}
-        /** Sets the time when reduction is reached. */
-	void setWhenReduction(double v) {_when = v;}
-
 	friend std::ostream & operator<<(std::ostream &o, Model& p){return p.display(o);}
 	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
@@ -114,21 +109,13 @@ public:
 
         /** returns True if diagnosis is reached.*/
 	bool diagnosis(const Data& data) const;
-	bool reduction(const Data& data) const;
-	float getReduction() const;
 
         /** returns true if LSC is in stem cell pool */
 	bool containsLSC() const;
 
 	bool treatDeterministically(unsigned k, double amount);
-	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
-        /** Calculates alpha from cell numbers. Required to 
-         * calculate reduction of disease burden later.*/
-	void calcAlpha();
-	double getAlpha() const {return _alpha;}
-	
-	double diseaseBurden() const;
+	// double diseaseBurden() const;
 
         /** print cell numbers.
          * <HSC> <LSC> */

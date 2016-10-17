@@ -218,35 +218,14 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         // _pool.calcAlpha(); // required to recalculate disease burden
         _pool.setDiagRes((_time/365.0));
     }
-    else {
-        _pool.setWhenReduction((_time/365.0));
-    }
 
     return ( _time / 365.0);
 
 }
 
-// float Kernel::burden(){
-//     return _pool.diseaseBurden();
-// }
-
 bool Kernel::reachedDiagnosis() const{
     return _pool.diagnosis(_data);
 }
-
-
-bool Kernel::reachedReduction() const{
-    return _pool.reduction(_data);
-}
-
-float Kernel::getReduction() const{
-    return _pool.getReduction();
-}
-
-float Kernel::whenReduction() const{
-    return _pool.when();
-}
-
 
 float Kernel::get_nolsctime() const{
     return _lsctime/365.;

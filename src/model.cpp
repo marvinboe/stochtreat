@@ -420,8 +420,6 @@ std::ostream& Model::display(std::ostream& os) const{
     os << "# " << _numcomp << std::endl;
     os << "# " << _alpha << std::endl;
     os << "# " << _diagnosis << std::endl;
-    os << "# " << getReduction() << std::endl;
-    os << "# " << when() << std::endl;
     return os;
 }
 
@@ -548,62 +546,15 @@ bool Model::treatDeterministically(unsigned k, double amount){
 	return true;
 }
 
-bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){	
-    double ccells = getC(k);
-    double bcells = getB(k);
-
-    double tmp (0.);
-    for(unsigned i = 0; i < ccells; ++i){
-        if(ran.randouble() < probability) ++tmp;
-    }
-
-    bool changed = (tmp>0)?true:false;
-    if (changed){
-        setC(k, ccells - tmp);
-        setB(k, bcells + tmp);
-        		// cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << std::endl;
-    }
-    return changed;	
-}
-
-
 bool Model::diagnosis(const Data& data) const{
 	// double res = mylog(getN(_numcomp-1),10);
 	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << std::endl;
 	return mylog(lastN(),10)>= data.stop();
 }
 
-bool Model::reduction(const Data& data) const{
-	return getReduction() >= data.reduction();
-    }
-
-float Model::getReduction() const{
-	double b = diseaseBurden();
-	return (2.0 - mylog(b,10));
-}
-
-
 bool Model::containsLSC() const{
 	return (getC(0) > 0);
 }
-
-void Model::calcAlpha(){
-	double NC=lastC()+lastI();
-	double NB=lastB();
-	double NH=lastH();
-	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
-//	cout << "Alpha = " << _alpha << std::endl;
-}
-
-double Model::diseaseBurden() const{
-	double NC=lastC()+lastI();
-	double NB=lastB();
-	double NH=lastH();
-	double burden = (_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
-//	cout << burden << std::endl;
-	return burden;
-}
-
 
 void Model::print_cells(std::ostream & os,double _time){
     os <<_time/365.0<<" ";

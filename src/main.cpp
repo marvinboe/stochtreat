@@ -22,7 +22,7 @@ int main (int argc, char *argv[]) {
     double months(1); //how often output is written
     std::string path("./outinput/");
     std::string inpath(path);
-    double ntime(25.);
+    double ntime(25.);// maximum simulation time in years
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     Run_modes run_mode;
 

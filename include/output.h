@@ -46,7 +46,7 @@ struct Run_modes{
     int resistance=-1;
     bool treattest=false;
     bool fixed_time_treatment=true;
-    operator bool() const { return (resistance>0||treattest);}
+    operator bool() const { return (resistance>=0||treattest);}
 };
 
 class Stats_Output{

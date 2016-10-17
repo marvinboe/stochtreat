@@ -58,9 +58,6 @@ class Kernel {
          * reduction = 2.0 - log_10(burden)*/
         float getReduction() const;
 
-        /** Returns time when required reduction level is reached. */
-        float whenReduction() const;
-
         /**  get first timepoint without LSC in population.  */
         float get_nolsctime() const;
 
@@ -73,11 +70,7 @@ class Kernel {
         /** Makes all bound cells to cancer cells again*/
         void reset_treatment(RanGen& ran,double t);
 
-        /** Calculates and returns the disease burden for this particular
-         * patient. Based on "alpha" which needs to be calculated before,
-         * typically when diagnosis is reached. */
-        // float burden();
-
+        /** adds the sizes of stochastic compartments to the given data vector. */
         void addStochCompSizes(std::vector<double>& data) const;
 
         /** write all model data to the std::ostream */

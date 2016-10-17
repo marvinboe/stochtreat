@@ -116,9 +116,9 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
-    if(ker.reachedReduction()){
+    if(ker.doctor().reached_reduction(4.)){
         _reachedreduction +=1;
-        _timetoreduction=(ker.whenReduction() - _diagnosis_time);
+        _timetoreduction=(ker.doctor().reduction_time(4.) - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
     }
@@ -197,10 +197,10 @@ void Stats_Output::print_at_end() const{
     }
 
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-_timer)/CLOCKS_PER_SEC << std::endl;
-    std::cout << "#Average time to diagnosis " << (_diagnosed > 0?(_total_diagnosis_time / (double) _diagnosed):0) << std::endl;
-    std::cout << "#Fraction diagnosed "<< (_diagnosed /(double) _patients) << std::endl;
-    std::cout << "#Fraction with no LSC " << (_nolsc / (double) _patients) << std::endl;
-    std::cout << "#Fraction diagnosed with no LSC " << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
+    std::cout <<"#<av. diagtime>"<<"<diagnosed frac>"<<"<nolsc frac>"<<"<nolsc diagnosed frac>"<<std::endl;
+    std::cout <<"# "<< (_diagnosed > 0?(_total_diagnosis_time / (double) _diagnosed):0)<<" "
+        << (_diagnosed /(double) _patients) <<" " << (_nolsc / (double) _patients) <<" "
+   << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
 
     std::cout << "#<reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << std::endl;
     if (_print || !_run_mode.treattest) std::cout <<"# ";
@@ -209,13 +209,13 @@ void Stats_Output::print_at_end() const{
 
 
     double stddev = 0;
-    double avg = (_reachedreduction > 0?(_total_timetoreduction / (double) _reachedreduction):0) ;
+    double avg = (_reachedreduction > 0?(_total_timetoreduction / (double) _reachedreduction):-1.) ;
     for(unsigned int i=0; i < _redresult.size(); i++){
         stddev += pow((double)(_redresult[i] - avg), 2.0);
     }
     stddev = stddev / (double)_redresult.size();
     stddev = sqrt(stddev);
-    std::cout << "#Average time to reduction "<< avg << "\t" << stddev << std::endl;
+    std::cout << "#time to reduction avg="<< avg << " stddev=" << stddev << std::endl;
     for (int i=0; i< _avgsize.size(); i++) {
         std::cout << "#avg size comp " << i << " = " << (_avgsize[i]/(double)_patients) << std::endl;
     }

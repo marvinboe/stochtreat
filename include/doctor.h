@@ -20,7 +20,9 @@ limitations under the License.
 #include "model.h"
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 #include <vector>
+#include <iostream>
 
 class Doctor{
     public:
@@ -58,6 +60,15 @@ class Doctor{
 
         /** Caculates and returns share of resistant cells at timepoint (defaults to the last).*/
         double get_resistant_share(double t=-1.) const;
+
+        /** Calculates the log reduction of tumor burden. */
+        double get_reduction(double t=-1.) const;
+
+        /** Returns true if required reduction level is reached.*/
+        bool reached_reduction(double l=4.0,double t=-1.) const{ return (get_reduction(t)>=l);}
+
+        /** Returns the timepoint when reduction was reached (for the first time).*/
+        double reduction_time(double l=4.) const;
     private:
         std::vector<recorddata> _data;
         std::vector<double> _res_share;
