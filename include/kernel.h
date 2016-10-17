@@ -76,7 +76,7 @@ class Kernel {
         /** Calculates and returns the disease burden for this particular
          * patient. Based on "alpha" which needs to be calculated before,
          * typically when diagnosis is reached. */
-        float burden();
+        // float burden();
 
         void addStochCompSizes(std::vector<double>& data) const;
 
@@ -106,6 +106,8 @@ class Kernel {
 
         /** Reinitializes the kernel if cell counts or rates have changed. */
         void reinitialize(Model& pool,RanGen& ran,double simtime);
+
+        bool stopsim(double time,bool treat);
 
         double _time;
         Data _data;

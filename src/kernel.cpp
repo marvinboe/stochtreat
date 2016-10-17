@@ -198,7 +198,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
     double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
 
     // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
-    while(_time<t_max &&  (treat || (!treat && !_pool.diagnosis(_data)))){
+    while(_time<t_max && !stopsim(_time,treat) ){
 
         _doctor.consult(_time,_pool);
         //start new update
@@ -215,7 +215,7 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         iters++;
     }
     if(!treat) {
-        _pool.calcAlpha(); // required to recalculate disease burden
+        // _pool.calcAlpha(); // required to recalculate disease burden
         _pool.setDiagRes((_time/365.0));
     }
     else {
@@ -226,9 +226,9 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
 
 }
 
-float Kernel::burden(){
-    return _pool.diseaseBurden();
-}
+// float Kernel::burden(){
+//     return _pool.diseaseBurden();
+// }
 
 bool Kernel::reachedDiagnosis() const{
     return _pool.diagnosis(_data);
@@ -307,3 +307,6 @@ void Kernel::introduce_resistance(unsigned k){
 
 }
 
+bool Kernel::stopsim(double t, bool treat){
+    return !(treat || (!treat && !_pool.diagnosis(_data)));
+}

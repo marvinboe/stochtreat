@@ -448,7 +448,6 @@ std::istream& Model::read(std::istream& is){
         setI(k,I);
         storeI(k,I);
     }
-    calcAlpha();
     return is;
 }
 
