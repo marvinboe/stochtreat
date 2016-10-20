@@ -216,8 +216,13 @@ void Stats_Output::print_at_end() const{
     stddev = stddev / (double)_redresult.size();
     stddev = sqrt(stddev);
     std::cout << "#time to reduction avg="<< avg << " stddev=" << stddev << std::endl;
+    std::cout << "#avg size comps. ";
     for (int i=0; i< _avgsize.size(); i++) {
-        std::cout << "#avg size comp " << i << " = " << (_avgsize[i]/(double)_patients) << std::endl;
+        std::cout << "<" << i << "> ";
     }
-
+    std::cout<<std::endl<<"# ";
+    for (int i=0; i< _avgsize.size(); i++) {
+        std::cout << (_avgsize[i]/(double)_patients) <<" ";
+    }
+    std::cout << std::endl;
 }
