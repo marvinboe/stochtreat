@@ -167,18 +167,18 @@ void Kernel::detUpdate(){
     }
 }
 
-double Kernel::execute(RanGen& ran, double t, bool treat){
+double Kernel::execute(RanGen& ran, double t, int sim_type){
 
     _time = (t*365.0); // _time is in the function expressed in days
     double t_max=_data.getTmax_in_years()*365.;
     double  _time_step = _data.dt();
-    if(treat) {
+    if(sim_type==TREATMENTRUN) {
         t_max=_time+_data.treatment_dur()*365.;
     }
 
 
     //######turn treatment on or off
-    if (treat) {
+    if (sim_type==TREATMENTRUN) {
         _pool.setTreatRate(_data.treatment_rate());
         _doctor.calc_initial_reference(_time,_pool);
     }
@@ -192,13 +192,12 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
     }
     reinitialize(_pool,ran,_time);
     //#####done switching treatment
-
+    
     int iters =0.;// (int)ceil(_time / _data.dt());
 
     double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
 
-    // while(_time<t_max && ( (!treat && !_pool.diagnosis(_data)) || (treat && !_pool.reduction(_data)) )){
-    while(_time<t_max && !stopsim(_time,treat) ){
+    while(_time<t_max && !stopsim(_time,sim_type) ){
 
         _doctor.consult(_time,_pool);
         //start new update
@@ -214,7 +213,8 @@ double Kernel::execute(RanGen& ran, double t, bool treat){
         detUpdate();
         iters++;
     }
-    if(!treat) {
+    _doctor.consult(_time,_pool);
+    if(sim_type==DIAGNOSISRUN) {
         // _pool.calcAlpha(); // required to recalculate disease burden
         _pool.setDiagRes((_time/365.0));
     }
@@ -286,6 +286,17 @@ void Kernel::introduce_resistance(unsigned k){
 
 }
 
-bool Kernel::stopsim(double t, bool treat){
-    return !(treat || (!treat && !_pool.diagnosis(_data)));
+bool Kernel::stopsim(double t,int sim_type){
+    if (sim_type==TREATMENTRUN){
+        return false;
+    }
+    else if (sim_type==DIAGNOSISRUN){
+        if (_doctor.diagnosis_reached(1.e12)) return true;
+        else return false;
+    }
+    else if (sim_type==RELAPSERUN){
+        if (_doctor.diagnosis_reached(1.e12)) return true;
+        else return false;
+    }
+    return false;
 }

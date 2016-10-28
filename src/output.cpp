@@ -116,7 +116,7 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
-    if(ker.doctor().reached_reduction(4.)){
+    if(ker.doctor().reduction_reached()){
         _reachedreduction +=1;
         _timetoreduction=(ker.doctor().reduction_time(4.) - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
@@ -138,7 +138,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
 void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
     _resshare_relapse=ker.doctor().get_resistant_share();
-    if(ker.reachedDiagnosis()) {
+    if(ker.doctor().diagnosis_reached(1.e12)) {
         _recurrence_count++;
         _timetorelapse=time-(_timetoreduction+_diagnosis_time);
         if (_nolsc_treattest) 
@@ -179,7 +179,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             std::cout <<std::endl<<"#full doctor report"<<std::endl;
             ker.print_full_doctors_report(std::cout);
         }
-        if (_print||_run_mode) std::cout <<std::endl;
+        if (_print) std::cout <<std::endl;
 
     }
 

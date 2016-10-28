@@ -141,6 +141,7 @@ class Data {
                 /** Sets the number of stochastic compartments.*/
 		void setLimit(int l) {_numstochcomps = l;}
 
+                /** threshold of cellnumber for diagnosis. */
 		double threshold() const {return _threshold;}
 		void setThreshold(double v) {_threshold = v;}
 		  

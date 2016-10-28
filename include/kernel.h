@@ -18,6 +18,7 @@
 #include "indexedqueue.h"
 #include "rangen.h"
 
+enum sim_type {DIAGNOSISRUN=0,TREATMENTRUN,RELAPSERUN};
 class Kernel {
     public:
         /** Kernel contructor:
@@ -25,7 +26,8 @@ class Kernel {
          * 2. Calls constructor of DependencyGraph to initialize list of reactions (_allr) and the dependency graph _depend.
          * 3. Calls constructor of IndexedQueue with _pool and _allr as argument to initialize reaction queue.  */
         Kernel(RanGen& ran, Data& data, unsigned numstochs, double time=0.0):_time(time),_data(data), _dt(data.dt()), _pool(data,numstochs), 
-        _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),_endtime(data.getTmax_in_years()),_lsctime(-1.),_doctor(){};
+        _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),
+        _endtime(data.getTmax_in_years()),_lsctime(-1.),_doctor(data.threshold(),data.reduction(),data.reduction()-1.){};
 
         /** Kernel contructor that reads model data from std::istream& is instead of initialising new. Steps:
          * 1. Calls constructor of Model to initialize system in _pool.
@@ -45,8 +47,8 @@ class Kernel {
          * double t -> start time of the simulation (This has to correspond 
          *             to the cell pool time, otherwise stochastic updates
          *             won't work!)
-         * bool treat -> wether or not to apply treatment in this run.  */
-        double execute(RanGen& ran, double t, bool treat);
+         * int sim_type -> DIAGNOSIS, TREATMENT or RELAPSE.  */
+        double execute(RanGen& ran, double t, int sim_type);
 
         /** Returns true if cell count in cell pool reached diagnosis level. */
         bool reachedDiagnosis() const;
@@ -100,7 +102,7 @@ class Kernel {
         /** Reinitializes the kernel if cell counts or rates have changed. */
         void reinitialize(Model& pool,RanGen& ran,double simtime);
 
-        bool stopsim(double time,bool treat);
+        bool stopsim(double time,int sim_type);
 
         double _time;
         Data _data;

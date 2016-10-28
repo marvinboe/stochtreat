@@ -28,6 +28,7 @@ class Doctor{
     public:
         typedef double recorddata;
         Doctor();
+        Doctor(double diagnosis_level, double full_reduction, double relapse_reduction);
         
         /** Reads the patient data at a single time point and adds to the
          * patients record in _data. */
@@ -65,13 +66,20 @@ class Doctor{
         double get_reduction(double t=-1.) const;
 
         /** Returns true if required reduction level is reached.*/
-        bool reached_reduction(double l=4.0,double t=-1.) const{ return (get_reduction(t)>=l);}
+        bool reduction_reached(double l=-1.,double t=-1.) const;
 
         /** Returns the timepoint when reduction was reached (for the first time).*/
         double reduction_time(double l=4.) const;
+
+        /** Returns if cell count reaches diagnosis level.*/
+        bool diagnosis_reached(double level=-1., double t=-1.) const;
+
+        /** Returns if burden reaches relapse level.*/
+        bool relapse_reached(double level=-1., double t=-1.) const;
     private:
-        std::vector<recorddata> _data;
-        std::vector<double> _res_share;
+        std::vector<double> _burden_data;
+        std::vector<double> _res_share_data;
+        std::vector<double> _lastn_data;
         std::vector<double> _timepoints;
 
         double _next_timepoint;
@@ -79,6 +87,10 @@ class Doctor{
         double _starttime;
         double _starttime_treatment;
         double _slope_timeintervall;
+
+        double _diagnosis_level;
+        double _full_reduction;
+        double _relapse_reduction;
 
         double _alpha;
 

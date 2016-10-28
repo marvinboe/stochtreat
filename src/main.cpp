@@ -73,7 +73,7 @@ int main (int argc, char *argv[]) {
         Kernel ker(ran, data, size);
         
         //make run without treatment until diagnosis (or time exceeded).
-        double time = ker.execute(ran,0.0,false);
+        double time = ker.execute(ran,0.0,DIAGNOSISRUN);
         out.save_data_after_diagnosisrun(ker,time);
 
         //#### check if diagnosis is reached
@@ -84,13 +84,13 @@ int main (int argc, char *argv[]) {
 
             //start treatment until limit is reached or maxmum time of treatment has passed
             // cout << "#burden is " << ker.burden() << " reduction is " << ker.getReduction() << endl;
-            time=ker.execute(ran,time,true);
+            time=ker.execute(ran,time,TREATMENTRUN);
             out.save_data_after_treatment(ker,time);
 
             if (run_mode.treattest){
                 ker.set_ntime(time+10.);
                 ker.reset_treatment(ran,time);
-                time=ker.execute(ran,time,false); //look for diagnosis again
+                time=ker.execute(ran,time,RELAPSERUN); //look for diagnosis again
                 out.save_data_after_relapse(ker,time);
             }
 

@@ -547,9 +547,9 @@ bool Model::treatDeterministically(unsigned k, double amount){
 }
 
 bool Model::diagnosis(const Data& data) const{
-	// double res = mylog(getN(_numcomp-1),10);
-	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << std::endl;
-	return mylog(lastN(),10)>= data.stop();
+	double res = mylog(lastN(),10);
+    // std::cout <<"model.diagnosis() "<<  res<<" " << data.stop() << std::endl;
+	return res>= data.stop();
 }
 
 bool Model::containsLSC() const{

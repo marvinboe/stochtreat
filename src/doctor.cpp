@@ -6,6 +6,19 @@ Doctor::Doctor(){
     _next_timepoint=0.;
     _sampling_timestep=1.;
     _slope_timeintervall=62.;
+    _diagnosis_level=1.e12;
+    _starttime=0.;
+    _starttime_treatment=-1.;
+    _first_time_consulted=true;
+    _alpha=0.;
+}
+
+Doctor::Doctor(double diagnosis_level, double full_reduction, double relapse_reduction):
+    _diagnosis_level(diagnosis_level),_full_reduction(full_reduction),_relapse_reduction(relapse_reduction){
+    //do nothing
+    _next_timepoint=0.;
+    _sampling_timestep=1.;
+    _slope_timeintervall=62.;
     _starttime=0.;
     _starttime_treatment=-1.;
     _first_time_consulted=true;
@@ -17,7 +30,7 @@ double Doctor::get_tumor_burden(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 
     unsigned int i=find_timepoint(t);
-    return _data[i];
+    return _burden_data[i];
     // do nothing
 }
 
@@ -53,8 +66,9 @@ void Doctor::take_bloodsample(double t, const Model & patient){
 
     double burden = calc_tumor_burden(patient);
     double share = calc_resistant_share(patient);
-    _data.push_back(burden);
-    _res_share.push_back(share);
+    _burden_data.push_back(burden);
+    _res_share_data.push_back(share);
+    _lastn_data.push_back(patient.lastN());
     _timepoints.push_back(t);
 }
 
@@ -71,7 +85,7 @@ double Doctor::calc_response(double from_time, double end_time, double timespan)
 
 
         auto x_begin=_timepoints.begin();
-        auto y_begin=_data.begin();
+        auto y_begin=_burden_data.begin();
         
         int i_start = find_timepoint(_starttime_treatment);
         int reglength = find_timepoint(_starttime_treatment+_slope_timeintervall)-i_start;
@@ -120,7 +134,7 @@ void Doctor::consult(double t, const Model& patient){
 void Doctor::print_patient_record(std::ostream &os) const{
     os <<"# patient data: <time> <burden>"<<std::endl;
     for (unsigned int i=0; i< _timepoints.size(); ++i){
-        os <<_timepoints[i]<<" "<<_data[i]<<std::endl;
+        os <<_timepoints[i]<<" "<<_burden_data[i]<<std::endl;
     }
 }
 
@@ -139,7 +153,7 @@ double Doctor::get_resistant_share(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 
     unsigned int i=find_timepoint(t);
-    return _res_share[i];
+    return _res_share_data[i];
     // do nothing
 }
 
@@ -157,4 +171,27 @@ double Doctor::reduction_time(double l) const{
         if (get_reduction(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
     }
     return -1.;
+}
+
+bool Doctor::reduction_reached(double l, double t) const {
+    if (l<0.) l=_full_reduction;
+    return (get_reduction(t)>=l);
+}
+
+
+bool Doctor::diagnosis_reached( double level, double t) const{
+    if (level < 0.) level=_diagnosis_level;
+
+    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
+    if (t<0.) return false; 
+    unsigned int i=find_timepoint(t);
+
+    // std::cout <<"debug diagnosis: "<<_lastn_data[i]<<" "<<level<<" "<<i<<" "<<t<<std::endl;
+    if (_lastn_data[i] >= level) return true;
+    else return false;
+}
+
+bool Doctor::relapse_reached(double l, double t) const {
+    if (l<0.) l=_relapse_reduction;
+    return (get_reduction(t)<l);
 }
