@@ -95,6 +95,7 @@ class Stats_Output{
     double _total_timetoreduction;
     double _timetoreduction;
     double _timetorelapse;
+    double _timebeforerelapserun;
     double _burden_after_treatment;
     double _resshare_treat;
     double _resshare_relapse;

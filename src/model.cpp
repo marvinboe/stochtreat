@@ -530,11 +530,6 @@ bool Model::updateDet(unsigned k, Data& data){
 }
 
 bool Model::treatDeterministically(unsigned k, double amount){	
-	// double ccells = getC(k);
-	// double bcells = getB(k);
-	// double tmp = ccells * amount;
-	// setC(k, ccells - tmp);
-	// setB(k, bcells + tmp);
 
         double ccells=retrieveC(k);
 	double tmp = ccells * amount;
@@ -544,12 +539,6 @@ bool Model::treatDeterministically(unsigned k, double amount){
         incr(k,B,tmp);
         // std::cout <<" "<<getC(k)<<std::endl;
 	return true;
-}
-
-bool Model::diagnosis(const Data& data) const{
-	double res = mylog(lastN(),10);
-    // std::cout <<"model.diagnosis() "<<  res<<" " << data.stop() << std::endl;
-	return res>= data.stop();
 }
 
 bool Model::containsLSC() const{

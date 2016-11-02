@@ -33,7 +33,7 @@ Data::Data(){
 	_epsb=0.89;
         _tmax=25.;
 	_ncompartments=32;
-	_stop=10.39;//DP RAT
+	_diagnosis_level=10.39;//DP RAT
 	_reduction = 3;
 	_numstochcomps=7;
 	_additional=0;
@@ -83,8 +83,8 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	_epsb=0.89; //imatinib;
 	_epsi=_epsc;
 	_ncompartments=32;
-	_stop=12;//log value at diagnosis
-	_reduction = 3; //required log reduction
+	_diagnosis_level=12;//log value at diagnosis
+	_reduction = 3.5; //required log reduction
 	_treatment_rate=0.05;
 	_numstochcomps=7;
 	_additional=0;
@@ -112,7 +112,7 @@ Data::Data(const Data& other){
         _tmax=other.getTmax_in_years();
 	_rbase=other.rbase();
 	_ncompartments=other.ncompartments();
-	_stop=other.stop();
+	_diagnosis_level=other.diagnosis_level();
 	_reduction=other.reduction();
 	_N0=other.N0();
 	_tau=other.tau();
@@ -157,7 +157,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    ncompartment " << _ncompartments << std::endl;
 	os << "    additional " << _additional << std::endl;
 	os << "    treatment duration " << _treatment_duration << std::endl;
-	os << "    stop " << _stop << std::endl;
+	os << "    stop " << _diagnosis_level << std::endl;
 	os << "    reduction " << _reduction << std::endl;
 	// os << "    rcancer " << _rcancer << std::endl;
 	os << "  data collection :: " << std::endl;	

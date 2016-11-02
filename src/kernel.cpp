@@ -215,16 +215,11 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
     }
     _doctor.consult(_time,_pool);
     if(sim_type==DIAGNOSISRUN) {
-        // _pool.calcAlpha(); // required to recalculate disease burden
         _pool.setDiagRes((_time/365.0));
     }
 
     return ( _time / 365.0);
 
-}
-
-bool Kernel::reachedDiagnosis() const{
-    return _pool.diagnosis(_data);
 }
 
 float Kernel::get_nolsctime() const{
@@ -288,15 +283,60 @@ void Kernel::introduce_resistance(unsigned k){
 
 bool Kernel::stopsim(double t,int sim_type){
     if (sim_type==TREATMENTRUN){
-        return false;
+        if (_doctor.reduction_reached()){
+            if (_stoptimer<=0.){
+                _stoptimer=t;
+                return false;
+            }
+            if (t>=_stoptimer+365.){
+                _stoptimer=-1.;
+                return true;
+            }
+        }
+        else return false;
     }
     else if (sim_type==DIAGNOSISRUN){
-        if (_doctor.diagnosis_reached(1.e12)) return true;
+        if (_doctor.diagnosis_reached()) return true;
         else return false;
     }
     else if (sim_type==RELAPSERUN){
-        if (_doctor.diagnosis_reached(1.e12)) return true;
+        if (_doctor.relapse_reached()) return true;
         else return false;
     }
     return false;
+}
+
+bool Kernel::read_model(std::string path, int runid, int i){
+    // writeModel(std::cout);
+
+    //#################read compartment data from file##########
+    std::stringstream ssin;
+    ssin << path<< "patient-"<< runid << "-"<< i << ".txt";
+    std::ifstream input(ssin.str().c_str());
+    if(!input.is_open()){
+        return false;
+    }
+    else{//input is open
+        readModel(input);
+        // ker.writeModel(std::cout);
+        input.close();
+    }
+    return true;
+    //#############end reading model data ######################
+}
+
+bool Kernel::write_model(std::string path, int runid, int i){
+
+    //##########write compartment data to file
+    std::stringstream ss;
+    ss << path<< "patient-"<< runid << "-"<< i << ".txt";
+    std::ofstream output(ss.str().c_str());
+    if(!output.is_open()){
+        std::cout << " error: unable to open output file " << ss.str() << std::endl;
+        throw std::runtime_error("unable to open output");
+    }
+    writeModel(output);
+    output.close();
+    //######end writing patient data to file
+    return true;
 }

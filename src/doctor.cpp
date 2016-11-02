@@ -41,6 +41,7 @@ void Doctor::calc_initial_reference(double time,const Model& patient){
 	double NH=patient.lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
         _starttime_treatment=time;
+        // std::cout <<"init alpha debug: "<<_alpha<<" "<<NC<<" "<<NB<<" "<<NH<<std::endl;
 }
 
 double Doctor::calc_tumor_burden(const Model& patient) const{
@@ -48,8 +49,10 @@ double Doctor::calc_tumor_burden(const Model& patient) const{
 	double NB=patient.lastB();
 	double NH=patient.lastH();
 
-	double burden = _alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//(_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
-//	cout << burden << std::endl;
+	double burden = 0.;
+        if (_alpha > 0.)
+	    burden = _alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//(_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
+        // std::cout << burden << std::endl;
 	return burden;
 }
 
@@ -157,7 +160,7 @@ double Doctor::get_resistant_share(double t) const{
     // do nothing
 }
 
-double Doctor::get_reduction(double t) const{ 
+double Doctor::get_logburden(double t) const{ 
     double burden=get_tumor_burden(t);
     if (burden >0.)
         return -std::log10(burden);
@@ -168,14 +171,17 @@ double Doctor::get_reduction(double t) const{
 double Doctor::reduction_time(double l) const{
 
     for (unsigned int ti=0 ; ti < _timepoints.size(); ++ti){
-        if (get_reduction(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
+        if (get_logburden(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
     }
     return -1.;
 }
 
 bool Doctor::reduction_reached(double l, double t) const {
     if (l<0.) l=_full_reduction;
-    return (get_reduction(t)>=l);
+    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
+    if (t<0.) return false; 
+    // std::cout <<"reduction_reached debug: "<<get_logburden(t)<<" "<<l<<std::endl;
+    return (get_logburden(t)>=l);
 }
 
 
@@ -187,11 +193,15 @@ bool Doctor::diagnosis_reached( double level, double t) const{
     unsigned int i=find_timepoint(t);
 
     // std::cout <<"debug diagnosis: "<<_lastn_data[i]<<" "<<level<<" "<<i<<" "<<t<<std::endl;
-    if (_lastn_data[i] >= level) return true;
+    if (_lastn_data[i] >= std::pow(10.,level)) return true;
     else return false;
 }
 
 bool Doctor::relapse_reached(double l, double t) const {
     if (l<0.) l=_relapse_reduction;
-    return (get_reduction(t)<l);
+    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
+    if (t<0.) return false; 
+
+    // std::cout <<"relapse_reached debug: "<<l<<" "<<t<<" "<<get_logburden(t)<<" "<<get_tumor_burden(t)<<std::endl;
+    return (get_logburden(t)<l);
 }

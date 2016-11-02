@@ -107,9 +107,6 @@ public:
 
 	bool updateDet(unsigned k, Data& data);
 
-        /** returns True if diagnosis is reached.*/
-	bool diagnosis(const Data& data) const;
-
         /** returns true if LSC is in stem cell pool */
 	bool containsLSC() const;
 

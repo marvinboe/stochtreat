@@ -83,6 +83,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _yearlyburden.clear();
 
     _timetoreduction=0.;
+    _timebeforerelapserun=0.;
     ++_patients;
 
     if (_print.per_patient){
@@ -97,11 +98,10 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
     if(!ker.hasLSC())
         _nolsc +=1;
 
-    if (ker.reachedDiagnosis()){
+    if (ker.doctor().diagnosis_reached()){
         _diagnosis_time=time;
         _diagnosed +=1;
         _diagnosis_reached=true;
-        if (_run_mode.treattest) _no_recurrence_patients++;
 
         _total_diagnosis_time += time;
         if(!ker.hasLSC()){
@@ -117,11 +117,13 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
     if(ker.doctor().reduction_reached()){
+        if (_run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
         _timetoreduction=(ker.doctor().reduction_time(4.) - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
     }
+    _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
     _resshare_treat=ker.doctor().get_resistant_share();
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
@@ -138,9 +140,9 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
 void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
     _resshare_relapse=ker.doctor().get_resistant_share();
-    if(ker.doctor().diagnosis_reached(1.e12)) {
+    if(ker.doctor().relapse_reached()) {
         _recurrence_count++;
-        _timetorelapse=time-(_timetoreduction+_diagnosis_time);
+        _timetorelapse=time-(_timebeforerelapserun);
         if (_nolsc_treattest) 
             _nolsc_recurrence_count++;
     }
@@ -162,7 +164,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             std::cout <<_lsc_at_diagnosis<<" ";
             if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
             if (_run_mode.treattest)
-                std::cout <<ker.reachedDiagnosis()<< " ";
+                std::cout <<ker.doctor().diagnosis_reached()<< " ";
         }
         if (_run_mode.treattest && _print.relapsetime)
             std::cout <<_timetorelapse<<" ";

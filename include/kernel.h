@@ -10,13 +10,14 @@
 #ifndef __KERNEL_H
 #define __KERNEL_H
 
-#include <fstream>
 #include "model.h"
 #include "doctor.h"
 #include "reactions.h"
 #include "dependency.h"
 #include "indexedqueue.h"
 #include "rangen.h"
+#include <fstream>
+#include <sstream>
 
 enum sim_type {DIAGNOSISRUN=0,TREATMENTRUN,RELAPSERUN};
 class Kernel {
@@ -27,7 +28,7 @@ class Kernel {
          * 3. Calls constructor of IndexedQueue with _pool and _allr as argument to initialize reaction queue.  */
         Kernel(RanGen& ran, Data& data, unsigned numstochs, double time=0.0):_time(time),_data(data), _dt(data.dt()), _pool(data,numstochs), 
         _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),
-        _endtime(data.getTmax_in_years()),_lsctime(-1.),_doctor(data.threshold(),data.reduction(),data.reduction()-1.){};
+        _endtime(data.getTmax_in_years()),_lsctime(-1.),_doctor(data.diagnosis_level(),data.reduction(),data.relapse_reduction()){};
 
         /** Kernel contructor that reads model data from std::istream& is instead of initialising new. Steps:
          * 1. Calls constructor of Model to initialize system in _pool.
@@ -49,12 +50,6 @@ class Kernel {
          *             won't work!)
          * int sim_type -> DIAGNOSIS, TREATMENT or RELAPSE.  */
         double execute(RanGen& ran, double t, int sim_type);
-
-        /** Returns true if cell count in cell pool reached diagnosis level. */
-        bool reachedDiagnosis() const;
-
-        /** Returns true if reduction is reached in cell pool. Depends on the number of cells.*/
-        bool reachedReduction() const;
 
         /** Returns the reduction after (or while treatment).
          * reduction = 2.0 - log_10(burden)*/
@@ -82,6 +77,12 @@ class Kernel {
          * Requires same format as writeModel(ostream&).  */
         std::istream& readModel(std::istream& input);
 
+        /* Reads model data from file given by path, runid and i. */
+        bool read_model(std::string path, int runid, int i);
+
+        /* Writes model data to file with filename given by path, runid and i. */
+        bool write_model(std::string path, int runid, int i);
+
         /** Prints full doctors report to ostream. */
         void print_full_doctors_report(std::ostream& os) const{_doctor.print_patient_record(os);}
 
@@ -105,6 +106,7 @@ class Kernel {
         bool stopsim(double time,int sim_type);
 
         double _time;
+        double _stoptimer;
         Data _data;
         double _dt;
         Model _pool;
