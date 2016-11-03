@@ -142,9 +142,6 @@ private:
          */
 	double _diagnosis;
 
-        /** time of reduction (in years?!)
-         */
-	double _when;
 };
 
 #endif

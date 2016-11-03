@@ -27,10 +27,10 @@ Data::Data(){
 	_frac_csc=0.0;
 	_numlsc = 0;
 	//are the same accross mamals
-	_epsh=0.8476; //in paper 0.85 //0.8476;
-	_epsc=0.72;
-	_epsi=_epsc;
-	_epsb=0.89;
+	_diffprobs.epsh=0.8476; //in paper 0.85 //0.8476;
+	_diffprobs.epsc=0.72;
+	_diffprobs.epsi=_diffprobs.epsc;
+	_diffprobs.epsb=0.89;
         _tmax=25.;
 	_ncompartments=32;
 	_diagnosis_level=10.39;//DP RAT
@@ -78,10 +78,10 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	
 	//are the same accross mamals or changd by command line
 	_rbase=1.263;//in paper 1.26// 1.263;
-	_epsh=0.8476;//in paper 0.85// 0.8476;
-	_epsc=0.72;
-	_epsb=0.89; //imatinib;
-	_epsi=_epsc;
+	_diffprobs.epsh=0.8476;//in paper 0.85// 0.8476;
+	_diffprobs.epsc=0.72;
+	_diffprobs.epsb=0.89; //imatinib;
+	_diffprobs.epsi=_diffprobs.epsc;
 	_ncompartments=32;
 	_diagnosis_level=12;//log value at diagnosis
 	_reduction = 3.5; //required log reduction
@@ -100,10 +100,10 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 
 Data::Data(const Data& other){
 	_dt=other.dt();
-	_epsh=other.epsh();
-	_epsc=other.epsc();
-	_epsb=other.epsb();
-	_epsi=other.epsi();
+	_diffprobs.epsh=other.epsh();
+	_diffprobs.epsc=other.epsc();
+	_diffprobs.epsb=other.epsb();
+	_diffprobs.epsi=other.epsi();
 	_p_csc=other.p_csc();
 	_p_imm=other.p_imm();
 	_frac_csc=other.frac_csc();
@@ -147,10 +147,10 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    numlsc " << _numlsc << std::endl;
 	os << "  fixed :: " << std::endl;
 	os << "    rbase " << _rbase << std::endl;	
-	os << "    epsh " << _epsh << std::endl;
-	os << "    espc " << _epsc << std::endl;
-	os << "    espb " << _epsb << std::endl;
-	os << "    espi " << _epsi << std::endl;
+	os << "    epsh " << _diffprobs.epsh << std::endl;
+	os << "    espc " << _diffprobs.epsc << std::endl;
+	os << "    espb " << _diffprobs.epsb << std::endl;
+	os << "    espi " << _diffprobs.epsi << std::endl;
 	os << "    p_csc " << _p_csc << std::endl;
 	os << "    p_imm " << _p_imm << std::endl;
 	os << "    treatment_rate " << _treatment_rate << std::endl;

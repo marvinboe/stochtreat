@@ -76,6 +76,9 @@ class Doctor{
 
         /** Returns if burden reaches relapse level.*/
         bool relapse_reached(double level=-1., double t=-1.) const;
+
+        /** Returns the starting burden of cancer cells. */
+        double return_initial_cratio() const {return _alpha;}
     private:
         std::vector<double> _burden_data;
         std::vector<double> _res_share_data;

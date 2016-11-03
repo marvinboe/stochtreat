@@ -37,6 +37,7 @@ struct Print_specifiers{
     bool yearlyburden=false;
     bool overview_at_end=true;
     bool relapsetime=false;
+    bool three_timepoint_average=false;
 
     operator bool() const {return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime);}
 
@@ -98,6 +99,7 @@ class Stats_Output{
     double _timebeforerelapserun;
     double _burden_after_treatment;
     double _resshare_treat;
+    double _initialburden_alpha;
     double _resshare_relapse;
     std::string _yearlyburden;
     std::vector<double> _avgsize;
@@ -111,6 +113,11 @@ class Stats_Output{
     bool _lsc_at_diagnosis;
     bool _nolsc_treattest;
     bool _diagnosis_reached;
+
+    struct Three_timepoint_measurements{
+        std::vector<double> t {0.5,1.,2.};
+        std::vector<double> v {0.,0.,0.};
+    } _three_timepoints_measure;
 
     Run_modes _run_mode;
 

@@ -27,10 +27,13 @@ Print_specifiers::Print_specifiers(std::string output_choice){
         if (output_choice.find("nooverview")!=std::string::npos){
             overview_at_end=false;
         }
+        if (output_choice.find("3timepointaverage")!=std::string::npos){
+            three_timepoint_average=false;
+        }
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
-    _print(output_choice),_run_mode(run_mode){
+    _run_mode(run_mode),_print(output_choice){
 
 
         _nolsc = 0;
@@ -57,7 +60,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         if (_print.timetodiagnosis) std::cout <<"<time_to_diag>";
         if (_print.timetoreduction) std::cout <<"<time to reduction>";
         if (_print.initialresponse){
-            std::cout <<"<init. response>"<<"<lsc at diag>";
+            std::cout <<"<init. response>"<<"<lsc at diag>"<<"<initial c_ratio>";
             if (!_print.yearlyburden) std::cout <<"<burden>";
             if (_run_mode.treattest)
                 std::cout <<"<relapse>";
@@ -116,12 +119,16 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
+    _initialburden_alpha=ker.doctor().return_initial_cratio();
     if(ker.doctor().reduction_reached()){
         if (_run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
         _timetoreduction=(ker.doctor().reduction_time(4.) - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
+    }
+    for (unsigned i =0; i<3; ++i){
+        _three_timepoints_measure.v[i]+=ker.doctor().get_tumor_burden((_diagnosis_time+_three_timepoints_measure.t[i])*365.);
     }
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
@@ -162,6 +169,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         if (_print.initialresponse){
             std::cout <<ker.doctor().calc_response()<<" ";
             std::cout <<_lsc_at_diagnosis<<" ";
+            std::cout <<_initialburden_alpha<<" ";
             if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
             if (_run_mode.treattest)
                 std::cout <<ker.doctor().diagnosis_reached()<< " ";
@@ -190,7 +198,18 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 
 void Stats_Output::print_at_end() const{
 
+    if (!_print.three_timepoint_average){
+        std::cout <<"#average burden at three timepoint: ";
+        for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
+        std::cout<<"diagnosed: "<<_diagnosed<<std::endl;
+        for (int i=0; i<3; ++i){
+            // std::cout<<(_diagnosed>0?_three_timepoints_measure.v[i]/double(_diagnosed):0.)<<" ";
+            std::cout<<_three_timepoints_measure.v[i]/double(_diagnosed)<<" ";
+        }
+        std::cout<<std::endl;
+    }
     if (!_print.overview_at_end) return;
+
     if (_run_mode.treattest){
         std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         if (_print) std::cout <<"# ";
@@ -219,11 +238,11 @@ void Stats_Output::print_at_end() const{
     stddev = sqrt(stddev);
     std::cout << "#time to reduction avg="<< avg << " stddev=" << stddev << std::endl;
     std::cout << "#avg size comps. ";
-    for (int i=0; i< _avgsize.size(); i++) {
+    for (unsigned int i=0; i< _avgsize.size(); i++) {
         std::cout << "<" << i << "> ";
     }
     std::cout<<std::endl<<"# ";
-    for (int i=0; i< _avgsize.size(); i++) {
+    for (unsigned int i=0; i< _avgsize.size(); i++) {
         std::cout << (_avgsize[i]/(double)_patients) <<" ";
     }
     std::cout << std::endl;

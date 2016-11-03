@@ -21,8 +21,8 @@ LDLIBS = -L /usr/local/lib/ -lgsl #-lm -lboost_serialization
 
 # -lefence -lboost_random -lboost_thread-mt  -lboost_random  -stdlib=libc++
 
-WARNINGS := #-Wall -pedantic -Wextra -Wshadow  -Wcast-qual  -Weffc++ -Wfloat-equal -Wunreachable-code -Wconversion  -Wdisabled-optimization
-#--Wstrict-overflow=5 Wpointer-arith -Wunused
+WARNINGS := -Wall -pedantic -Wextra -Wshadow  -Wcast-qual  -Weffc++ -Wfloat-equal -Wunreachable-code   -Wdisabled-optimization -fno-diagnostics-fixit-info
+#--Wstrict-overflow=5 Wpointer-arith -Wunused -Wconversion
 
 OPTIDEBUG := -O3
 #CFLAGS: release mode: -O2 or -O3 debug mode: -g -ggdb  profile mode: -pg 

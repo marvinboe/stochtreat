@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
-    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime'", output);
+    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointaverage'", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(=100)", run_mode.resistance);
     parameters.SetValue("epsh", "change differentiation probability for healthy cells", diff_probs.epsh);
@@ -64,11 +64,11 @@ int main (int argc, char *argv[]) {
         data.setTmax(ntime);
     }
     data.set_treatment_rate(0.05); //sets the rate of new bound cell under treatment (per day)
-    data.setStop(12); // Diagnosis limit
-    data.setReduction(reduction); //treatment stop 
+    data.set_diagnosis_limit(12); // Diagnosis limit
+    data.set_treatment_stop_reduction(reduction); //treatment stop 
     data.set_relapse_reduction(relapse_logreduction); //treatment stop 
-    data.setLimit(size);
-    data.setTreatment(treatmenttime);
+    data.set_numstochcomps(size);
+    data.set_maximum_treatment_duration(treatmenttime);
     	// cout << data << endl;
 
     Stats_Output out(output,size,run_mode);

@@ -22,6 +22,8 @@ struct Diff_probabilities{
     double epsh=0.85;
     double epsc=0.71;
     double epsb=0.89;
+    double epsi=0.71; //differentation probability immmune cell
+
 };
 
 class Data {
@@ -65,44 +67,44 @@ class Data {
         double rcancer() const {return _rcancer;}
         void setRcancer(double v) {_rcancer = v;}
 
-        double epsh() const {return _epsh;}
-        double epsc() const {return _epsc;}
-        double epsb() const {return _epsb;}
-        double epsi() const {return _epsi;}
+        double epsh() const {return _diffprobs.epsh;}
+        double epsc() const {return _diffprobs.epsc;}
+        double epsb() const {return _diffprobs.epsb;}
+        double epsi() const {return _diffprobs.epsi;}
 
         /** return self-renewal probability epsilon for type. */
         double eps(unsigned type) const {
             switch(type){
                 case 0:
-                    return _epsh;
+                    return _diffprobs.epsh;
                 case 1:
-                    return _epsc;
+                    return _diffprobs.epsc;
                 case 2:
-                    return _epsi;
+                    return _diffprobs.epsi;
                 case 3:
-                    return _epsb;
+                    return _diffprobs.epsb;
                 default :
                     return -1.0;
             }
         }
 
-        void setEpsh (double v) {_epsh = v;} 
-        void setEpsc (double v) {_epsc = v;} 
-        void setEpsb (double v) {_epsb = v;} 
-        void setEpsi (double v) {_epsi = v;} 
+        void setEpsh (double v) {_diffprobs.epsh = v;} 
+        void setEpsc (double v) {_diffprobs.epsc = v;} 
+        void setEpsb (double v) {_diffprobs.epsb = v;} 
+        void setEpsi (double v) {_diffprobs.epsi = v;} 
         void setEps(unsigned type, double v)  {
             switch(type){
                 case 0:
-                    _epsh = v;
+                    _diffprobs.epsh = v;
                     break;
                 case 1:
-                    _epsc = v;
+                    _diffprobs.epsc = v;
                     break;
                 case 2:
-                    _epsi = v;
+                    _diffprobs.epsi = v;
                     break;
                 case 3:
-                    _epsb = v;
+                    _diffprobs.epsb = v;
                     break;
             }
         }
@@ -131,11 +133,11 @@ class Data {
 
         /** Sets the threshold power of 10 when diagnosis is reached:
          * When 10^(stop) cells are in the compartment -> diagnosis. */
-        void setStop(double v) {_diagnosis_level = v;}
+        void set_diagnosis_limit(double v) {_diagnosis_level = v;}
 
         /** Returns the recuction level that is required to stop treatment.*/
         double reduction() const {return _reduction;}
-        void setReduction(double v) {_reduction = v;}
+        void set_treatment_stop_reduction(double v) {_reduction = v;}
 
         void set_relapse_reduction(double v) {_relapse_reduction=v;}
         double relapse_reduction() {return _relapse_reduction;}
@@ -147,7 +149,7 @@ class Data {
         int nstochcomp() const {return _numstochcomps;}
 
         /** Sets the number of stochastic compartments.*/
-        void setLimit(int l) {_numstochcomps = l;}
+        void set_numstochcomps(int l) {_numstochcomps = l;}
 
         /** threshold of cellnumber for diagnosis. */
         double threshold() const {return _threshold;}
@@ -174,7 +176,7 @@ class Data {
 
         /** Sets treatment time in years that will be used 
          * in the treatment phase of the simulation. */
-        void setTreatment(double t) {_treatment_duration=t;}
+        void set_maximum_treatment_duration(double t) {_treatment_duration=t;}
 
         std::string storage() const {return _hdlocation;}
         void setStorage(std::string s) {_hdlocation=s;}
@@ -194,10 +196,7 @@ class Data {
         std::istream& read_from_file(std::istream&);
 
         double _dt; //time step relative to days
-        double _epsh; //differentation probability normal cell
-        double _epsc; //differentation probability cancer cell
-        double _epsb; //differentation probability inhibited cell
-        double _epsi; //differentation probability immmune cell
+        Diff_probabilities _diffprobs;
         double _p_csc; //probability that a normal cell turns into a cancer cell
         double _p_imm; //probabilty that a cancer cell turns into an immune cell
         double _frac_csc; //fraction of cancer cells in the stem cell compartment

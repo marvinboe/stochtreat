@@ -27,10 +27,13 @@ Doctor::Doctor(double diagnosis_level, double full_reduction, double relapse_red
 
 
 double Doctor::get_tumor_burden(double t) const{
-    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
+    if (t<0. && _timepoints.size()>0)
+        return _burden_data.back();
 
-    unsigned int i=find_timepoint(t);
-    return _burden_data[i];
+    int i=find_timepoint(t);
+    if (i>=0 && _timepoints.size()>0)
+        return _burden_data[i];
+    return 0.;
     // do nothing
 }
 
