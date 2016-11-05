@@ -30,6 +30,10 @@ Print_specifiers::Print_specifiers(std::string output_choice){
         if (output_choice.find("3timepointaverage")!=std::string::npos){
             three_timepoint_average=false;
         }
+
+}
+Print_specifiers::operator bool() const {
+    return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime||three_timepoint_average);
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
@@ -201,9 +205,8 @@ void Stats_Output::print_at_end() const{
     if (!_print.three_timepoint_average){
         std::cout <<"#average burden at three timepoint: ";
         for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
-        std::cout<<"diagnosed: "<<_diagnosed<<std::endl;
+        std::cout<<std::endl;
         for (int i=0; i<3; ++i){
-            // std::cout<<(_diagnosed>0?_three_timepoints_measure.v[i]/double(_diagnosed):0.)<<" ";
             std::cout<<_three_timepoints_measure.v[i]/double(_diagnosed)<<" ";
         }
         std::cout<<std::endl;

@@ -59,7 +59,7 @@ int main (int argc, char *argv[]) {
 
     RanGen ran;
     Data data;
-    data.calcFromMass(mass, Nbase, Bbase, Sbase, (Lbase * factor), months);
+    data.initialize(mass, Nbase, Bbase, Sbase, (Lbase * factor), months, diff_probs);
     if (ntime > 0.){ //non-default
         data.setTmax(ntime);
     }

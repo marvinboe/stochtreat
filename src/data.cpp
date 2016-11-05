@@ -54,7 +54,7 @@ Data::Data(){
 }
 
 
-void Data::calcFromMass(double mass, double N,double B, double T, double L, double nummonth){ 
+void Data::initialize(double mass, double N,double B, double T, double L, double nummonth,Diff_probabilities diffprobs){ 
 	_mass = mass;
 	
 	double hsc=N * pow(mass, 0.75);
@@ -78,9 +78,12 @@ void Data::calcFromMass(double mass, double N,double B, double T, double L, doub
 	
 	//are the same accross mamals or changd by command line
 	_rbase=1.263;//in paper 1.26// 1.263;
-	_diffprobs.epsh=0.8476;//in paper 0.85// 0.8476;
-	_diffprobs.epsc=0.72;
-	_diffprobs.epsb=0.89; //imatinib;
+	// _diffprobs.epsh=0.8476;//in paper 0.85// 0.8476;
+	// _diffprobs.epsc=0.72;
+	// _diffprobs.epsb=0.89; //imatinib;
+	_diffprobs.epsh=diffprobs.epsh;//in paper 0.85// 0.8476;
+	_diffprobs.epsc=diffprobs.epsc;
+	_diffprobs.epsb=diffprobs.epsb; //imatinib;
 	_diffprobs.epsi=_diffprobs.epsc;
 	_ncompartments=32;
 	_diagnosis_level=12;//log value at diagnosis
