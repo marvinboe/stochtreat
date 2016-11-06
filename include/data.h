@@ -24,6 +24,11 @@ struct Diff_probabilities{
     double epsb=0.89;
     double epsi=0.71; //differentation probability immmune cell
 
+    /* write differentiation probabilities output os. */
+    void write(std::ostream & os){ 
+        std::cout <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsi<<std::endl;
+    }
+
 };
 
 class Data {
@@ -186,8 +191,9 @@ class Data {
          * mass     - mass of the modeled animal
          * Bbase    - log base for the average cell cycle time of hematopeotic stem cells
          * Sbase    - log base for the deterministic timestep of simulation
-         * Lbase    - log base for maximum simulation time */
-        void calcFromMass(double,double,double, double, double, double);
+         * Lbase    - log base for maximum simulation time
+         * diffprobs- differentiation probabilies. */
+        void initialize(double,double,double, double, double, double,Diff_probabilities);
 
         friend std::ostream & operator<<(std::ostream &o, Data& c){return c.display(o);}
 

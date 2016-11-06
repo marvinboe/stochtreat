@@ -39,7 +39,7 @@ struct Print_specifiers{
     bool relapsetime=false;
     bool three_timepoint_average=false;
 
-    operator bool() const {return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime);}
+    operator bool() const;
 
 };
 
