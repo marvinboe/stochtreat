@@ -115,7 +115,7 @@ class Stats_Output{
     bool _diagnosis_reached;
 
     struct Three_timepoint_measurements{
-        std::vector<double> t {0.5,1.,2.};
+        std::vector<double> t {0.25,0.5,1.0};
         std::vector<double> v {0.,0.,0.};
     } _three_timepoints_measure;
 
