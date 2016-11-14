@@ -43,7 +43,7 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointaverage'", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(=100)", run_mode.resistance);
-    parameters.SetValue("epsh", "change differentiation probability for healthy cells", diff_probs.epsh);
+    parameters.SetValue("epsn", "change differentiation probability for healthy cells", diff_probs.epsh);
     parameters.SetValue("epsc", "change differentiation probability for cancer cells", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells", diff_probs.epsb);
 
