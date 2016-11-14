@@ -54,7 +54,7 @@ double Doctor::calc_tumor_burden(const Model& patient) const{
 
 	double burden = 0.;
         if (_alpha > 0.)
-	    burden = 100*_alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//(_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
+	    burden = _alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//(_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
         // std::cout << burden << std::endl;
 	return burden;
 }
@@ -166,7 +166,7 @@ double Doctor::get_resistant_share(double t) const{
 double Doctor::get_logburden(double t) const{ 
     double burden=get_tumor_burden(t);
     if (burden >0.)
-        return -std::log10(burden/100.);
+        return -std::log10(burden);
     else 
         return 0.;
 }
