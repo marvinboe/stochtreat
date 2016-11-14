@@ -23,7 +23,7 @@ QueueElement& QueueElement::operator=(const QueueElement& other){
 	return *this;
 }
 
-ostream& QueueElement::display(ostream& os){
+std::ostream& QueueElement::display(std::ostream& os){
 	os << "["<< _idx << " " <<_tau << " " << _queloc << "]";
 	return os;
 }
@@ -56,7 +56,7 @@ void IndexedQueue::init(RanGen& ran, AllReactions& all){
 	
 	for (unsigned r=0; r < all.size() ; ++r){
 		// cout << r << "\t" << all[r]->propensity() << "\t";
-		double time_i = numeric_limits<double>::infinity();
+		double time_i = std::numeric_limits<double>::infinity();
 		if(all[r]->propensity() > 0.0){
 			double rval = ran.randouble();
 			time_i = all[r]->calcPutativeTime(rval); 
@@ -71,8 +71,8 @@ void IndexedQueue::init(RanGen& ran, AllReactions& all){
 		try {
 			_pqueue.push(elm);
 		}
-		catch (exception & e){
-			cout <<" HEAP exception: " << e.what() << endl;
+		catch (std::exception & e){
+                    std::cout <<" HEAP exception: " << e.what() << std::endl;
 			exit(0);
 		}
 	}

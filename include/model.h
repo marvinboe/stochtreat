@@ -74,16 +74,6 @@ public:
         /** Sets the time of diagnosis.*/
 	void setDiagRes(double v) {_diagnosis = v;}
 
-        /** Returns time of CML reduction. */
-	double when() const {return _when;}
-        /** Sets the time when reduction is reached. */
-	void setWhenReduction(double v) {_when = v;}
-
-        /** set time when LSCvanished.  */
-        void setWhenLSCvanished(double t) {_nolsctime=t;}
-        /** check if LSC is in pool, otherwise save time.  */
-        void check_LSCvanished(double t);
-	
 	friend std::ostream & operator<<(std::ostream &o, Model& p){return p.display(o);}
 	friend std::istream & operator>>(std::istream &i, Model& p){return p.read(i);}
 	Model& operator=(const Model&);
@@ -117,36 +107,26 @@ public:
 
 	bool updateDet(unsigned k, Data& data);
 
-        /** returns True if diagnosis is reached.*/
-	bool diagnosis(Data& data);
-	bool reduction(Data& data);
-	float getReduction();
-
         /** returns true if LSC is in stem cell pool */
-	bool containsLSC();
+	bool containsLSC() const;
 
 	bool treatDeterministically(unsigned k, double amount);
-	bool treatStochastically(unsigned k, double rate, RanGen& ran);
 
-        /** get time when LSCvanished.  */
-        double get_nolsctime() {return _nolsctime;}
-	
-        /** Calculates alpha from cell numbers. Required to 
-         * calculate reduction of disease burden later.*/
-	void calcAlpha();
-	double getAlpha() const {return _alpha;}
-	
-	double diseaseBurden();
+	// double diseaseBurden() const;
 
         /** print cell numbers.
          * <HSC> <LSC> */
         void print_cells(std::ostream &,double _time);
+
+        /** makes one cancer cell in compartment k immune. Returns true 
+         * if successfull (at least one cell existed), otherwise false.*/
+        bool manual_mutation(unsigned int k,unsigned int celltype_from=C,unsigned int celltype_to=I);
 	
 private:
 	double myround(double val);
-	double mylog(double p1, double base);
+	double mylog(double p1, double base) const;
 
-        std::ostream& display(std::ostream&);
+        std::ostream& display(std::ostream&) const;
         std::istream& read(std::istream& is);
 
 	unsigned int _endstoch;
@@ -162,13 +142,6 @@ private:
          */
 	double _diagnosis;
 
-        /** time of reduction (in years?!)
-         */
-	double _when;
-
-        /** time when the LSC vanished from the stem cell pool.
-         */
-        double _nolsctime;
 };
 
 #endif

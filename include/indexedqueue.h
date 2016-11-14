@@ -20,7 +20,6 @@
 #include "model.h"
 #include "rangen.h"
 
-using  namespace std;
 
 
 
@@ -41,12 +40,12 @@ public:
 	void setQueueLoc(unsigned l) { _queloc = l;}
 	
 	
-	void print() {cout <<  "["<< _idx << " " <<_tau << " " << _queloc << "]"<< endl;}
+	void print() {std::cout <<  "["<< _idx << " " <<_tau << " " << _queloc << "]"<< std::endl;}
 
-	friend ostream & operator<<(ostream &o, QueueElement& qe){return qe.display(o);}
+	friend std::ostream & operator<<(std::ostream &o, QueueElement& qe){return qe.display(o);}
 	
 protected:
-	ostream& display(ostream& os);
+        std::ostream& display(std::ostream& os);
 	unsigned _idx;
 	double _tau;
 	unsigned _queloc;
@@ -99,7 +98,7 @@ protected:
         /** this is the queue which internally uses a heap.*/
 	PriorityQueue<QueueElement*,QL_Compare, QL_swap> _pqueue;
         /** Stores all queue elements with index.*/
-	vector<QueueElement*> _indices;
+        std::vector<QueueElement*> _indices;
 	QueueElement* _sentinel;
 };
 

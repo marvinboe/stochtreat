@@ -28,7 +28,7 @@ double Model::myround(double val){
 	return temp;
 }
 
-double Model::mylog(double p1, double base){
+double Model::mylog(double p1, double base) const{
 	if(p1<=0)
 		return 0.0;
 	else {
@@ -51,7 +51,7 @@ double Model::mylog(double p1, double base){
 
 
 
-Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(-1.){
+Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){
 	assert(_numstoch > 0);
 	_numcomp = data.ncompartments()+1;
 	
@@ -96,7 +96,7 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0),_nolsctime(
 	setC(0, data.numlsc());
 }
 
-Model::Model(Data data,std::istream & is):_diagnosis(0),_nolsctime(-1.){ 
+Model::Model(Data data,std::istream & is):_diagnosis(0){ 
 	_numcomp = data.ncompartments()+1;
 	unsigned int tlen = ((_numcomp-1)*4) + 3;
 	_compartments=new double[tlen];
@@ -408,7 +408,7 @@ void Model::store(unsigned k, unsigned t, double v){
 	}
 }
 
-std::ostream& Model::display(std::ostream& os){
+std::ostream& Model::display(std::ostream& os) const{
     os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
         os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
@@ -420,8 +420,6 @@ std::ostream& Model::display(std::ostream& os){
     os << "# " << _numcomp << std::endl;
     os << "# " << _alpha << std::endl;
     os << "# " << _diagnosis << std::endl;
-    os << "# " << getReduction() << std::endl;
-    os << "# " << when() << std::endl;
     return os;
 }
 
@@ -448,7 +446,6 @@ std::istream& Model::read(std::istream& is){
         setI(k,I);
         storeI(k,I);
     }
-    calcAlpha();
     return is;
 }
 
@@ -508,9 +505,9 @@ bool Model::updateDet(unsigned k, Data& data){
     double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
         + (p * (1.0 - epsh) * retrieveH(k)) 
         - (p * epsh * retrieveH(k));
-    //	cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
+    //	std::cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
     incr(k, H,tempH);
-    //	cout << "#new H " << getH(k) << std::endl; 
+    //	std::cout << "#new H " << getH(k) << std::endl; 
 
     double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
         + (p * (1.0 - epsc) * retrieveC(k))
@@ -518,9 +515,11 @@ bool Model::updateDet(unsigned k, Data& data){
     incr(k, C,tempC);
 
     double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
-        + (p * (1.0 - epsi) * retrieveI(k-1))
-        - (p * epsi * retrieveI(k-1));
+        + (p * (1.0 - epsi) * retrieveI(k))
+        - (p * epsi * retrieveI(k));
+    // std::cout << "#current I("<<k<<")=" << retrieveI(k) << std::endl; 
     incr(k, I, tempI);
+    // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 
 
     double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0))
         + (p * (1.0 - epsb) * retrieveB(k))
@@ -531,11 +530,6 @@ bool Model::updateDet(unsigned k, Data& data){
 }
 
 bool Model::treatDeterministically(unsigned k, double amount){	
-	// double ccells = getC(k);
-	// double bcells = getB(k);
-	// double tmp = ccells * amount;
-	// setC(k, ccells - tmp);
-	// setB(k, bcells + tmp);
 
         double ccells=retrieveC(k);
 	double tmp = ccells * amount;
@@ -547,62 +541,9 @@ bool Model::treatDeterministically(unsigned k, double amount){
 	return true;
 }
 
-bool Model::treatStochastically(unsigned k, double probability, RanGen& ran){	
-    double ccells = getC(k);
-    double bcells = getB(k);
-
-    double tmp (0.);
-    for(unsigned i = 0; i < ccells; ++i){
-        if(ran.randouble() < probability) ++tmp;
-    }
-
-    bool changed = (tmp>0)?true:false;
-    if (changed){
-        setC(k, ccells - tmp);
-        setB(k, bcells + tmp);
-        		// cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << std::endl;
-    }
-    return changed;	
-}
-
-
-bool Model::diagnosis(Data& data){
-	// double res = mylog(getN(_numcomp-1),10);
-	// cout <<  res<<" "<<mylog(lastN(),10) << "\t" << data.stop() << std::endl;
-	return mylog(lastN(),10)>= data.stop();
-}
-
-bool Model::reduction(Data& data){
-	return getReduction() >= data.reduction();
-}
-
-float Model::getReduction(){
-	double b = diseaseBurden();
-	return (2.0 - mylog(b,10));
-}
-
-
-bool Model::containsLSC(){
+bool Model::containsLSC() const{
 	return (getC(0) > 0);
 }
-
-void Model::calcAlpha(){
-	double NC=lastC();
-	double NB=lastB();
-	double NH=lastH();
-	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
-//	cout << "Alpha = " << _alpha << std::endl;
-}
-
-double Model::diseaseBurden(){
-	double NC=lastC();
-	double NB=lastB();
-	double NH=lastH();
-	double burden = (_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
-//	cout << burden << std::endl;
-	return burden;
-}
-
 
 void Model::print_cells(std::ostream & os,double _time){
     os <<_time/365.0<<" ";
@@ -612,13 +553,18 @@ void Model::print_cells(std::ostream & os,double _time){
     os <<std::endl;
 }
 
-void Model::check_LSCvanished(double t){
-    if (_nolsctime>0.)
-        return;
-    if (getC(0)==0)
-        _nolsctime=t/365.;
+bool Model::manual_mutation(unsigned int k,unsigned int celltype_from,unsigned int celltype_to){
+    if ( get(k,celltype_from)>=1.){
+        //do fun stuff
+        incr(k,celltype_to,1.);
+        decr(k,celltype_from,1.);
+        return true;
+    }
+    else {
+        return false;
+    }
+
+
 }
-
-
 
 
