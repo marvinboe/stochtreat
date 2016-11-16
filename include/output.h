@@ -50,6 +50,15 @@ struct Run_modes{
     operator bool() const { return (resistance>=0||treattest);}
 };
 
+struct Three_timepoint_measurements{
+    Three_timepoint_measurements():v(3,std::vector<double>(0)){}
+    typedef std::vector<double> rundata;
+    std::vector<double> t {0.25,0.5,1.0};
+    std::vector<rundata> v;
+    std::vector<double> return_av() const; 
+    std::vector<double> return_std() const; 
+};
+
 class Stats_Output{
     public:
 
@@ -83,45 +92,41 @@ class Stats_Output{
 
     private:
 
-    clock_t _timer;
-    int _output_specifier;
-    int _patients;
+        clock_t _timer;
+        int _output_specifier;
+        int _patients;
 
-    double _nolsc;
-    double _diagnosed_nolsc;
-    double _diagnosis_time;
-    double _total_diagnosis_time;
-    double _diagnosed;
-    double _reachedreduction;
-    double _total_timetoreduction;
-    double _timetoreduction;
-    double _timetorelapse;
-    double _timebeforerelapserun;
-    double _burden_after_treatment;
-    double _resshare_treat;
-    double _initialburden_alpha;
-    double _resshare_relapse;
-    std::string _yearlyburden;
-    std::vector<double> _avgsize;
+        double _nolsc;
+        double _diagnosed_nolsc;
+        double _diagnosis_time;
+        double _total_diagnosis_time;
+        double _diagnosed;
+        double _reachedreduction;
+        double _total_timetoreduction;
+        double _timetoreduction;
+        double _timetorelapse;
+        double _timebeforerelapserun;
+        double _burden_after_treatment;
+        double _resshare_treat;
+        double _initialburden_alpha;
+        double _resshare_relapse;
+        std::string _yearlyburden;
+        std::vector<double> _avgsize;
 
-    std::vector<double> _redresult;
+        std::vector<double> _redresult;
+        Three_timepoint_measurements _three_timepoints_measure;
+        int _no_recurrence_patients;
+        unsigned _recurrence_count;
+        unsigned _nolsc_recurrence_count;
 
-    int _no_recurrence_patients;
-    unsigned _recurrence_count;
-    unsigned _nolsc_recurrence_count;
+        bool _lsc_at_diagnosis;
+        bool _nolsc_treattest;
+        bool _diagnosis_reached;
 
-    bool _lsc_at_diagnosis;
-    bool _nolsc_treattest;
-    bool _diagnosis_reached;
 
-    struct Three_timepoint_measurements{
-        std::vector<double> t {0.25,0.5,1.0};
-        std::vector<double> v {0.,0.,0.};
-    } _three_timepoints_measure;
+        Run_modes _run_mode;
 
-    Run_modes _run_mode;
-
-    Print_specifiers _print;
+        Print_specifiers _print;
 
 };
 

@@ -3,33 +3,33 @@
 
 Print_specifiers::Print_specifiers(std::string output_choice){
 
-        if (output_choice.find("patient")!=std::string::npos){
-            per_patient=true;
-        }
-        if (output_choice.find("nolsctime")!=std::string::npos){
-            nolsctime=true;
-        }
-        if (output_choice.find("diagtime")!=std::string::npos){
-            timetodiagnosis=true;
-        }
-        if (output_choice.find("initresponse")!=std::string::npos){
-            initialresponse=true;
-        }
-        if (output_choice.find("fullburden")!=std::string::npos){
-            fullburden=true;
-        }
-        if (output_choice.find("yearlyburden")!=std::string::npos){
-            yearlyburden=true;
-        }
-        if (output_choice.find("relapsetime")!=std::string::npos){
-            relapsetime=true;
-        }
-        if (output_choice.find("nooverview")!=std::string::npos){
-            overview_at_end=false;
-        }
-        if (output_choice.find("3timepointaverage")!=std::string::npos){
-            three_timepoint_average=false;
-        }
+    if (output_choice.find("patient")!=std::string::npos){
+        per_patient=true;
+    }
+    if (output_choice.find("nolsctime")!=std::string::npos){
+        nolsctime=true;
+    }
+    if (output_choice.find("diagtime")!=std::string::npos){
+        timetodiagnosis=true;
+    }
+    if (output_choice.find("initresponse")!=std::string::npos){
+        initialresponse=true;
+    }
+    if (output_choice.find("fullburden")!=std::string::npos){
+        fullburden=true;
+    }
+    if (output_choice.find("yearlyburden")!=std::string::npos){
+        yearlyburden=true;
+    }
+    if (output_choice.find("relapsetime")!=std::string::npos){
+        relapsetime=true;
+    }
+    if (output_choice.find("nooverview")!=std::string::npos){
+        overview_at_end=false;
+    }
+    if (output_choice.find("3timepointaverage")!=std::string::npos){
+        three_timepoint_average=false;
+    }
 
 }
 Print_specifiers::operator bool() const {
@@ -79,7 +79,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
 
         if (_print.yearlyburden) std::cout <<"<yearlyburden>";
         std::cout << std::endl;
-}
+    }
 
 void Stats_Output::initialize_per_patient(int patient){
     _lsc_at_diagnosis=true;
@@ -132,7 +132,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
         _redresult.push_back(_timetoreduction);
     }
     for (unsigned i =0; i<3; ++i){
-        _three_timepoints_measure.v[i]+=ker.doctor().get_tumor_burden((_diagnosis_time+_three_timepoints_measure.t[i])*365.);
+        _three_timepoints_measure.v[i].push_back(ker.doctor().get_tumor_burden((_diagnosis_time+_three_timepoints_measure.t[i])*365.));
     }
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
@@ -207,7 +207,10 @@ void Stats_Output::print_at_end() const{
         for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
         std::cout<<std::endl;
         for (int i=0; i<3; ++i){
-            std::cout<<_three_timepoints_measure.v[i]/double(_diagnosed)<<" ";
+            std::cout<<_three_timepoints_measure.return_av()[i]<<" ";
+        }
+        for (int i=0; i<3; ++i){
+            std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
         }
         std::cout<<std::endl;
     }
@@ -217,14 +220,14 @@ void Stats_Output::print_at_end() const{
         std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         if (_print) std::cout <<"# ";
         std::cout <<_recurrence_count/double(_no_recurrence_patients)
-         <<" "<<_recurrence_count   <<" "  << _no_recurrence_patients<< " "<<_nolsc_recurrence_count/double(_diagnosed_nolsc)<<" "<<_nolsc_recurrence_count <<" "<< _diagnosed_nolsc<< std::endl;
+            <<" "<<_recurrence_count   <<" "  << _no_recurrence_patients<< " "<<_nolsc_recurrence_count/double(_diagnosed_nolsc)<<" "<<_nolsc_recurrence_count <<" "<< _diagnosed_nolsc<< std::endl;
     }
 
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-_timer)/CLOCKS_PER_SEC << std::endl;
     std::cout <<"#<av. diagtime>"<<"<diagnosed frac>"<<"<nolsc frac>"<<"<nolsc diagnosed frac>"<<std::endl;
     std::cout <<"# "<< (_diagnosed > 0?(_total_diagnosis_time / (double) _diagnosed):0)<<" "
         << (_diagnosed /(double) _patients) <<" " << (_nolsc / (double) _patients) <<" "
-   << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
+        << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
 
     std::cout << "#<reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << std::endl;
     if (_print || !_run_mode.treattest) std::cout <<"# ";
@@ -249,4 +252,27 @@ void Stats_Output::print_at_end() const{
         std::cout << (_avgsize[i]/(double)_patients) <<" ";
     }
     std::cout << std::endl;
+}
+
+
+
+std::vector<double> Three_timepoint_measurements::return_av() const{ 
+    std::vector<double> av {0.,0.,0.};
+    double number=v.back().size();
+    for (int i=0; i<3; ++i){
+        av[i]=std::accumulate(v[i].begin(),v[i].end(),0.)/number;
+    }
+    return av;
+}
+
+std::vector<double> Three_timepoint_measurements::return_std() const{ 
+    std::vector<double> stdev {0.,0.,0.};
+    double number=v.back().size();
+    std::vector<double> allmean=return_av();
+    for (int i=0; i<3; ++i){
+        double mean=allmean[i];
+        double sq_sum = std::inner_product(v[i].begin(), v[i].end(), v[i].begin(), 0.0);
+        stdev[i] = std::sqrt(sq_sum / v[i].size() - mean * mean);
+    }
+    return stdev;
 }
