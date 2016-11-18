@@ -23,6 +23,7 @@ limitations under the License.
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 
 struct Print_specifiers{
@@ -37,8 +38,11 @@ struct Print_specifiers{
     bool yearlyburden=false;
     bool overview_at_end=true;
     bool relapsetime=false;
-    bool three_timepoint_average=false;
+    bool three_timepoint_median=false;
 
+    /** Returns "true" if single patient data will be printed,
+     * i.e. decides if a newline is printed after each patient.
+     * !Update this if you add more output cases! */
     operator bool() const;
 
 };
@@ -57,6 +61,8 @@ struct Three_timepoint_measurements{
     std::vector<rundata> v;
     std::vector<double> return_av() const; 
     std::vector<double> return_std() const; 
+    std::vector<double> return_median() const;
+
 };
 
 class Stats_Output{

@@ -26,7 +26,7 @@ struct Diff_probabilities{
 
     /* write differentiation probabilities output os. */
     void write(std::ostream & os){ 
-        std::cout <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsi<<std::endl;
+        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsi<<std::endl;
     }
 
 };

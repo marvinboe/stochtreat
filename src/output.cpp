@@ -27,13 +27,13 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("nooverview")!=std::string::npos){
         overview_at_end=false;
     }
-    if (output_choice.find("3timepointaverage")!=std::string::npos){
-        three_timepoint_average=false;
+    if (output_choice.find("3timepointsmedian")!=std::string::npos){
+        three_timepoint_median=true;
     }
 
 }
 Print_specifiers::operator bool() const {
-    return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime||three_timepoint_average);
+    return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime);
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
@@ -127,7 +127,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     if(ker.doctor().reduction_reached()){
         if (_run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
-        _timetoreduction=(ker.doctor().reduction_time(4.) - _diagnosis_time);
+        _timetoreduction=(ker.doctor().reduction_time() - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
     }
@@ -202,12 +202,12 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 
 void Stats_Output::print_at_end() const{
 
-    if (!_print.three_timepoint_average){
-        std::cout <<"#average burden at three timepoint: ";
+    if (_print.three_timepoint_median){
+        std::cout <<"#median burden at three timepoint: ";
         for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
         std::cout<<std::endl;
         for (int i=0; i<3; ++i){
-            std::cout<<_three_timepoints_measure.return_av()[i]<<" ";
+            std::cout<<_three_timepoints_measure.return_median()[i]<<" ";
         }
         for (int i=0; i<3; ++i){
             std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
@@ -267,7 +267,6 @@ std::vector<double> Three_timepoint_measurements::return_av() const{
 
 std::vector<double> Three_timepoint_measurements::return_std() const{ 
     std::vector<double> stdev {0.,0.,0.};
-    double number=v.back().size();
     std::vector<double> allmean=return_av();
     for (int i=0; i<3; ++i){
         double mean=allmean[i];
@@ -275,4 +274,31 @@ std::vector<double> Three_timepoint_measurements::return_std() const{
         stdev[i] = std::sqrt(sq_sum / v[i].size() - mean * mean);
     }
     return stdev;
+}
+
+std::vector<double> Three_timepoint_measurements::return_median() const {
+    std::vector<double> returnvalues(3,std::numeric_limits<double>::quiet_NaN());
+    for (int i = 0 ; i<3 ;++i){
+        std::vector<double>x=v[i];
+
+        if (x.size() == 0) return returnvalues;
+
+        size_t n = 0.;
+        if(x.size()%2 == 1)
+            n=(x.size()-1)/2;
+        else 
+            n=x.size()/2;
+
+        std::nth_element(x.begin(), x.begin()+n, x.end());
+
+        double xn = x[n];
+        if(x.size()%2 == 1) {
+            returnvalues[i]= xn;
+        }else {
+            // std::nth_element(x.begin(), x.begin()+n-1, x.end());
+            returnvalues[i]= 0.5*(xn+x[n-1]);
+        }
+
+    }
+    return returnvalues;
 }
