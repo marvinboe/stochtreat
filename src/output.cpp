@@ -195,7 +195,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
             std::cout <<std::endl<<"#full doctor report"<<std::endl;
             ker.print_full_doctors_report(std::cout);
         }
-        if (_print) std::cout <<std::endl;
+        if (_print||_run_mode.resistance) std::cout <<std::endl;
 
     }
 
