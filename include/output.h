@@ -39,6 +39,7 @@ struct Print_specifiers{
     bool overview_at_end=true;
     bool relapsetime=false;
     bool three_timepoint_median=false;
+    bool three_timepoint_full=false;
 
     /** Returns "true" if single patient data will be printed,
      * i.e. decides if a newline is printed after each patient.

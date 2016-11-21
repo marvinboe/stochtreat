@@ -30,7 +30,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("3timepointsmedian")!=std::string::npos){
         three_timepoint_median=true;
     }
-
+    if (output_choice.find("3timepointsfull")!=std::string::npos){
+        three_timepoint_full=true;
+    }
 }
 Print_specifiers::operator bool() const {
     return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime);
@@ -213,6 +215,18 @@ void Stats_Output::print_at_end() const{
             std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
         }
         std::cout<<std::endl;
+    }
+    if (_print.three_timepoint_full){
+        int y=0;
+        bool printfurther=true;
+        while (printfurther){
+            for (int i=0; i<3; ++i){
+                std::cout<<_three_timepoints_measure.v[i][y]<<" ";
+            }
+            ++y;
+            if (y==_three_timepoints_measure.v[0].size()) printfurther=false;
+            std::cout <<std::endl;
+        }
     }
     if (!_print.overview_at_end) return;
 
