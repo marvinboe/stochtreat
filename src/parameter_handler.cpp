@@ -331,12 +331,13 @@ template<> void ParameterHandler::SetValue<bool>(const char* name,const char* he
 void ParameterHandler::print_help(std::ostream & os){
 
     if (help){
-        os <<" usage: './executable argument1=x argument2=y ...'"<<std::endl;
-        os <<" or './executable parameterfile argument1=x argument2=y ...'"<<std::endl;
-        os << "<argument name> \t description"<<std::endl;
+        os <<" usage: './stochtreat \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
+        os <<std::left<<std::setw(8)<<" or:"<<"'./stochtreat parameterfile \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
+        os << "<argument name> \t description (default value)"<<std::endl;
         os << "-----------------------------------"<<std::endl;
         for (const auto keyhelp_pair: keys_and_help){
-            os <<'<'<<keyhelp_pair.first<<'>'<<"\t\t"<<keyhelp_pair.second<<std::endl;
+            os <<"\e[1m"<< std::setw(12) << std::left<<keyhelp_pair.first<<"\e[0m"<<"|";
+            std::cout <<keyhelp_pair.second<<std::endl;
         }
         exit(0);
     }

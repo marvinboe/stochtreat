@@ -14,6 +14,7 @@
 #include <istream>
 #include <cmath>
 #include <iostream>
+#include <cassert>
 #include "data.h"
 #include "rangen.h"
 

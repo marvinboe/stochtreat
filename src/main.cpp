@@ -24,21 +24,21 @@ int main (int argc, char *argv[]) {
     ParameterHandler parameters(argc,argv);
 
 
-    parameters.SetValue("run",	"Run identifier (default 1)",	runid);
-    parameters.SetValue("size",	"Number of stochastic compartments (default 7)",	size);
-    parameters.SetValue("treattime", "Years of treatment (default 10 year)", treatmenttime);
-    parameters.SetValue("mass",	"animal mass (default 70 kg)",	mass);
-    parameters.SetValue("reduction", "Required reduction level (default 4.5 logs)", reduction);
-    parameters.SetValue("patients", "Number of patients (default 1)", patients);
-    parameters.SetValue("path", "Output path (default ./outinput/) ", path);
-    parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
-    parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
-    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'", output);
+    parameters.SetValue("run",	"Run identifier (1)",	runid);
+    parameters.SetValue("size",	"Number of stochastic compartments (7)",	size);
+    parameters.SetValue("treattime", "Years of treatment (10 years)", treatmenttime);
+    parameters.SetValue("mass",	"animal mass (70 kg)",	mass);
+    parameters.SetValue("reduction", "Required reduction level (4.5 logs)", reduction);
+    parameters.SetValue("patients", "Number of patients (1)", patients);
+    parameters.SetValue("path", "Output path (./outinput/) ", path);
+    parameters.SetValue("inpath", "Input path (./outinput/) ", inpath);
+    parameters.SetValue("ntime", "Maximum simulation time in years(25)", ntime);
+    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
-    parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(=100)", run_mode.resistance);
-    parameters.SetValue("epsn", "change differentiation probability for healthy cells", diff_probs.epsh);
-    parameters.SetValue("epsc", "change differentiation probability for cancer cells", diff_probs.epsc);
-    parameters.SetValue("epsb", "change differentiation probability for bound cells", diff_probs.epsb);
+    parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(100)", run_mode.resistance);
+    parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
+    parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
+    parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
 
     parameters.print_help(std::cout);
 
