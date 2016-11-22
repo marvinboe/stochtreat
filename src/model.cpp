@@ -28,28 +28,30 @@ double Model::myround(double val){
 	return temp;
 }
 
-double Model::mylog(double p1, double base){
+double Model::mylog(double p1, double base) const{
 	if(p1<=0)
 		return 0.0;
 	else {
-		gsl_sf_result logp1,logbase;
-		int status_p1=gsl_sf_log_e(p1,&logp1);
-		if(status_p1 != GSL_SUCCESS){
-			cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << endl;
-			exit(-1);
-		}
-		int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
-		if(status_base != GSL_SUCCESS){
-			cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << endl;
-			exit(-1);
-		}
-		return logp1.val/logbase.val;
+            return std::log(p1)/std::log(base);
+            //TODO why this complex function below?
+		// gsl_sf_result logp1,logbase;
+		// int status_p1=gsl_sf_log_e(p1,&logp1);
+		// if(status_p1 != GSL_SUCCESS){
+		// 	cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << std::endl;
+		// 	exit(-1);
+		// }
+		// int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
+		// if(status_base != GSL_SUCCESS){
+		// 	cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << std::endl;
+		// 	exit(-1);
+		// }
+		// return logp1.val/logbase.val;
 	}
 }
 
 
 
-Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){ //ns = 1 is alleen de stem cell Model
+Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){
 	assert(_numstoch > 0);
 	_numcomp = data.ncompartments()+1;
 	
@@ -67,6 +69,8 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){ //ns = 1 i
 	storeH(0,0);
 	storeC(0,0);
 	storeI(0,0);
+
+        setTreatRate(data.treatment_rate());
 	
 	
 	//initialize Model: 2. other compartments
@@ -90,6 +94,16 @@ Model::Model(Data data, unsigned int ns):_numstoch(ns),_diagnosis(0){ //ns = 1 i
 	//initialize CML
 	setH(0, getH(0)-data.numlsc());
 	setC(0, data.numlsc());
+}
+
+Model::Model(Data data,std::istream & is):_diagnosis(0){ 
+	_numcomp = data.ncompartments()+1;
+	unsigned int tlen = ((_numcomp-1)*4) + 3;
+	_compartments=new double[tlen];
+	_previous=new double[tlen];
+	_rates = new double[_numcomp];
+	
+        read(is);
 }
 
 Model::Model(const Model& other){
@@ -394,159 +408,163 @@ void Model::store(unsigned k, unsigned t, double v){
 	}
 }
 
-ostream& Model::display(ostream& os){
-	for(unsigned k=0; k < _numcomp; ++k){
-		if(k == 0){
-			os << k <<"\t" << setprecision(4) << getRate(0) <<"\t";
-			os << getN(0) << "\t" << getH(0) <<"\t" << getC(0) <<"\t" << getI(0)<< endl; 
-		}
-		else {
-			os << k <<"\t" << setprecision(4) << getRate(k) <<"\t"; 
-			os << getN(k) << "\t" << getH(k) <<"\t" << getC(k) <<"\t";
-			os << getI(k) <<"\t" << getB(k)<< endl; 
-		}
-	}
-	os << "# " << _numstoch << endl;
-	os << "# " << _numcomp << endl;
-	os << "# " << _alpha << endl;
-	os << "# " << _diagnosis << endl;
-	os << "# " << getReduction() << endl;
-	os << "# " << when() << endl;
-	return os;
+std::ostream& Model::display(std::ostream& os) const{
+    os <<_numcomp<<" "<<_numstoch<<std::endl;
+    for(unsigned k=0; k < _numcomp; ++k){
+        os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
+        os << getN(k) << " " << getH(k) <<" " << getC(k) <<" " << getI(k);
+        if (k>0) os  <<" "<< getB(k);
+        os << std::endl; 
+    }
+    os << "# " << _numstoch << std::endl;
+    os << "# " << _numcomp << std::endl;
+    os << "# " << _alpha << std::endl;
+    os << "# " << _diagnosis << std::endl;
+    return os;
+}
+
+std::istream& Model::read(std::istream& is){
+    is >> _numcomp;
+    is >> _numstoch;
+    _endstoch = ((_numstoch-1)*4) + 3;
+    for(unsigned i=0; i < _numcomp; ++i){
+        unsigned int k;
+        double N,H,C,I,B;
+        double rate;
+        is >> k >> rate ;
+        is >> N >>  H >> C >> I;
+        if (k > 0) {
+            is >> B; 
+            setB(k,B);
+	    storeB(k,B);
+        }
+        setRate(k,rate);
+        setH(k,H);
+        storeH(k,H);
+        setC(k,C);
+        storeC(k,C);
+        setI(k,I);
+        storeI(k,I);
+    }
+    return is;
 }
 
 void Model::memorize(){
-	for(unsigned k=0 ; k < _numcomp; ++k){
-		storeH(k,getH(k));
-		storeC(k,getC(k));
-		storeI(k,getI(k));
-		if(k>0)
-			storeB(k,getB(k));
-		if(k >= _numstoch){
-			setH(k, 0.0);
-			setC(k, 0.0);
-			setI(k, 0.0);
-			if(k>0)
-				setB(k,0.0);
-		}
-	}
+    for(unsigned k=0 ; k < _numcomp; ++k){
+        storeH(k,getH(k));
+        storeC(k,getC(k));
+        storeI(k,getI(k));
+        if(k>0)
+            storeB(k,getB(k));
+        if(k >= _numstoch){
+            setH(k, 0.0);
+            setC(k, 0.0);
+            setI(k, 0.0);
+            if(k>0)
+                setB(k,0.0);
+        }
+    }
+}
+
+void Model::reset_treatment(){
+
+    for(unsigned k=1 ; k < _numcomp; ++k){
+        // std::cout <<"before: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+        incr(k,C,getB(k));
+        setB(k,0);
+        // std::cout <<"after: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+    }
 }
 
 
 bool Model::updateDet(unsigned k, Data& data){	
-	double p = data.dt() *getRate(k);
-	double prev_p = data.dt() *getRate(k-1); 
-	double prev_epsh = data.epsh(); 
+    assert(k>=_numstoch);
 
-//	cout << k-1 << " : " << getN(k-1) << "\t" << getH(k-1) << "\t" << getC(k-1) << endl;
-//	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << retrieveN(k) << "\t" << retrieveH(k) << "\t" << retrieveC(k) << endl;
-//	cout << p << "\t" << data.epsh() << "\t" << data.epsc() << endl;
-	
-	if(k<=_numstoch){
-//		cout << "#influx " << (2.0 * prev_epsh * prev_p * retrieveH(k-1)) << endl;
-		prev_epsh = 0.0;
-	}
-	double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_p * retrieveH(k-1)) + 
-				(p * (1.0 - data.epsh()) * retrieveH(k)) - 
-				(p * data.epsh() * retrieveH(k));
-//	cout << "#current H("<<k<<")=" << getH(k) << endl; 
-	incr(k, H,tempH);
-//	cout << "#new H " << getH(k) << endl; 
-	
-	double prev_epsc = data.epsc();
-	if(k<=_numstoch)
-		prev_epsc = 0.0;
-    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_p * retrieveC(k-1)) +
-			(p * (1.0 - data.epsc()) * retrieveC(k)) -
-			(p * data.epsc() * retrieveC(k));
-	incr(k, C,tempC);
-	
-	double prev_epsi = data.epsi();
-	if(k<=_numstoch)
-		prev_epsi = 0.0;
-	double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_p * retrieveI(k-1)) +
-			(p * (1.0 - data.epsi()) * retrieveI(k-1)) -
-			(p * data.epsi() * retrieveI(k-1));
-	incr(k, I, tempI);
-	
-	double prev_epsb = data.epsb();
-	if(k<=_numstoch || k == 1 )
-		prev_epsb = 0.0;
-	double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_p * ((k-1)>0?retrieveB(k-1):0.0)) +
-			(p * (1.0 - data.epsb()) * retrieveB(k)) -
-			(p * data.epsb() * retrieveB(k));
-	incr(k, B,tempB);
-//	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << endl;
-	return true;
+    double p = data.dt() *getRate(k);
+    double prev_comp_p = data.dt() *getRate(k-1); 
+
+    double epsh = data.epsh(); 
+    double epsc = data.epsc();
+    double epsi = data.epsi();
+    double epsb = data.epsb();
+    double prev_epsh = data.epsh(); 
+    double prev_epsc = data.epsc();
+    double prev_epsi = data.epsi();
+    double prev_epsb = data.epsb();
+    if(k==_numstoch){
+        prev_epsh = 0.0;
+        prev_epsc = 0.0;
+        prev_epsi = 0.0;
+        prev_epsb = 0.0;
+    }
+
+    // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << std::endl;
+    // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << std::endl;
+    // std::cout <<p << " " << data.epsh() << " " << data.epsc() << std::endl;
+
+    double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
+        + (p * (1.0 - epsh) * retrieveH(k)) 
+        - (p * epsh * retrieveH(k));
+    //	std::cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
+    incr(k, H,tempH);
+    //	std::cout << "#new H " << getH(k) << std::endl; 
+
+    double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
+        + (p * (1.0 - epsc) * retrieveC(k))
+        - (p * epsc * retrieveC(k));
+    incr(k, C,tempC);
+
+    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
+        + (p * (1.0 - epsi) * retrieveI(k))
+        - (p * epsi * retrieveI(k));
+    // std::cout << "#current I("<<k<<")=" << retrieveI(k) << std::endl; 
+    incr(k, I, tempI);
+    // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 
+
+    double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0))
+        + (p * (1.0 - epsb) * retrieveB(k))
+        - (p * epsb * retrieveB(k));
+    incr(k, B,tempB);
+    //	cout << k << " : " << getN(k) << "\t" << getH(k) << "\t" << getC(k) << "\t" << getI(k) << "\t" << getB(k) << std::endl;
+    return true;
 }
 
 bool Model::treatDeterministically(unsigned k, double amount){	
-	double ccells = getC(k);
-	double bcells = getB(k);
+
+        double ccells=retrieveC(k);
 	double tmp = ccells * amount;
-	setC(k, ccells - tmp);
-	setB(k, bcells + tmp);
+        // if (amount >0.)
+            // std::cout <<"#treatment: "<<k<<" "<<tmp<<" "<<ccells<<" "<<amount<<" "<<getC(k);
+        incr(k,C,-tmp);
+        incr(k,B,tmp);
+        // std::cout <<" "<<getC(k)<<std::endl;
 	return true;
 }
 
-bool Model::treatStochastically(unsigned k, double rate, RanGen& ran){	
-	double ccells = getC(k);
-	double bcells = getB(k);
-
-	double tmp (0);
-	for(unsigned i = 0; i < ccells; ++i){
-		if(ran.randouble() < rate) ++tmp;
-	}
-	
-	bool changed = (tmp>0)?true:false;
-	if (changed){
-		setC(k, ccells - tmp);
-		setB(k, bcells + tmp);
-//		cout << "#Fraction changed in " << k << " : " << setprecision(3)<< (tmp/ccells)*100 << "% (" << ccells << " , " << getC(k)<< " , " << tmp << " , " << bcells << " , " << getB(k)<< ")" << endl;
-	}
-	return changed;	
-}
-
-
-bool Model::diagnosis(Data& data){
-//	double res = mylog(getN(_numcomp-1),10);
-//	cout <<  res << "\t" << data.stop() << endl;
-	return mylog(lastN(),10)>= data.stop();
-}
-
-bool Model::reduction(Data& data){
-	return getReduction() >= data.reduction();
-}
-
-float Model::getReduction(){
-	double b = diseaseBurden();
-	return (2.0 - mylog(b,10));
-}
-
-
-bool Model::containsLSC(){
+bool Model::containsLSC() const{
 	return (getC(0) > 0);
 }
 
-void Model::calcAlpha(){
-	double NC=lastC();
-	double NB=lastB();
-	double NH=lastH();
-	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
-//	cout << "Alpha = " << _alpha << endl;
+void Model::print_cells(std::ostream & os,double _time){
+    os <<_time/365.0<<" ";
+    os <<getH(0)<<" ";
+    os <<getC(0)<<" ";
+    os <<getI(0)<<" ";
+    os <<std::endl;
 }
 
-double Model::diseaseBurden(){
-	double NC=lastC();
-	double NB=lastB();
-	double NH=lastH();
-	double burden = (_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
-//	cout << burden << endl;
-	return burden;
+bool Model::manual_mutation(unsigned int k,unsigned int celltype_from,unsigned int celltype_to){
+    if ( get(k,celltype_from)>=1.){
+        //do fun stuff
+        incr(k,celltype_to,1.);
+        decr(k,celltype_from,1.);
+        return true;
+    }
+    else {
+        return false;
+    }
+
+
 }
-
-
-
-
 
 

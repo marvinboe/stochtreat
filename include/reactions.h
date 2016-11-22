@@ -13,17 +13,28 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 #include <gsl/gsl_sf_log.h>
 #include "model.h"
 #include "rangen.h"
 
-using namespace std;
 
 class Reaction { //X0 ->X0 + X1 or X0 -> X0 + X0
 public:
 	Reaction():_comp_reactant(0), _reactant(0),_comp_product1(0), _product1(0), _comp_product2(0), 
 		_product2(0), _r(-1.0), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
+
+        /** Constructor for reaction. parameters:
+         * cr   -> compartment of reactant
+         * rct  -> reactant cell type 
+         * cp1  -> compartment of product 1
+         * p1   -> product 1 cell type
+         * cp2  -> compartment of product2
+         * p2   -> product 2 cell type
+         * r    -> reaction rate
+         * cell types: 
+         * 0: healthy, 1: cancer, 2: immune, 3: treated.*/
 	Reaction(int cr, int rct, int cp1, int p1, int cp2, int p2, double r):_comp_reactant(cr), 
 		_reactant(rct),_comp_product1(cp1), _product1(p1), _comp_product2(cp2), _product2(p2), 
 		_r(r), _a(-1.0), _ptime(-1.0), _lasta(-1.0), _lastptime(-1.0), _time_zero(-1.0), _intype(-1), _ingraph(-1), _used(0){};
@@ -38,15 +49,30 @@ public:
 	unsigned int product2() const {return _product2;}
 	double rate() const {return _r;}
 	
+        /** Returns the index of the reaction in the dependency graph.*/
 	unsigned int inGraph() const {return _ingraph;}
+
+        /** Returns type of reaction:
+         * MORAN=0,SELF_RENEWAL=1,DIFFERENTATION=2,TREATMENT=3. */
 	unsigned int inType() const {return _intype;}
+
+        /** Storing node type and the index of the node (in the graph)*/
 	void setDG(unsigned type, unsigned loc) { _intype=type; _ingraph = loc;}
 	
 	double propensity() const {return _a;}
 	double probability(double dt) const {return _a * dt;}
+
+        /** Sets the propensity for this this reaction.
+         * x -> number of cells for this reaction
+         * needs to be set: _r -> reaction rate per cell */
 	void setPropensity(double x) {_a = x *_r;}
 	
+        void setRate(double v) {_r=v;};
+
 	double putativeTime() const {return _ptime;}
+
+        /** calculates the putative time for this reaction,
+         * adds to time "prev" and stores result in queue. */
 	double calcPutativeTime(double ranval, double prev=0.0) { 
 		_ptime = prev + (1.0 / _a ) * gsl_sf_log(1.0/ranval);
 		return _ptime;
@@ -70,15 +96,19 @@ public:
 	void resetUsed() {_used = 0;}
 
 	virtual Reaction& operator=(const Reaction& other);
-	friend ostream & operator<<(ostream &o, Reaction& r){return r.display(o);}
+	friend std::ostream & operator<<(std::ostream &o, Reaction& r){return r.display(o);}
 	
+        /** applies this reaction to the stem cell pool.
+         * returns true if lsc vanished. */
 	virtual bool apply(Model& pool,double time);
 	virtual bool sufficientReactants(Model& pool);
+        
+        /** returns number of cells for given reaction type */
 	virtual double reactantFactor(Model& pool);
 	
 	
 protected:
-	virtual ostream& display(ostream& os);
+	virtual std::ostream& display(std::ostream& os);
 	unsigned int _comp_reactant;
 	unsigned int _reactant;
 	unsigned int _comp_product1;
@@ -90,7 +120,7 @@ protected:
 	double _ptime; // exponential function _a * exp (- (time*sum_a)) * dt
 	double _lasta;
 	double _lastptime;
-	double _time_zero;
+	double _time_zero; // < timepoint when propensity reached zero
 	unsigned _intype;
 	unsigned _ingraph;
 	unsigned _used;
@@ -113,6 +143,16 @@ public:
 	virtual ~Differentation() {};
 	virtual Differentation& operator=(const Differentation& other);
 	
+};
+
+
+class Treatment : public Reaction {
+public:
+	Treatment(int compartment, double rate):Reaction(compartment,1,compartment,3,-1,-1,rate){};
+	Treatment(const Treatment& other):Reaction(other){};
+	virtual ~Treatment() {};
+	virtual Treatment& operator=(const Treatment& other);
+        virtual bool apply(Model & pool, double time);
 };
 
 
@@ -147,7 +187,7 @@ public:
 //	virtual double reactantFactor(Model& pool);
 	
 protected:
-	virtual ostream& display(ostream& os);
+	virtual std::ostream& display(std::ostream& os);
 	unsigned int _comp_reactant2;
 	unsigned int _reactant2;
 };
@@ -184,19 +224,26 @@ public:
 	}
 	
 	unsigned int size() const {return (unsigned)_all.size();}
+
+        /** Adds reaction to the end of _all.
+         * returns index of this element (=_all.size()-1) */
 	unsigned int add(Reaction*);
+
+        /** Returns pointer to reaction saved in _all[pos] */
 	Reaction* operator[](unsigned pos);
 	
 	double propSum() const {return _sumprop;}
 	void setPropSum(double v) { _sumprop = v;}
+
+        void print(std::ostream &);
 	
-	vector<Reaction*>::iterator begin() {return _all.begin();}
-	vector<Reaction*>::iterator end() {return _all.end();}
-	vector<Reaction*>::const_iterator begin() const{return _all.begin();}
-	vector<Reaction*>::const_iterator end() const {return _all.end();}
+        std::vector<Reaction*>::iterator begin() {return _all.begin();}
+        std::vector<Reaction*>::iterator end() {return _all.end();}
+        std::vector<Reaction*>::const_iterator begin() const{return _all.begin();}
+        std::vector<Reaction*>::const_iterator end() const {return _all.end();}
 	
 protected:
-	vector<Reaction*> _all;
+        std::vector<Reaction*> _all;
 	double _sumprop;
 };
 
