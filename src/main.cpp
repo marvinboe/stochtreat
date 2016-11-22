@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
     parameters.SetValue("path", "Output path (default ./outinput/) ", path);
     parameters.SetValue("inpath", "Input path (default ./outinput/) ", inpath);
     parameters.SetValue("ntime", "Maximum simulation time (years, default 25)", ntime);
-    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointaverage'", output);
+    parameters.SetValue("output", "Specifiy kind of output. possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(=100)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells", diff_probs.epsh);
