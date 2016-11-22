@@ -8,7 +8,6 @@
  */
 
 #include "indexedqueue.h"
-#include <limits>
 
 QueueElement::QueueElement(const QueueElement& other){
 	_idx=other.index();

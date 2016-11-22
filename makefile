@@ -16,8 +16,7 @@ INCLUDEDIR := include
 
 
 #COMPILATION AND LIBARY FLAGS
-# LDLIBS = -L/usr/local/Cellar/gsl/1.16/lib -lgsl -lgslcblas #-lm -lboost_serialization
-LDLIBS = -L /usr/local/lib/ -lgsl #-lm -lboost_serialization
+LDLIBS = #-L /usr/local/lib/  #-lm -lboost_serialization -lgsl
 
 # -lefence -lboost_random -lboost_thread-mt  -lboost_random  -stdlib=libc++
 

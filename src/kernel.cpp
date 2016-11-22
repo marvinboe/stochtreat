@@ -8,9 +8,6 @@
  */
 
 #include "kernel.h"
-#include <algorithm>
-#include <limits>
-#include <iomanip>
 
 
 

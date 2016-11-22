@@ -1,10 +1,3 @@
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <limits>
-#include <algorithm>
 #include "data.h"
 #include "rangen.h"
 #include "kernel.h"

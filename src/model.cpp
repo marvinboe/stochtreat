@@ -7,16 +7,9 @@
  *
  */
 
-#include <cassert>
-#include <cmath>
-#include <iomanip>
 
 #include "model.h"
-#include "dependency.h"
 
-#include <gsl/gsl_sf_log.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
 
 
 double Model::myround(double val){

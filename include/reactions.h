@@ -12,10 +12,9 @@
 
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <stdexcept>
 #include <vector>
-#include <gsl/gsl_sf_log.h>
+#include <cmath>
 #include "model.h"
 #include "rangen.h"
 
@@ -74,7 +73,7 @@ public:
         /** calculates the putative time for this reaction,
          * adds to time "prev" and stores result in queue. */
 	double calcPutativeTime(double ranval, double prev=0.0) { 
-		_ptime = prev + (1.0 / _a ) * gsl_sf_log(1.0/ranval);
+		_ptime = prev + (1.0 / _a ) * std::log(1.0/ranval);
 		return _ptime;
 	}
 	double setPutativeTime(double v) { 

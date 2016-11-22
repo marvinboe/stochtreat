@@ -1,73 +1,70 @@
-
 #include "rangen.h"
-#include <sys/time.h>
-#include <stdlib.h>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
 
-gsl_rng *cm_rng;
-
+std::mt19937 rng_engine;
 
 RanGen::RanGen(){
-	struct timeval a;
-	struct timezone b;
-	unsigned long int seed;
-	
-	gettimeofday(&a,&b);
+    unsigned long int rng_seed=0;
 
-    FILE*filein = fopen("seed.in","r");
-    FILE*fileout = fopen("seed.out","w");
+    std::ifstream filein;
+    std::ofstream fileout;
+    fileout.open("seed.out");
+    filein.open("seed.in");
 
-    if (filein == NULL)   
-	{
-		printf("#seed.in not found. Creating a new seed...\n");
-		seed = a.tv_usec;
-		//printf("seed = %ld \n",seed);
-		//srandom(seed);
-		cm_rng = gsl_rng_alloc(gsl_rng_mt19937); //Makoto
-		gsl_rng_set(cm_rng,seed);
-		fprintf(fileout,"%ld",seed);
-		fclose(fileout);
+    if (!filein)   
+    {
+        std::cout <<"#seed.in not found. Creating a new seed..."<<std::endl;
+
+        std::random_device sysrand;
+        rng_seed=sysrand();
+
+        rng_engine.seed(rng_seed); //seed RNGengine
+
+        fileout <<rng_seed<<std::endl;
+        fileout.close();
     }
     else
     {
-		printf("\n#reading seed.in .\n");
-		fscanf(filein,"%ldu",&seed);
-		fprintf(fileout,"%ld",seed);
-		//srandom(seed);
-		cm_rng = gsl_rng_alloc(gsl_rng_mt19937); //Makoto
-		gsl_rng_set(cm_rng,seed);
-		fclose(filein);
-		fclose(fileout);
+        std::cout<<"#reading seed.in"<<std::endl;
+        filein >> rng_seed;
+        fileout <<rng_seed<<std::endl;
+
+        //srandom(seed);
+        rng_engine.seed(rng_seed); //seed RNGengine
+        fileout.close();
+        filein.close();
     }
+
+
 }
-RanGen::~RanGen(){};
 
 bool RanGen::ranbool(){
-	int result= (int) gsl_rng_uniform_int (cm_rng,2);
+        std::uniform_int_distribution<int> distribution(0,1);
+        int result= distribution(rng_engine);
 	return (result == 0)? false : true;
 }
 
 int RanGen::ranval(int min, int max){
-	int diff=max-min;
-	int offset= (int) gsl_rng_uniform_int (cm_rng,diff);
-	return min + offset;
+        std::uniform_int_distribution<int> distribution(min,max);
+	return distribution(rng_engine);
 }
 
 double RanGen::randouble(){
-	return gsl_rng_uniform_pos (cm_rng);
+    std::uniform_real_distribution<double> distribution(0.0,1.0);
+    return distribution(rng_engine);
 }
 
 
 double RanGen::rangauss(double sigma){
-	return gsl_ran_gaussian( cm_rng, sigma);
+    std::normal_distribution<double> distribution(0.0,sigma);
+    return distribution(rng_engine);
 }
 
 
 int RanGen::ranpoisson(double mu){
-	return gsl_ran_poisson( cm_rng, mu);
+    std::poisson_distribution<int> distribution(mu);
+    return distribution(rng_engine);
 }
 		
 double RanGen::ranpoissonpdf(unsigned int k, double mu){
-	return gsl_ran_poisson_pdf( k, mu);
+    return ranpoisson(mu);
 }

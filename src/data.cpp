@@ -8,15 +8,6 @@
  */
 
 #include "data.h"
-#include <boost/lexical_cast.hpp> 
-#include <fstream>
-#include <sstream>
-#include <cmath>
-
-#include <gsl/gsl_sf_log.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
-
 
 Data::Data(){
 	_mass = 70;
