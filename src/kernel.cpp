@@ -116,7 +116,7 @@ bool Kernel::nextMethod(RanGen& ran){
     return lsc_moved;
 }
 
-void Kernel::reinitialize(Model& pool,RanGen& ran,double prev_t){
+void Kernel::reinitialize(RanGen& ran,double prev_t){
 
     for (unsigned int r_id =0 ; r_id < _allr.size(); ++r_id){
         Reaction* rd=_allr[r_id];
@@ -187,7 +187,7 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
             _allr[r_id]->setRate(_pool.getTreatRate());
         }
     }
-    reinitialize(_pool,ran,_time);
+    reinitialize(ran,_time);
     //#####done switching treatment
     
     int iters =0.;// (int)ceil(_time / _data.dt());
@@ -201,7 +201,6 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
         _pool.memorize(); //every time we update the state is stored (calculations are performed on these states)
         _time += _time_step; 
         int reactions_count=0;
-        double starttime_reacts=next_stoch;
         while(_time >= next_stoch)	{
             nextMethod(ran);
             next_stoch = (_queue.top())->tau();
@@ -247,7 +246,7 @@ std::istream& Kernel::readModel(std::istream& input){
 void Kernel::reset_treatment(RanGen& ran,double t){
 
     _pool.reset_treatment();
-    reinitialize(_pool,ran,t*365.);
+    reinitialize(ran,t*365.);
 
 }
 

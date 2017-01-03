@@ -161,12 +161,10 @@ class Data {
         void setThreshold(double v) {_threshold = v;}
 
 
-        int step() const {return _step;}
-        void setStep(int v) { _step = v;}
+        int step() const {return _outputstep;}
+        void setStep(int v) { _outputstep = v;}
         std::string ofcompartment() const {return _ofcompartment;}
         void setOfcompartment (std::string name) {_ofcompartment = name;}
-        std::string offinal() const {return _offinal;}
-        void setOffinal (std::string name) { _offinal = name;}
         void setOfname(std::string name) {_ofname=name;}
         std::string ofname() const {return _ofname;}
 
@@ -182,9 +180,6 @@ class Data {
         /** Sets treatment time in years that will be used 
          * in the treatment phase of the simulation. */
         void set_maximum_treatment_duration(double t) {_treatment_duration=t;}
-
-        std::string storage() const {return _hdlocation;}
-        void setStorage(std::string s) {_hdlocation=s;}
 
         /** Calculates patient parameters from given input.
          * parameters:
@@ -202,7 +197,7 @@ class Data {
         std::istream& read_from_file(std::istream&);
 
         double _dt; //time step relative to days
-        Diff_probabilities _diffprobs;
+        Diff_probabilities _diffprobs;//differentiation probabilities of all cell types
         double _p_csc; //probability that a normal cell turns into a cancer cell
         double _p_imm; //probabilty that a cancer cell turns into an immune cell
         double _frac_csc; //fraction of cancer cells in the stem cell compartment
@@ -223,10 +218,8 @@ class Data {
         double _rcancer; //difference between replication rates of normal and cancer cells.
         double _threshold; //percentage increase in number of cells for diagnosis
 
-        int _step; 
-        std::string _hdlocation; 
+        int _outputstep;//steps after which output is saved. unused
         std::string _ofcompartment;
-        std::string _offinal;
         std::string _ofname;
 };
 

@@ -13,7 +13,7 @@ int main (int argc, char *argv[]) {
     float reduction(4.5);
     double relapse_logreduction(3.);
     unsigned patients(1);
-    double months(1); //how often output is written
+    double collectinterval(30.); //how often data is collected
     std::string path("./outinput/");
     std::string inpath(path);
     Diff_probabilities diff_probs;
@@ -52,7 +52,7 @@ int main (int argc, char *argv[]) {
 
     RanGen ran;
     Data data;
-    data.initialize(mass, Nbase, Bbase, Sbase, (Lbase * factor), months, diff_probs);
+    data.initialize(mass, Nbase, Bbase, Sbase, (Lbase * factor), collectinterval, diff_probs);
     if (ntime > 0.){ //non-default
         data.setTmax(ntime);
     }

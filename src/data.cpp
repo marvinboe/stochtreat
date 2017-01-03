@@ -30,11 +30,9 @@ Data::Data(){
 	_additional=0;
 	_threshold = 0.2;
 	//for storing data
-	_step=100;
+	_outputstep=100;
 	_ofcompartment="compartment.txt";
-	_offinal="mammal.txt";
 	_ofname = "result.txt";
-	_hdlocation ="./";
 
 	//not relevant for the moment
 	// _p_csc=0;
@@ -45,19 +43,14 @@ Data::Data(){
 }
 
 
-void Data::initialize(double mass, double N,double B, double T, double L, double nummonth,Diff_probabilities diffprobs){ 
+void Data::initialize(double mass, double N,double B, double T, double L, double outputinterval,Diff_probabilities diffprobs){ 
 	_mass = mass;
 	
 	double hsc=N * pow(mass, 0.75);
-	double temp;
-	modf(hsc,&temp); 	
-	double diff=hsc-temp;
-		
-	if(diff >= 0.5)
-		_N0 = (temp+1); // always round up to next complete HSC
-	else _N0=temp;
-	_frac_csc=1/_N0; //always start with 1 LSC
-	_numlsc = 1;
+        _N0=std::round(hsc);//round to integer number of HSC
+
+	_numlsc = 1; //always start with 1 LSC
+	_frac_csc=_numlsc/_N0;
 	
 	_tau = 365.0/(B*pow(mass,-0.25));	
 	_dt=T*pow(mass,0.25);	
@@ -65,7 +58,7 @@ void Data::initialize(double mass, double N,double B, double T, double L, double
 	// _age=(L*pow(mass,0.25));
         _tmax=(L*pow(mass,0.25));
 	
-	_step=int(nummonth*(30./_dt)); //output per x months
+	_outputstep=int(outputinterval/_dt); //output_steps
 	
 	//are the same accross mamals or changd by command line
 	_rbase=1.263;//in paper 1.26// 1.263;
@@ -113,12 +106,10 @@ Data::Data(const Data& other){
 	_numstochcomps=other.nstochcomp();
 	_threshold = other.threshold();
 	_additional=other.additional();
-	_step=other.step();
+	_outputstep=other.step();
 	_treatment_duration=other.treatment_dur();
 	_ofcompartment=other.ofcompartment();
-	_offinal=other.offinal();
 	_ofname = other.ofname();
-	_hdlocation =other.storage();
 	_rcancer = other.rcancer();
 	_mass = other.mass();
 }
@@ -134,8 +125,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "  command line :: " << std::endl;
 	os << "    mass " << _mass << std::endl;
 	os << "    #stoch. comp. " << _numstochcomps << std::endl;
-	os << "    step " << _step << std::endl;
-	os << "    mammal " << _offinal << std::endl;
+	os << "    step " << _outputstep << std::endl;
 	os << "    threshold " << _threshold << std::endl;
 	os << "    frac_csc " << _frac_csc << std::endl;
 	os << "    numlsc " << _numlsc << std::endl;
@@ -157,7 +147,6 @@ std::ostream& Data::display(std::ostream& os){
 	os << "  data collection :: " << std::endl;	
 	os << "    output 1  " << _ofcompartment << std::endl;
 	os << "    output 3  " << _ofname << std::endl;
-	os << "    storage  " << _hdlocation << std::endl;
 	
 	return os;
 }

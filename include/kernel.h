@@ -101,7 +101,7 @@ class Kernel {
         void detUpdate();
 
         /** Reinitializes the kernel if cell counts or rates have changed. */
-        void reinitialize(Model& pool,RanGen& ran,double simtime);
+        void reinitialize(RanGen& ran,double simtime);
 
         bool stopsim(double time,int sim_type);
 

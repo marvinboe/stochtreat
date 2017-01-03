@@ -54,7 +54,7 @@ double Doctor::calc_tumor_burden(const Model& patient) const{
 
 	double burden = 0.;
         if (_alpha > 0.)
-	    burden = _alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//(_alpha*(100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)))));
+	    burden = _alpha*100.0 * ((NC + NB) / (NC + NB + (2.0 * NH)));//_alpha* ((NC + NB) / (NC + NB + (2.0 * NH)));//
         // std::cout << burden << std::endl;
 	return burden;
 }
