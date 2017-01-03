@@ -14,6 +14,8 @@ class RanGen {
         //methods
         bool ranbool();
         double randouble();	
+        
+        /** returns random integer in [min,max]. */
         int ranval(int min, int max);	
         double rangauss(double);
         int ranpoisson(double);

@@ -40,8 +40,9 @@ bool Kernel::nextMethod(RanGen& ran){
     try{
         lsc_moved = r->apply(_pool, prev_t);
     }
-    catch (...) {
-        std::cout <<"error reaction without reactants: debug output <tau> <index> <reactantType> <reactantComp> <reactionType> <queueindex> <propensity>"<<std::endl;
+    catch (std::exception & e) {
+        std::cout <<"reactions exception: '"<<e.what()<<"'"<<std::endl;
+        std::cout<<"debug output <tau> <index> <reactantType> <reactantComp> <reactionType> <queueindex> <propensity>"<<std::endl;
         std::cout <<next->tau()<<" "<<next->index()<<" " <<r->reactant()<<" "<<r->reactantComp()<<" "
             <<r->inType()<<" "<<r->inGraph()<<" "<<r->propensity()<<std::endl;
         exit(1);
