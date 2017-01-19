@@ -331,12 +331,15 @@ template<> void ParameterHandler::SetValue<bool>(const char* name,const char* he
 void ParameterHandler::print_help(std::ostream & os){
 
     if (help){
+        os <<" Stochtreat - simulate virtual patients with CML. "<<std::endl;
         os <<" usage: './stochtreat \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
         os <<std::left<<std::setw(8)<<" or:"<<"'./stochtreat parameterfile \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
+        os <<std::left<<"The parameterfile can be a simple text file with one key=value pair per line. Comments can be included with '#'."<<std::endl;
+        os <<std::left<<"Possible options:"<<std::endl;
         os << "<argument name> \t description (default value)"<<std::endl;
         os << "-----------------------------------"<<std::endl;
         for (const auto keyhelp_pair: keys_and_help){
-            os <<"\e[1m"<< std::setw(12) << std::left<<keyhelp_pair.first<<"\e[0m"<<"|";
+            os <<"\e[1m"<< std::setw(14) << std::left<<keyhelp_pair.first<<"\e[0m"<<"|";
             std::cout <<keyhelp_pair.second<<std::endl;
         }
         exit(0);

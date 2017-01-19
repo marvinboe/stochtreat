@@ -17,18 +17,46 @@
 #include <vector>
 #include <map>
 #include <cmath>
+#include "parameter_handler.h"
+// #include "output.h"
 
 struct Diff_probabilities{
     double epsh=0.85;
     double epsc=0.71;
     double epsb=0.89;
-    double epsi=0.71; //differentation probability immmune cell
+    double epsr=0.71; //differentation probability immmune cell
 
     /* write differentiation probabilities output os. */
     void write(std::ostream & os){ 
-        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsi<<std::endl;
+        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsr<<std::endl;
     }
 
+};
+
+struct Run_modes{
+    int resistance=-1;
+    bool treattest=false;
+    bool fixed_time_treatment=true;
+    operator bool() const { return (resistance>=0||treattest);}
+};
+
+struct Simulation_Parameters{
+    Diff_probabilities diff_probs;
+    Run_modes run_mode;
+    std::string output; //"patient nolsctime diagtime initresponse fullburden"
+    int runid = 1;
+    int n_stochastic_compartments = 7; // 1 means only the stem cell compartment
+    int n_compartments = 32;
+    double diagnosis_level = 12;
+    float treatmenttime  = 20;
+    float mass = 70; //human mass
+    float reduction = 4.5;
+    double relapse_logreduction = 3.;
+    double treatment_rate = 0.05;
+    unsigned patients = 1;
+    double collectinterval=30.; //how often data is collected
+    double ntime=25.;// maximum simulation time in years
+    void set_parameters(ParameterHandler & inputparams);
 };
 
 class Data {
@@ -75,7 +103,7 @@ class Data {
         double epsh() const {return _diffprobs.epsh;}
         double epsc() const {return _diffprobs.epsc;}
         double epsb() const {return _diffprobs.epsb;}
-        double epsi() const {return _diffprobs.epsi;}
+        double epsi() const {return _diffprobs.epsr;}
 
         /** return self-renewal probability epsilon for type. */
         double eps(unsigned type) const {
@@ -85,7 +113,7 @@ class Data {
                 case 1:
                     return _diffprobs.epsc;
                 case 2:
-                    return _diffprobs.epsi;
+                    return _diffprobs.epsr;
                 case 3:
                     return _diffprobs.epsb;
                 default :
@@ -96,7 +124,7 @@ class Data {
         void setEpsh (double v) {_diffprobs.epsh = v;} 
         void setEpsc (double v) {_diffprobs.epsc = v;} 
         void setEpsb (double v) {_diffprobs.epsb = v;} 
-        void setEpsi (double v) {_diffprobs.epsi = v;} 
+        void setEpsi (double v) {_diffprobs.epsr = v;} 
         void setEps(unsigned type, double v)  {
             switch(type){
                 case 0:
@@ -106,7 +134,7 @@ class Data {
                     _diffprobs.epsc = v;
                     break;
                 case 2:
-                    _diffprobs.epsi = v;
+                    _diffprobs.epsr = v;
                     break;
                 case 3:
                     _diffprobs.epsb = v;
@@ -184,11 +212,22 @@ class Data {
         /** Calculates patient parameters from given input.
          * parameters:
          * mass     - mass of the modeled animal
+         * Nbase    - log base for the number of hematopeotic stem cells
          * Bbase    - log base for the average cell cycle time of hematopeotic stem cells
          * Sbase    - log base for the deterministic timestep of simulation
          * Lbase    - log base for maximum simulation time
+         * c_interv - interval for virtual doctor visits (data collection interval)
          * diffprobs- differentiation probabilies. */
         void initialize(double,double,double, double, double, double,Diff_probabilities);
+
+        /** Calculates patient parameters from given input.
+         * parameters:
+         * simparams- simulation parameters (from default and user input).
+         * Nbase    - log base for the number of hematopeotic stem cells
+         * Bbase    - log base for the average cell cycle time of hematopeotic stem cells
+         * Sbase    - log base for the deterministic timestep of simulation
+         * Lbase    - log base for maximum simulation time */
+        void initialize(const Simulation_Parameters & ,double,double, double,double);
 
         friend std::ostream & operator<<(std::ostream &o, Data& c){return c.display(o);}
 

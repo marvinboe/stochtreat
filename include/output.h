@@ -48,13 +48,6 @@ struct Print_specifiers{
 
 };
 
-struct Run_modes{
-    int resistance=-1;
-    bool treattest=false;
-    bool fixed_time_treatment=true;
-    operator bool() const { return (resistance>=0||treattest);}
-};
-
 struct Three_timepoint_measurements{
     Three_timepoint_measurements():v(3,std::vector<double>(0)){}
     typedef std::vector<double> rundata;
