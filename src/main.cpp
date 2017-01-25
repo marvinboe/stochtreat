@@ -30,7 +30,7 @@ int main (int argc, char *argv[]) {
     std::vector<unsigned> redresult;
     for(unsigned i=0 ; i < simparams.patients; ++i){
         out.initialize_per_patient(i);
-        Kernel ker(ran, data, simparams.n_stochastic_compartments);
+        Kernel ker(ran, data);
         
         //make run without treatment until diagnosis (or time exceeded).
         double time = ker.execute(ran,0.0,DIAGNOSISRUN);

@@ -24,7 +24,7 @@ enum celltypes {H=0,C,I,B}; //H=healthy, C=cancer, I=resitant to TKI and B=Bound
 
 class Model {
 public:
-	Model(Data data, unsigned int numstoch);
+	Model(Data data);
 	Model(Data data, std::istream & is);
 	Model(const Model& other);
 	~Model(){

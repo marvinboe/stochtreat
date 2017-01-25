@@ -37,53 +37,10 @@ Data::Data(){
 	//not relevant for the moment
 	// _p_csc=0;
 	// _p_imm=0;
-	// _treatment_rate=0.0;
 	_treatment_duration=10.0;
 	// _rcancer = 1.0;
 }
 
-
-void Data::initialize(double mass, double N,double B, double T, double L, double outputinterval,Diff_probabilities diffprobs){ 
-	_mass = mass;
-	
-	double hsc=N * pow(mass, 0.75);
-        _N0=std::round(hsc);//round to integer number of HSC
-
-	_numlsc = 1; //always start with 1 LSC
-	_frac_csc=_numlsc/_N0;
-	
-	_tau = 365.0/(B*pow(mass,-0.25));	
-	_dt=T*pow(mass,0.25);	
-	
-	// _age=(L*pow(mass,0.25));
-        _tmax=(L*pow(mass,0.25));
-	
-	_outputstep=int(outputinterval/_dt); //output_steps
-	
-	//are the same accross mamals or changd by command line
-	_rbase=1.263;//in paper 1.26// 1.263;
-	// _diffprobs.epsh=0.8476;//in paper 0.85// 0.8476;
-	// _diffprobs.epsc=0.72;
-	// _diffprobs.epsb=0.89; //imatinib;
-	_diffprobs.epsh=diffprobs.epsh;//in paper 0.85// 0.8476;
-	_diffprobs.epsc=diffprobs.epsc;
-	_diffprobs.epsb=diffprobs.epsb; //imatinib;
-	_diffprobs.epsr=_diffprobs.epsc;
-	_ncompartments=32;
-	_diagnosis_level=12;//log value at diagnosis
-	_reduction = 3.5; //required log reduction
-	_treatment_rate=0.05;
-	_numstochcomps=7;
-	_additional=0;
-	_threshold = 0.2;
-	
-
-	//not relevant for the moment
-	// _p_csc=0;
-	// _p_imm=0;
-	_treatment_duration=10.0;
-	// _rcancer = 1.0;
-}
 
 void Data::initialize(const Simulation_Parameters & simparams, double N,double B, double T, double L){ 
 	_mass = simparams.mass;
