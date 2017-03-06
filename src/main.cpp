@@ -23,7 +23,7 @@ int main (int argc, char *argv[]) {
     RanGen ran;
     Data data;
     data.initialize(simparams, Nbase, Bbase, Sbase, (Lbase * factor));
-    	// cout << data << endl;
+    // std::cout << data << std::endl;
 
     Stats_Output out(simparams.output,simparams.n_stochastic_compartments,simparams.run_mode);
 

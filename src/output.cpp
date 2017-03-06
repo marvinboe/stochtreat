@@ -12,6 +12,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("diagtime")!=std::string::npos){
         timetodiagnosis=true;
     }
+    if (output_choice.find("reductiontime")!=std::string::npos){
+        timetoreduction=true;
+    }
     if (output_choice.find("initresponse")!=std::string::npos){
         initialresponse=true;
     }
@@ -35,7 +38,7 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     }
 }
 Print_specifiers::operator bool() const {
-    return (per_patient||nolsctime||initialresponse||timetodiagnosis||yearlyburden||relapsetime);
+    return (per_patient||nolsctime||initialresponse||timetodiagnosis||timetoreduction||yearlyburden||relapsetime);
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):

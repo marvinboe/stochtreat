@@ -120,24 +120,21 @@ Data::Data(const Data& other){
 
 std::ostream& Data::display(std::ostream& os){
 	os << "#Inputdata_for_hematopoietic_model" << std::endl;
-	os << "  calculated :: " << std::endl;
 	os << "    N0 " << _N0 << std::endl;
 	os << "    tau " << _tau << std::endl;
 	os << "    dt " << _dt << std::endl;
 	os << "    Tmax " << _tmax<<" years"<<std::endl;
-	os << "  command line :: " << std::endl;
 	os << "    mass " << _mass << std::endl;
 	os << "    #stoch. comp. " << _numstochcomps << std::endl;
 	os << "    step " << _outputstep << std::endl;
 	os << "    threshold " << _threshold << std::endl;
 	os << "    frac_csc " << _frac_csc << std::endl;
 	os << "    numlsc " << _numlsc << std::endl;
-	os << "  fixed :: " << std::endl;
 	os << "    rbase " << _rbase << std::endl;	
 	os << "    epsh " << _diffprobs.epsh << std::endl;
 	os << "    espc " << _diffprobs.epsc << std::endl;
 	os << "    espb " << _diffprobs.epsb << std::endl;
-	os << "    espi " << _diffprobs.epsr << std::endl;
+	os << "    espr " << _diffprobs.epsr << std::endl;
 	os << "    p_csc " << _p_csc << std::endl;
 	os << "    p_imm " << _p_imm << std::endl;
 	os << "    treatment_rate " << _treatment_rate << std::endl;
@@ -158,7 +155,8 @@ std::ostream& Data::display(std::ostream& os){
 void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("run",	"Run identifier (1)",	runid);
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
-    parameters.SetValue("treattime", "Years of treatment (10 years)", treatmenttime);
+    parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
+    parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
     parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05)", treatment_rate);
     parameters.SetValue("mass",	"animal mass (70 kg)",	mass);
     parameters.SetValue("reduction", "Required reduction level (4.5 logs)", reduction);
@@ -171,7 +169,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
 
-    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'. Can be combined: 'output=x1;x2;etc'.", output);
+    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
 
 }
