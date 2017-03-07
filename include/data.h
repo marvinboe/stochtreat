@@ -22,9 +22,9 @@
 
 struct Diff_probabilities{
     double epsh=0.85;
-    double epsc=0.71;
+    double epsc=0.72;
     double epsb=0.89;
-    double epsr=0.71; //differentation probability immmune cell
+    double epsr=epsc; //differentation probability immmune cell
 
     /* write differentiation probabilities output os. */
     void write(std::ostream & os){ 
