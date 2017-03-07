@@ -12,7 +12,6 @@ RanGen::RanGen(){
 
     if (!filein)   
     {
-        std::cout <<"#seed.in not found. Creating a new seed..."<<std::endl;
 
         std::random_device sysrand;
         rng_seed=sysrand();
@@ -21,6 +20,7 @@ RanGen::RanGen(){
 
         fileout <<rng_seed<<std::endl;
         fileout.close();
+        std::cout <<"#seed.in not found. Creating a new seed: "<<rng_seed<<std::endl;
     }
     else
     {

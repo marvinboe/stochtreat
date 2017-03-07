@@ -18,7 +18,7 @@ Data::Data(){
 	_frac_csc=0.0;
 	_numlsc = 0;
 	//are the same accross mamals
-	_diffprobs.epsh=0.8476; //in paper 0.85 //0.8476;
+	_diffprobs.epsh=0.85; //in paper 0.85 //0.8476;
 	_diffprobs.epsc=0.72;
 	_diffprobs.epsr=_diffprobs.epsc;
 	_diffprobs.epsb=0.89;

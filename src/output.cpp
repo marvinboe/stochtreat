@@ -90,6 +90,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _lsc_at_diagnosis=true;
     _nolsc_treattest=false;
     _diagnosis_reached=false;
+    _diagnosis_time=-1;
     _burden_after_treatment=-1.;
     _timetorelapse=-1.;
     _yearlyburden.clear();
@@ -167,40 +168,38 @@ void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
 }
 
 void Stats_Output::print_patient(const Kernel& ker) const{
-    if (_diagnosis_reached){
 
-        if (_print.nolsctime)     std::cout  << ker.get_nolsctime() <<" ";
-        if (_print.timetodiagnosis)
-            std::cout << _diagnosis_time << "  " ;
-        if (_print.timetoreduction)
-            std::cout << _timetoreduction << "  ";
+    if (_print.nolsctime)     std::cout  << ker.get_nolsctime() <<" ";
+    if (_print.timetodiagnosis)
+        std::cout << _diagnosis_time << "  " ;
+    if (_print.timetoreduction)
+        std::cout << _timetoreduction << "  ";
 
-        if (_print.initialresponse){
-            std::cout <<ker.doctor().calc_response()<<" ";
-            std::cout <<_lsc_at_diagnosis<<" ";
-            std::cout <<_initialburden_alpha<<" ";
-            if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
-            if (_run_mode.treattest)
-                std::cout <<ker.doctor().diagnosis_reached()<< " ";
-        }
-        if (_run_mode.treattest && _print.relapsetime)
-            std::cout <<_timetorelapse<<" ";
-
-        if (_print.yearlyburden) 
-            std::cout <<_yearlyburden<<" ";
-
-        if (_run_mode.resistance>=0){
-            std::cout <<_resshare_treat<<" ";
-            if (_run_mode.treattest) std::cout <<_resshare_relapse<<" ";
-        }
-
-        if (_print.fullburden){
-            std::cout <<std::endl<<"#full doctor report"<<std::endl;
-            ker.print_full_doctors_report(std::cout);
-        }
-        if (_print||_run_mode.resistance>=0) std::cout <<std::endl;
-
+    if (_print.initialresponse){
+        std::cout <<ker.doctor().calc_response()<<" ";
+        std::cout <<_lsc_at_diagnosis<<" ";
+        std::cout <<_initialburden_alpha<<" ";
+        if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
+        if (_run_mode.treattest)
+            std::cout <<ker.doctor().diagnosis_reached()<< " ";
     }
+    if (_run_mode.treattest && _print.relapsetime)
+        std::cout <<_timetorelapse<<" ";
+
+    if (_print.yearlyburden) 
+        std::cout <<_yearlyburden<<" ";
+
+    if (_run_mode.resistance>=0){
+        std::cout <<_resshare_treat<<" ";
+        if (_run_mode.treattest) std::cout <<_resshare_relapse<<" ";
+    }
+
+    if (_print.fullburden){
+        std::cout <<std::endl<<"#full doctor report"<<std::endl;
+        ker.print_full_doctors_report(std::cout);
+    }
+    if (_print||_run_mode.resistance>=0) std::cout <<std::endl;
+
 
 
 }
