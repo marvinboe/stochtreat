@@ -38,7 +38,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     }
 }
 Print_specifiers::operator bool() const {
-    return (per_patient||nolsctime||initialresponse||timetodiagnosis||timetoreduction||yearlyburden||relapsetime);
+    return (per_patient||nolsctime||initialresponse||timetodiagnosis||
+            timetoreduction||yearlyburden||three_timepoint_full||
+            relapsetime);
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
@@ -65,21 +67,30 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         _timer=clock();
 
         std::cout <<"#output info: ";
-        if (_print.nolsctime) std::cout <<"<nolsctime>";
-        if (_print.timetodiagnosis) std::cout <<"<time_to_diag>";
-        if (_print.timetoreduction) std::cout <<"<time to reduction>";
+        if (_print.nolsctime) std::cout <<"<nolsctime> ";
+        if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
+        if (_print.timetoreduction) std::cout <<"<time to reduction> ";
         if (_print.initialresponse){
             std::cout <<"<init. response>"<<"<lsc at diag>"<<"<initial c_ratio>";
-            if (!_print.yearlyburden) std::cout <<"<burden>";
+            std::cout <<"<burden>";
             if (_run_mode.treattest)
                 std::cout <<"<relapse>";
+            std::cout <<" ";
         }
         if (_run_mode.treattest && _print.relapsetime)
-            std::cout <<"<timetorelapse>";
+            std::cout <<"<timetorelapse> ";
+
+        if (_print.three_timepoint_full){
+            for (int i=0; i<3; ++i){
+                std::cout<<"<burden"<<_three_timepoints_measure.t[i]<<"> ";
+            }
+            std::cout <<" ";
+        }
 
         if (_run_mode.resistance>=0){
             std::cout <<"<resistance_share_treat>";
             if (_run_mode.treattest) std::cout <<"<resistance_share_relapse>";
+            std::cout <<" ";
         }
 
         if (_print.yearlyburden) std::cout <<"<yearlyburden>";
@@ -143,6 +154,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
     _resshare_treat=ker.doctor().get_resistant_share();
+
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
     std::stringstream strs;
     for (auto x : yearlyburden){
@@ -179,18 +191,32 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         std::cout <<ker.doctor().calc_response()<<" ";
         std::cout <<_lsc_at_diagnosis<<" ";
         std::cout <<_initialburden_alpha<<" ";
-        if (!_print.yearlyburden) std::cout <<_burden_after_treatment<<" ";
+        std::cout <<_burden_after_treatment<<" ";
         if (_run_mode.treattest)
             std::cout <<ker.doctor().diagnosis_reached()<< " ";
+        std::cout <<" ";
     }
     if (_run_mode.treattest && _print.relapsetime)
-        std::cout <<_timetorelapse<<" ";
+        std::cout <<_timetorelapse<<"  ";
+
+    if (_print.three_timepoint_full){
+        if (_diagnosis_reached){
+            for (int i=0; i<3; ++i){
+                std::cout<<_three_timepoints_measure.v[i].back()<<" ";
+            }
+        }
+        else {
+            std::cout <<"-1 -1 -1 ";
+        }
+        std::cout <<" ";
+
+    }
 
     if (_print.yearlyburden) 
-        std::cout <<_yearlyburden<<" ";
+        std::cout <<_yearlyburden<<"  ";
 
     if (_run_mode.resistance>=0){
-        std::cout <<_resshare_treat<<" ";
+        std::cout <<_resshare_treat<<"  ";
         if (_run_mode.treattest) std::cout <<_resshare_relapse<<" ";
     }
 
@@ -217,18 +243,6 @@ void Stats_Output::print_at_end() const{
             std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
         }
         std::cout<<std::endl;
-    }
-    if (_print.three_timepoint_full){
-        int y=0;
-        bool printfurther=true;
-        while (printfurther){
-            for (int i=0; i<3; ++i){
-                std::cout<<_three_timepoints_measure.v[i][y]<<" ";
-            }
-            ++y;
-            if (y==_three_timepoints_measure.v[0].size()) printfurther=false;
-            std::cout <<std::endl;
-        }
     }
     if (!_print.overview_at_end) return;
 

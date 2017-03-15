@@ -99,6 +99,8 @@ class Doctor{
 
         bool _first_time_consulted;
 
+        /** returns index corresponding to 
+         * timepoint t. TODO handling of missing values. */
         int find_timepoint(double t) const;
 
         double slope(const std::vector<recorddata>::const_iterator x_begin,const std::vector<recorddata>::const_iterator y_begin,unsigned int elements) const;

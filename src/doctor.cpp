@@ -33,8 +33,8 @@ double Doctor::get_tumor_burden(double t) const{
     int i=find_timepoint(t);
     if (i>=0 && _timepoints.size()>0)
         return _burden_data[i];
-    return 0.;
-    // do nothing
+    return -1;
+    // do nothing 
 }
 
 
@@ -81,6 +81,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
 
 int Doctor::find_timepoint(double t) const{
     int i =_timepoints.size()-1;
+    if (t > (2*_timepoints.back()-_timepoints.rbegin()[1])) return -1;
     while (i > 0 && _timepoints[i] > t) --i; 
     return i;
 }
@@ -158,8 +159,11 @@ std::vector<double> Doctor::get_yearly_burden() const{
 double Doctor::get_resistant_share(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 
-    unsigned int i=find_timepoint(t);
-    return _res_share_data[i];
+    int i=find_timepoint(t);
+    if (i>=0)
+        return _res_share_data[i];
+    else
+        return -1.;
     // do nothing
 }
 
@@ -193,10 +197,10 @@ bool Doctor::diagnosis_reached( double level, double t) const{
 
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
     if (t<0.) return false; 
-    unsigned int i=find_timepoint(t);
+    int i=find_timepoint(t);
 
     // std::cout <<"debug diagnosis: "<<_lastn_data[i]<<" "<<level<<" "<<i<<" "<<t<<std::endl;
-    if (_lastn_data[i] >= std::pow(10.,level)) return true;
+    if ((i>=0) && (_lastn_data[i] >= std::pow(10.,level))) return true;
     else return false;
 }
 
