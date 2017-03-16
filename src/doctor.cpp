@@ -156,6 +156,17 @@ std::vector<double> Doctor::get_yearly_burden() const{
     return returnvec;
 }
 
+std::vector<double> Doctor::get_burden_at_interval(double intdays) const{
+    std::vector<double> returnvec;
+    double t=_starttime_treatment+0.5; //TODO something is one day off here???
+    while (t<=_timepoints.back()){
+        returnvec.push_back(get_tumor_burden(t));
+        t+=intdays;
+    }
+    // std::cout <<t<<" "<<_timepoints.back()<<std::endl;
+    return returnvec;
+}
+
 double Doctor::get_resistant_share(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 

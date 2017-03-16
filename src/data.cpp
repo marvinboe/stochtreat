@@ -169,7 +169,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
 
-    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull'. Can be combined: 'output=x1;x2;etc'.", output);
+    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
 
 }

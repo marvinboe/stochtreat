@@ -36,6 +36,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("3timepointsfull")!=std::string::npos){
         three_timepoint_full=true;
     }
+    if (output_choice.find("treatdynamics")!=std::string::npos){
+        treat_dynamics=true;
+    }
 }
 Print_specifiers::operator bool() const {
     return (per_patient||nolsctime||initialresponse||timetodiagnosis||
@@ -55,6 +58,8 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         _total_timetoreduction = 0;
         _burden_after_treatment=-1.;
         _avgsize.resize(no_stochcomps+1);
+
+        _treat_dynamics_interval=0.05;
 
         _redresult.clear();
 
@@ -164,6 +169,9 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     if (_yearlyburden.length()>0){
         _yearlyburden.pop_back();
     }
+    if (_print.treat_dynamics){
+        burden_record.push_back(ker.doctor().get_burden_at_interval(_treat_dynamics_interval*365));
+    }
 
 }
 
@@ -244,6 +252,34 @@ void Stats_Output::print_at_end() const{
         }
         std::cout<<std::endl;
     }
+
+    if (_print.treat_dynamics){
+        unsigned int i=0; //row number
+        bool stop=false;
+        while (!stop){
+            unsigned no_columns=0;
+            double sum=0.;
+            std::vector<double> row;
+            for (unsigned j=0; j<burden_record.size(); ++j){
+                if (burden_record[j].size()>i){
+                    row.push_back(burden_record[j][i]);
+                    sum+=burden_record[j][i];
+                    ++no_columns;
+                }
+            }
+            if (no_columns==0){
+                stop=true;
+                break;
+            }
+            //median
+            std::nth_element(row.begin(), row.begin() + row.size() / 2, row.end());
+            double med= *std::next(row.begin(), row.size() / 2);
+
+            std::cout <<i*_treat_dynamics_interval<<" "<<sum/double(burden_record.size())<<" "<<med<<std::endl;
+            ++i;
+        }
+    }
+
     if (!_print.overview_at_end) return;
 
     if (_run_mode.treattest){
