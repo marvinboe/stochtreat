@@ -197,11 +197,11 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 
     if (_print.initialresponse){
         std::cout <<ker.doctor().calc_response()<<" ";
-        std::cout <<_lsc_at_diagnosis<<" ";
-        std::cout <<_initialburden_alpha<<" ";
-        std::cout <<_burden_after_treatment<<" ";
-        if (_run_mode.treattest)
-            std::cout <<ker.doctor().diagnosis_reached()<< " ";
+        // std::cout <<_lsc_at_diagnosis<<" ";
+        // std::cout <<_initialburden_alpha<<" ";
+        // std::cout <<_burden_after_treatment<<" ";
+        // if (_run_mode.treattest)
+        //     std::cout <<ker.doctor().diagnosis_reached()<< " ";
         std::cout <<" ";
     }
     if (_run_mode.treattest && _print.relapsetime)
