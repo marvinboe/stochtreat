@@ -76,10 +76,10 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
         if (_print.timetoreduction) std::cout <<"<time to reduction> ";
         if (_print.initialresponse){
-            std::cout <<"<init. response>"<<"<lsc at diag>"<<"<initial c_ratio>";
-            std::cout <<"<burden>";
-            if (_run_mode.treattest)
-                std::cout <<"<relapse>";
+            std::cout <<"<init. response>";//<<"<lsc at diag>"<<"<initial c_ratio>";
+            // std::cout <<"<burden>";
+            // if (_run_mode.treattest)
+                // std::cout <<"<relapse>";
             std::cout <<" ";
         }
         if (_run_mode.treattest && _print.relapsetime)
