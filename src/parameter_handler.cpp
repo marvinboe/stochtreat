@@ -139,7 +139,7 @@ bool ParameterHandler::ParseString(std::string input, s_parameter &new_parameter
     found_at=input.find("=");
     if (found_at==input.length()-1)
     {
-        std::cout<<"parameter '"<<input<<"' has no value"<<std::endl;
+        std::cout<<"#parameter '"<<input<<"' has no value -> ignored"<<std::endl;
         return false;
     }
     else
