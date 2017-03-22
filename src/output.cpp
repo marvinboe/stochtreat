@@ -256,6 +256,7 @@ void Stats_Output::print_at_end() const{
     if (_print.treat_dynamics){
         unsigned int i=0; //row number
         bool stop=false;
+        std::cout <<"#<time><average><median>"<<std::endl;
         while (!stop){
             unsigned no_columns=0;
             double sum=0.;
@@ -278,6 +279,7 @@ void Stats_Output::print_at_end() const{
             std::cout <<i*_treat_dynamics_interval<<" "<<sum/double(burden_record.size())<<" "<<med<<std::endl;
             ++i;
         }
+        std::cout <<"###########"<<std::endl;
     }
 
     if (!_print.overview_at_end) return;

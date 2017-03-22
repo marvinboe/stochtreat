@@ -44,6 +44,8 @@ void Doctor::calc_initial_reference(double time,const Model& patient){
 	double NH=patient.lastH();
 	_alpha = (NC + NB + (2.0 * NH)) / (NC + NB);
         _starttime_treatment=time;
+        int i = find_timepoint(time);
+        _burden_data[i]=100.;
         // std::cout <<"init alpha debug: "<<_alpha<<" "<<NC<<" "<<NB<<" "<<NH<<std::endl;
 }
 
@@ -158,7 +160,7 @@ std::vector<double> Doctor::get_yearly_burden() const{
 
 std::vector<double> Doctor::get_burden_at_interval(double intdays) const{
     std::vector<double> returnvec;
-    double t=_starttime_treatment+0.5; //TODO something is one day off here???
+    double t=_starttime_treatment+0.; //TODO something is one day off here???
     while (t<=_timepoints.back()){
         returnvec.push_back(get_tumor_burden(t));
         t+=intdays;
@@ -211,7 +213,9 @@ bool Doctor::diagnosis_reached( double level, double t) const{
     int i=find_timepoint(t);
 
     // std::cout <<"debug diagnosis: "<<_lastn_data[i]<<" "<<level<<" "<<i<<" "<<t<<std::endl;
-    if ((i>=0) && (_lastn_data[i] >= std::pow(10.,level))) return true;
+    if ((i>=0) && (_lastn_data[i] >= std::pow(10.,level))){
+        return true;
+    }
     else return false;
 }
 
