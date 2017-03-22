@@ -69,6 +69,7 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	_ncompartments=simparams.n_compartments;
 	_diagnosis_level=simparams.diagnosis_level;//log value at diagnosis
 	_reduction = simparams.reduction; //required log reduction
+	_required_redtime = simparams.required_reduction_time*365.; //required log reduction
 	_treatment_rate=simparams.treatment_rate;
 	_numstochcomps=simparams.n_stochastic_compartments;
 
@@ -157,14 +158,15 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
-    parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05)", treatment_rate);
+    parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05/day)", treatment_rate);
     parameters.SetValue("mass",	"animal mass (70 kg)",	mass);
-    parameters.SetValue("reduction", "Required reduction level (4.5 logs)", reduction);
-    parameters.SetValue("relapse_reduction", "Required reduction level (3)", relapse_logreduction);
+    parameters.SetValue("reduction", "Required reduction level (4.5 log)", reduction);
+    parameters.SetValue("reductiontime", "Required time in reduction (0 years)", required_reduction_time);
+    parameters.SetValue("relapse_reduction", "Required reduction level (3 log)", relapse_logreduction);
     parameters.SetValue("patients", "Number of patients (1)", patients);
-    parameters.SetValue("ntime", "Maximum simulation time in years(25)", ntime);
+    parameters.SetValue("ntime", "Maximum simulation time (25 years)", ntime);
 
-    parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest(100)", run_mode.resistance);
+    parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest=100 (-1)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);

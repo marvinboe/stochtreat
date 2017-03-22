@@ -285,12 +285,15 @@ bool Kernel::stopsim(double t,int sim_type){
                 _stoptimer=t;
                 return false;
             }
-            if (t>=_stoptimer+365.){
+            if (t >= _stoptimer+_data.required_reduction_time()){
                 _stoptimer=-1.;
                 return true;
             }
         }
-        else return false;
+        else{
+            // _stoptimer=-1.;
+            return false;
+        }
     }
     else if (sim_type==DIAGNOSISRUN){
         if (_doctor.diagnosis_reached()) return true;

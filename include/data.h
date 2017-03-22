@@ -52,6 +52,7 @@ struct Simulation_Parameters{
     float mass = 70; //human mass
     float reduction = 4.5;
     double relapse_logreduction = 3.;
+    double required_reduction_time = 0;
     double treatment_rate = 0.05;
     unsigned patients = 1;
     double collectinterval=30.; //how often data is collected
@@ -172,6 +173,11 @@ class Data {
         double reduction() const {return _reduction;}
         void set_treatment_stop_reduction(double v) {_reduction = v;}
 
+        /** Returns required time in days for reduction to be 
+         * maintained before treatment is stopped.*/
+        double required_reduction_time() const {return _required_redtime;}
+        void set_required_reduction_time(double v) {_required_redtime=v;}
+
         void set_relapse_reduction(double v) {_relapse_reduction=v;}
         double relapse_reduction() {return _relapse_reduction;}
 
@@ -251,7 +257,8 @@ class Data {
         double _additional; //additional number of years to continue simulation after X
         double _treatment_duration; //number of years of treatment
         double _diagnosis_level; //stop value = diagnosis level
-        double _reduction; //stop value (CHANGE now it is the required log reduction in bcr-abl transcript level)
+        double _reduction; //stop value (required log reduction in bcr-abl transcript level)
+        double _required_redtime; //time stop value to be maintained
         double _relapse_reduction; //stop value relapse
         double _mass;  //mammal mass
         double _rcancer; //difference between replication rates of normal and cancer cells.
