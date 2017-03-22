@@ -46,61 +46,79 @@ Print_specifiers::operator bool() const {
             relapsetime);
 }
 
-Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode):
-    _run_mode(run_mode),_print(output_choice){
+Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode): _run_mode(run_mode),_print(output_choice){
 
+    _nolsc = 0;
+    _diagnosed_nolsc = 0;
+    _total_diagnosis_time=0;
+    _diagnosed=0;
+    _reachedreduction = 0;
+    _total_timetoreduction = 0;
+    _burden_after_treatment=-1.;
+    _avgsize.resize(no_stochcomps+1);
 
-        _nolsc = 0;
-        _diagnosed_nolsc = 0;
-        _total_diagnosis_time=0;
-        _diagnosed=0;
-        _reachedreduction = 0;
-        _total_timetoreduction = 0;
-        _burden_after_treatment=-1.;
-        _avgsize.resize(no_stochcomps+1);
+    _treat_dynamics_interval=0.05;
 
-        _treat_dynamics_interval=0.05;
+    _redresult.clear();
 
-        _redresult.clear();
+    _no_recurrence_patients=0;
+    _recurrence_count=0;
+    _nolsc_recurrence_count=0;
 
-        _no_recurrence_patients=0;
-        _recurrence_count=0;
-        _nolsc_recurrence_count=0;
+    _patients=0;
 
-        _patients=0;
+    _timer=clock();
 
-        _timer=clock();
-
-        std::cout <<"#output info: ";
-        if (_print.nolsctime) std::cout <<"<nolsctime> ";
-        if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
-        if (_print.timetoreduction) std::cout <<"<time to reduction> ";
-        if (_print.initialresponse){
-            std::cout <<"<init. response>";//<<"<lsc at diag>"<<"<initial c_ratio>";
-            // std::cout <<"<burden>";
-            // if (_run_mode.treattest)
-                // std::cout <<"<relapse>";
-            std::cout <<" ";
-        }
-        if (_run_mode.treattest && _print.relapsetime)
-            std::cout <<"<timetorelapse> ";
-
-        if (_print.three_timepoint_full){
-            for (int i=0; i<3; ++i){
-                std::cout<<"<burden"<<_three_timepoints_measure.t[i]<<"> ";
-            }
-            std::cout <<" ";
-        }
-
-        if (_run_mode.resistance>=0){
-            std::cout <<"<resistance_share_treat>";
-            if (_run_mode.treattest) std::cout <<"<resistance_share_relapse>";
-            std::cout <<" ";
-        }
-
-        if (_print.yearlyburden) std::cout <<"<yearlyburden>";
-        std::cout << std::endl;
+    std::cout <<"#output info: ";
+    if (_print.nolsctime) std::cout <<"<nolsctime> ";
+    if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
+    if (_print.timetoreduction) std::cout <<"<time to reduction> ";
+    if (_print.initialresponse){
+        std::cout <<"<init. response>";//<<"<lsc at diag>"<<"<initial c_ratio>";
+        // std::cout <<"<burden>";
+        // if (_run_mode.treattest)
+        // std::cout <<"<relapse>";
+        std::cout <<" ";
     }
+    if (_run_mode.treattest && _print.relapsetime)
+        std::cout <<"<timetorelapse> ";
+
+    if (_print.three_timepoint_full){
+        for (int i=0; i<3; ++i){
+            std::cout<<"<burden"<<_three_timepoints_measure.t[i]<<"> ";
+        }
+        std::cout <<" ";
+    }
+
+    if (_run_mode.resistance>=0){
+        std::cout <<"<resistance_share_treat>";
+        if (_run_mode.treattest) std::cout <<"<resistance_share_relapse>";
+        std::cout <<" ";
+    }
+
+    if (_print.yearlyburden) std::cout <<"<yearlyburden>";
+    std::cout << std::endl;
+}
+
+double calc_median(std::vector<double> x){
+    double returnvalue;
+    size_t n = 0.;
+    if(x.size()%2 == 1)
+        n=(x.size()-1)/2;
+    else 
+        n=x.size()/2;
+
+    std::nth_element(x.begin(), x.begin()+n, x.end());
+
+    double xn = x[n];
+    if(x.size()%2 == 1) {
+        returnvalue= xn;
+    }else {
+        // std::nth_element(x.begin(), x.begin()+n-1, x.end());
+        returnvalue= 0.5*(xn+x[n-1]);
+    }
+    return returnvalue;
+}
 
 void Stats_Output::initialize_per_patient(int patient){
     _lsc_at_diagnosis=true;
@@ -273,8 +291,7 @@ void Stats_Output::print_at_end() const{
                 break;
             }
             //median
-            std::nth_element(row.begin(), row.begin() + row.size() / 2, row.end());
-            double med= *std::next(row.begin(), row.size() / 2);
+            double med=calc_median(row);
 
             std::cout <<i*_treat_dynamics_interval<<" "<<sum/double(burden_record.size())<<" "<<med<<std::endl;
             ++i;
@@ -344,28 +361,14 @@ std::vector<double> Three_timepoint_measurements::return_std() const{
     return stdev;
 }
 
+
 std::vector<double> Three_timepoint_measurements::return_median() const {
     std::vector<double> returnvalues(3,std::numeric_limits<double>::quiet_NaN());
     for (int i = 0 ; i<3 ;++i){
         std::vector<double>x=v[i];
 
         if (x.size() == 0) return returnvalues;
-
-        size_t n = 0.;
-        if(x.size()%2 == 1)
-            n=(x.size()-1)/2;
-        else 
-            n=x.size()/2;
-
-        std::nth_element(x.begin(), x.begin()+n, x.end());
-
-        double xn = x[n];
-        if(x.size()%2 == 1) {
-            returnvalues[i]= xn;
-        }else {
-            // std::nth_element(x.begin(), x.begin()+n-1, x.end());
-            returnvalues[i]= 0.5*(xn+x[n-1]);
-        }
+        returnvalues[i]=calc_median(x);
 
     }
     return returnvalues;
