@@ -283,7 +283,6 @@ bool Kernel::stopsim(double t,int sim_type){
         if (_doctor.reduction_reached()){
             if (_stoptimer<=0.){
                 _stoptimer=t;
-                return false;
             }
             if (t >= _stoptimer+_data.required_reduction_time()){
                 _stoptimer=-1.;

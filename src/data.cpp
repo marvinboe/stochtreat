@@ -105,6 +105,7 @@ Data::Data(const Data& other){
 	_ncompartments=other.ncompartments();
 	_diagnosis_level=other.diagnosis_level();
 	_reduction=other.reduction();
+        _required_redtime=other.required_reduction_time();
 	_N0=other.N0();
 	_tau=other.tau();
 	_numstochcomps=other.nstochcomp();
