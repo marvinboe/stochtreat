@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
             out.save_data_after_treatment(ker,time);
 
             if (simparams.run_mode.treattest && ker.doctor().reduction_reached()){
-                ker.set_ntime(time+10.);
+                ker.set_ntime(time+5.);
                 ker.reset_treatment(ran,time);
                 time=ker.execute(ran,time,RELAPSERUN); //look for diagnosis again
                 out.save_data_after_relapse(ker,time);

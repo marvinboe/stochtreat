@@ -18,7 +18,6 @@
 #include <map>
 #include <cmath>
 #include "parameter_handler.h"
-// #include "output.h"
 
 struct Diff_probabilities{
     double epsh=0.85;
@@ -33,6 +32,18 @@ struct Diff_probabilities{
 
 };
 
+struct Proliferation_parameters{
+    double kn=1/365.;
+    double kc=kn;
+    double kb=kb;
+    double kr=kc;
+
+    double gamman=1.263;
+    double gammac=1.263;
+    double gammab=1.263;
+    double gammar=gammac;
+};
+
 struct Run_modes{
     int resistance=-1;
     bool treattest=false;
@@ -42,6 +53,7 @@ struct Run_modes{
 
 struct Simulation_Parameters{
     Diff_probabilities diff_probs;
+    Proliferation_parameters prolif;
     Run_modes run_mode;
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     int runid = 1;
@@ -197,10 +209,6 @@ class Data {
 
         int step() const {return _outputstep;}
         void setStep(int v) { _outputstep = v;}
-        std::string ofcompartment() const {return _ofcompartment;}
-        void setOfcompartment (std::string name) {_ofcompartment = name;}
-        void setOfname(std::string name) {_ofname=name;}
-        std::string ofname() const {return _ofname;}
 
         /** returns treatment time in years.*/
         double treatment_dur() const {return _treatment_duration;}
@@ -243,6 +251,7 @@ class Data {
 
         double _dt; //time step relative to days
         Diff_probabilities _diffprobs;//differentiation probabilities of all cell types
+        Proliferation_parameters _prolif; //proliferation parameters of all cell types
         double _p_csc; //probability that a normal cell turns into a cancer cell
         double _p_imm; //probabilty that a cancer cell turns into an immune cell
         double _frac_csc; //fraction of cancer cells in the stem cell compartment
@@ -265,8 +274,6 @@ class Data {
         double _threshold; //percentage increase in number of cells for diagnosis
 
         int _outputstep;//steps after which output is saved. unused
-        std::string _ofcompartment;
-        std::string _ofname;
 };
 
 #endif

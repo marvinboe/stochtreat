@@ -67,7 +67,7 @@ class Doctor{
         double get_resistant_share(double t=-1.) const;
 
         /** Calculates the log reduction of tumor burden. */
-        double get_logburden(double t=-1.) const;
+        double get_logreduction(double t=-1.) const;
 
         /** Returns true if required reduction level is reached.*/
         bool reduction_reached(double l=-1.,double t=-1.) const;

@@ -31,8 +31,6 @@ Data::Data(){
 	_threshold = 0.2;
 	//for storing data
 	_outputstep=100;
-	_ofcompartment="compartment.txt";
-	_ofname = "result.txt";
 
 	//not relevant for the moment
 	// _p_csc=0;
@@ -51,7 +49,15 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	_numlsc = 1; //always start with 1 LSC
 	_frac_csc=_numlsc/_N0;
 	
-	_tau = 365.0/(B*pow(_mass,-0.25));	
+        if (simparams.prolif.kn <= 0.){
+            _tau = 365.0/(B*pow(_mass,-0.25));	
+        }
+        else {
+            _tau = 1./simparams.prolif.kn;
+        }
+	_rbase=simparams.prolif.gamman;//in paper 1.26// 1.263;
+        _prolif=simparams.prolif;
+
 	_dt=T*pow(_mass,0.25);	
 	
 	// _age=(L*pow(mass,0.25));
@@ -60,7 +66,6 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	_outputstep=int(simparams.collectinterval/_dt); //output_steps
 	
 	//are the same accross mamals or changd by command line
-	_rbase=1.263;//in paper 1.26// 1.263;
 	_diffprobs.epsh=simparams.diff_probs.epsh;//in paper 0.85// 0.8476;
 	_diffprobs.epsc=simparams.diff_probs.epsc;
 	_diffprobs.epsb=simparams.diff_probs.epsb; //imatinib;
@@ -79,14 +84,6 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
         if (simparams.ntime > 0.){ //non-default
             setTmax(simparams.ntime);
         }
-	// _additional=0;
-	// _threshold = 0.2;
-	
-
-	//not relevant for the moment
-	// _p_csc=0;
-	// _p_imm=0;
-	// _rcancer = 1.0;
 }
 
 Data::Data(const Data& other){
@@ -113,8 +110,6 @@ Data::Data(const Data& other){
 	_additional=other.additional();
 	_outputstep=other.step();
 	_treatment_duration=other.treatment_dur();
-	_ofcompartment=other.ofcompartment();
-	_ofname = other.ofname();
 	_rcancer = other.rcancer();
 	_mass = other.mass();
 }
@@ -146,9 +141,6 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    stop " << _diagnosis_level << std::endl;
 	os << "    reduction " << _reduction << std::endl;
 	// os << "    rcancer " << _rcancer << std::endl;
-	os << "  data collection :: " << std::endl;	
-	os << "    output 1  " << _ofcompartment << std::endl;
-	os << "    output 3  " << _ofname << std::endl;
 	
 	return os;
 }
@@ -171,6 +163,13 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
+
+    parameters.SetValue("kn", "base proliferation rate of stem cells (1/365. per day)", prolif.kn);
+    parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman);
+    parameters.SetValue("kc", "base proliferation rate of cancer cells(=kn)", prolif.kc);
+    parameters.SetValue("gammac", "proliferation rate expansion cancer cells(=gamman)", prolif.gammac);
+    parameters.SetValue("kb", "base proliferation rate bound cells (=kn)", prolif.kb);
+    parameters.SetValue("gammab", "proliferation rate expansion bound cells (=gamman)", prolif.gammab);
 
     parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);

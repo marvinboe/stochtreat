@@ -180,10 +180,10 @@ double Doctor::get_resistant_share(double t) const{
     // do nothing
 }
 
-double Doctor::get_logburden(double t) const{ 
+double Doctor::get_logreduction(double t) const{ 
     double burden=get_tumor_burden(t);
     if (burden >0.)
-        return -std::log10(burden);
+        return -std::log10(burden/100.); //!burden starts at 100
     else 
         return 0.;
 }
@@ -191,7 +191,7 @@ double Doctor::get_logburden(double t) const{
 double Doctor::reduction_time(double l) const{
 
     for (unsigned int ti=0 ; ti < _timepoints.size(); ++ti){
-        if (get_logburden(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
+        if (get_logreduction(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
     }
     return -1.;
 }
@@ -200,8 +200,8 @@ bool Doctor::reduction_reached(double l, double t) const {
     if (l<0.) l=_full_reduction;
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
     if (t<0.) return false; 
-    // std::cout <<"reduction_reached debug: "<<get_logburden(t)<<" "<<l<<std::endl;
-    return (get_logburden(t)>=l);
+    // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<std::endl;
+    return (get_logreduction(t)>=l);
 }
 
 
@@ -224,6 +224,6 @@ bool Doctor::relapse_reached(double l, double t) const {
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
     if (t<0.) return false; 
 
-    // std::cout <<"relapse_reached debug: "<<l<<" "<<t<<" "<<get_logburden(t)<<" "<<get_tumor_burden(t)<<std::endl;
-    return (get_logburden(t)<l);
+    // std::cout <<"relapse_reached debug: "<<l<<" "<<t<<" "<<get_logreduction(t)<<" "<<get_tumor_burden(t)<<std::endl;
+    return (get_logreduction(t)<l);
 }
