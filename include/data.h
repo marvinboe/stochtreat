@@ -35,13 +35,16 @@ struct Diff_probabilities{
 struct Proliferation_parameters{
     double kn=1/365.;
     double kc=kn;
-    double kb=kb;
-    double kr=kc;
+    double kb=kn;
+    double kr=kn;
 
-    double gamman=1.263;
+    double gamman=1.263;//in paper 1.26// 1.263;
     double gammac=1.263;
     double gammab=1.263;
     double gammar=gammac;
+    void write(std::ostream & os){ 
+        os <<"#prolifs (k,gamma): "<<kn<<" "<<kc<<" "<<kr<<" "<<kb<<" "<<gamman<<" "<<gammac<<" "<<gammar<<" "<<gammab<<" "<<std::endl;
+    }
 };
 
 struct Run_modes{
@@ -72,6 +75,12 @@ struct Simulation_Parameters{
     void set_parameters(ParameterHandler & inputparams);
 };
 
+/** Stores and handles all data for the model and input/ouput.
+ * Recieves and handels user input and simulation defaults.
+ * Main input:
+ * Simulation_Parameters simparams - all user editable simulation parameters
+ * Note: When adding new parameters to constructor, also add to copy constructor!!!
+ * */
 class Data {
     public:
         Data(); 
@@ -97,21 +106,47 @@ class Data {
             _numlsc = v;
             _frac_csc = v/N0();
         } 
-        double rbase() const {return _rbase;}
-        void setRbase (double v) {_rbase = v;}
         double N0() const {return _N0;}
         void setN0(double v) {_N0 = v;}
 
-        /** Returns the average cell cycle time of HSC.*/
-        double tau() const {return _tau;}
-        /** Sets the average cell cycle time of HSC.*/
-        void setTau(double v) {_tau = v;}
+        /* Returns the base proliferation rate for each cell type,
+         * which is the stem cell proliferation.*/
+        double base_proliferation(unsigned type){
+            switch(type){
+                case 0:
+                    return _prolif.kn;
+                case 1:
+                    return _prolif.kc;
+                case 2:
+                    return _prolif.kr;
+                case 3:
+                    return _prolif.kb;
+                default :
+                    return -1.0;
+            }
+        }
+
+        /* Returns the base proliferation rate for each cell type,
+         * which is the stem cell proliferation.*/
+        double prolif_exp(unsigned type){
+            switch(type){
+                case 0:
+                    return _prolif.gamman;
+                case 1:
+                    return _prolif.gammac;
+                case 2:
+                    return _prolif.gammar;
+                case 3:
+                    return _prolif.gammab;
+                default :
+                    return -1.0;
+            }
+        }
+
+        Proliferation_parameters return_prolif_params() const{ return _prolif;}
 
         double mass() const {return _mass;}
         void setMass(double v) {_mass = v;}
-
-        double rcancer() const {return _rcancer;}
-        void setRcancer(double v) {_rcancer = v;}
 
         double epsh() const {return _diffprobs.epsh;}
         double epsc() const {return _diffprobs.epsc;}
@@ -257,11 +292,9 @@ class Data {
         double _frac_csc; //fraction of cancer cells in the stem cell compartment
         double _numlsc; //number of LSC
         double _treatment_rate; //percentage of cells bound to imatinib per day
-        double _rbase; //basal metabolic rate
         double _tmax; // maximum simulation time in years
         int _ncompartments;  //number of compartmens in the hematopoeitic system
         double _N0; //Numbe of cells in the stem cell compartment
-        double _tau; //maturation time reticulocytes
         int _numstochcomps; //index of first deterministic compartment
         double _additional; //additional number of years to continue simulation after X
         double _treatment_duration; //number of years of treatment
@@ -270,7 +303,6 @@ class Data {
         double _required_redtime; //time stop value to be maintained
         double _relapse_reduction; //stop value relapse
         double _mass;  //mammal mass
-        double _rcancer; //difference between replication rates of normal and cancer cells.
         double _threshold; //percentage increase in number of cells for diagnosis
 
         int _outputstep;//steps after which output is saved. unused

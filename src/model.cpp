@@ -26,19 +26,6 @@ double Model::mylog(double p1, double base) const{
         return 0.0;
     else {
         return std::log(p1)/std::log(base);
-        //TODO why this complex function below?
-        // gsl_sf_result logp1,logbase;
-        // int status_p1=gsl_sf_log_e(p1,&logp1);
-        // if(status_p1 != GSL_SUCCESS){
-        // 	cout << "Kernel::mylog  GSL Error "<<  status_p1 << " for p1 =" << p1 << std::endl;
-        // 	exit(-1);
-        // }
-        // int status_base=gsl_sf_log_e(base,&logbase);  // this division will normalize the entropy value between 0 and 1.
-        // if(status_base != GSL_SUCCESS){
-        // 	cout << "Kernel::mylog GSL Error "<< status_base<< " for base =" << base << std::endl;
-        // 	exit(-1);
-        // }
-        // return logp1.val/logbase.val;
     }
 }
 
@@ -48,18 +35,24 @@ Model::Model(Data data):_diagnosis(0){
     _numstoch=data.nstochcomp();
     assert(_numstoch > 0);
     _numcomp = data.ncompartments()+1;
+    _numtypes=4;
 
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _endstoch = ((_numstoch-1)*4) + 3;
     _compartments=new double[tlen];
     _previous=new double[tlen];
 
-    _rates = new double[_numcomp];
+    for (unsigned k=0 ; k < _numcomp; ++k){ //TODO that can be be done nicely
+        std::vector<double> bufvec(4,0.);
+        _rates.push_back(bufvec);
+    }
     //initialize Model: 1. Stem Cell compartment
     setH(0,data.N0());
     setC(0,0);
     setI(0,0);//initially no resistant mutants
-    setRate(0, 1.0/data.tau());
+    for (unsigned t = 0; t< _numtypes; ++t){
+        setRate(0,t, data.base_proliferation(t));
+    }
     storeH(0,0);
     storeC(0,0);
     storeI(0,0);
@@ -68,7 +61,7 @@ Model::Model(Data data):_diagnosis(0){
 
 
     //initialize Model: 2. other compartments
-    double gamma =( (2.0*data.epsh()) / (2.0*data.epsh() - 1.0) ) / data.rbase();
+    double gamma =( (2.0*data.epsh()) / (2.0*data.epsh() - 1.0) ) / data.prolif_exp(0); //to calculate steady state compartment sizes
     for(unsigned k=1; k < _numcomp; ++k){
         double tempHk=getH(k-1)*gamma;
         if(k == 1)
@@ -83,7 +76,9 @@ Model::Model(Data data):_diagnosis(0){
         storeI(k,0);
         storeB(k,0);
 
-        setRate(k, getRate(k-1)*data.rbase());
+        for (unsigned t = 0; t< _numtypes; ++t){
+            setRate(k,t, getRate(k-1,t)*data.prolif_exp(t));
+        }
     }
     //initialize CML
     setH(0, getH(0)-data.numlsc());
@@ -92,10 +87,14 @@ Model::Model(Data data):_diagnosis(0){
 
 Model::Model(Data data,std::istream & is):_diagnosis(0){ 
     _numcomp = data.ncompartments()+1;
+    _numtypes=4;
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _compartments=new double[tlen];
     _previous=new double[tlen];
-    _rates = new double[_numcomp];
+    for (unsigned k=0 ; k < _numcomp; ++k){ //TODO that can be be done nicely
+        std::vector<double> bufvec(4,0.);
+        _rates.push_back(bufvec);
+    }
 
     read(is);
 }
@@ -103,23 +102,30 @@ Model::Model(Data data,std::istream & is):_diagnosis(0){
 Model::Model(const Model& other){
     _numstoch = other.numStoch();
     _numcomp = other.numComp();
+    _numtypes=4;
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _endstoch = ((_numstoch-1)*4) + 3;
     _compartments=new double[tlen];
     _previous=new double[tlen];
 
-    _rates = new double[_numcomp];
+    for (unsigned k=0 ; k < _numcomp; ++k){ //TODO that can be be done nicely
+        std::vector<double> bufvec(4,0.);
+        _rates.push_back(bufvec);
+    }
 
     for(unsigned k=0; k < _numcomp; ++k){
-        setRate(k, other.getRate(k));
-        setH(k, other.getH(k));
-        setC(k, other.getC(k));
-        setI(k, other.getI(k));
+        for (unsigned t = 0; t< _numtypes; ++t){
+            setRate(k,t, other.getRate(k,t));
+            set(k,t,other.get(k,t));
+        }
+        // setH(k, other.getH(k));
+        // setC(k, other.getC(k));
+        // setI(k, other.getI(k));
         storeH(k,0);
         storeC(k,0);
         storeI(k,0);
         if(k>0){
-            setB(k, other.getB(k));
+        //     setB(k, other.getB(k));
             storeB(k,0);
         }
     }
@@ -128,13 +134,19 @@ Model::Model(const Model& other){
 Model& Model::operator=(const Model& other){
     _numstoch = other.numStoch();
     _numcomp = other.numComp();
+    _numtypes=4;
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _endstoch = ((_numstoch-1)*4) + 3;
     _compartments=new double[tlen];
-    _rates = new double[_numcomp];
+    for (unsigned k=0 ; k < _numcomp; ++k){ //TODO that can be be done nicely
+        std::vector<double> bufvec(4,0.);
+        _rates.push_back(bufvec);
+    }
 
     for(unsigned k=0; k < _numcomp; ++k){
-        setRate(k, other.getRate(k));
+        for (unsigned t = 0; t< _numtypes; ++t){
+            setRate(k,t, other.getRate(k,t));
+        }
         setH(k, other.getH(k));
         setC(k, other.getC(k));
         setI(k, other.getI(k));
@@ -150,14 +162,16 @@ Model& Model::operator=(const Model& other){
 }
 
 
-void Model::setRate(unsigned int k, double v){
+void Model::setRate(unsigned int k, unsigned t, double v){
     assert (k>=0 && k < _numcomp);
-    _rates[k]=v;
+    assert (t>=0 && t < 4);
+    _rates[k][t]=v;
 }
 
-double Model::getRate(unsigned k) const{
+double Model::getRate(unsigned k, unsigned t) const{
     assert (k>=0 && k < _numcomp);
-    return _rates[k];
+    assert (t>=0 && t < 4);
+    return _rates[k][t];
 }
 
 double Model::getN(unsigned int k) const{
@@ -235,7 +249,7 @@ double Model::getB(unsigned int k) const {
     return _compartments[tmp+3];
 }
 
-double Model::get(unsigned k, unsigned t){
+double Model::get(unsigned k, unsigned t) const{
     switch(t){
         case H:return getH(k);
         case C:return getC(k);
@@ -246,6 +260,8 @@ double Model::get(unsigned k, unsigned t){
 }
 
 void Model::set(unsigned k, unsigned t, double v){
+    if (k==0 && t==4)
+        return;
     switch(t){
         case H:
             setH(k,v);
@@ -405,7 +421,7 @@ void Model::store(unsigned k, unsigned t, double v){
 std::ostream& Model::display(std::ostream& os) const{
     os <<_numcomp<<" "<<_numstoch<<std::endl;
     for(unsigned k=0; k < _numcomp; ++k){
-        os << k <<" " << getRate(k) <<" ";//<< setprecision(6) 
+        os << k <<" " << getRate(k,0) <<" ";//<< setprecision(6) 
         os << getN(k) << " " << getH(k) <<" " << getC(k) <<" " << getI(k);
         if (k>0) os  <<" "<< getB(k);
         os << std::endl; 
@@ -417,7 +433,7 @@ std::ostream& Model::display(std::ostream& os) const{
     return os;
 }
 
-std::istream& Model::read(std::istream& is){
+std::istream& Model::read(std::istream& is){ //FIXME not working!
     is >> _numcomp;
     is >> _numstoch;
     _endstoch = ((_numstoch-1)*4) + 3;
@@ -432,7 +448,7 @@ std::istream& Model::read(std::istream& is){
             setB(k,B);
             storeB(k,B);
         }
-        setRate(k,rate);
+        setRate(k,0,rate);
         setH(k,H);
         storeH(k,H);
         setC(k,C);
@@ -471,11 +487,9 @@ void Model::reset_treatment(){
 }
 
 
-bool Model::updateDet(unsigned k, Data& data){	
+bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
     assert(k>=_numstoch);
 
-    double p = data.dt() *getRate(k);
-    double prev_comp_p = data.dt() *getRate(k-1); 
 
     double epsh = data.epsh(); 
     double epsc = data.epsc();
@@ -496,6 +510,9 @@ bool Model::updateDet(unsigned k, Data& data){
     // std::cout << k << " : " << getN(k) << " " << getH(k) << " " << getC(k) << " " << retrieveN(k) << " " << retrieveH(k) << " " << retrieveC(k) << std::endl;
     // std::cout <<p << " " << data.epsh() << " " << data.epsc() << std::endl;
 
+    double p = data.dt() *getRate(k,0);
+    double prev_comp_p = data.dt() *getRate(k-1,0); 
+
     double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
         + (p * (1.0 - epsh) * retrieveH(k)) 
         - (p * epsh * retrieveH(k));
@@ -503,11 +520,15 @@ bool Model::updateDet(unsigned k, Data& data){
     incr(k, H,tempH);
     //	std::cout << "#new H " << getH(k) << std::endl; 
 
+    p = data.dt() *getRate(k,1);
+    prev_comp_p = data.dt() *getRate(k-1,1); 
     double tempC= retrieveC(k) + (2.0 * prev_epsc * prev_comp_p * retrieveC(k-1))
         + (p * (1.0 - epsc) * retrieveC(k))
         - (p * epsc * retrieveC(k));
     incr(k, C,tempC);
 
+    p = data.dt() *getRate(k,2);
+    prev_comp_p = data.dt() *getRate(k-1,2); 
     double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
         + (p * (1.0 - epsi) * retrieveI(k))
         - (p * epsi * retrieveI(k));
@@ -515,6 +536,8 @@ bool Model::updateDet(unsigned k, Data& data){
     incr(k, I, tempI);
     // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 
 
+    p = data.dt() *getRate(k,3);
+    prev_comp_p = data.dt() *getRate(k-1,3); 
     double tempB= retrieveB(k) + (2.0 * prev_epsb * prev_comp_p * ((k-1)>0?retrieveB(k-1):0.0))
         + (p * (1.0 - epsb) * retrieveB(k))
         - (p * epsb * retrieveB(k));

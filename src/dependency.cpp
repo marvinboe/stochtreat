@@ -64,14 +64,14 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
         treatnode->affects(treatnode);
 
         for(unsigned cell_type_id = 0; cell_type_id < numtypes; ++cell_type_id) {
-            // cout << "(1-eps) = " << (1.0-data.eps(cell_type_id)) << "\t rate= " << pool.getRate(k) << endl; 
-            SelfRenewal *self= new SelfRenewal(k,cell_type_id,(1.0 - data.eps(cell_type_id))*pool.getRate(k));// cell_type_id(k) -> cell_type_id(k)+cell_type_id(k)
+            // cout << "(1-eps) = " << (1.0-data.eps(cell_type_id)) << "\t rate= " << pool.getRate(k,cell_type_id) << endl; 
+            SelfRenewal *self= new SelfRenewal(k,cell_type_id,(1.0 - data.eps(cell_type_id))*pool.getRate(k,cell_type_id));// cell_type_id(k) -> cell_type_id(k)+cell_type_id(k)
             self->setPropensity((self->sufficientReactants(pool)?self->reactantFactor(pool):0.0)); 
             sum += self->propensity();
             pos=all.add(self);
             DependencyNode *selfnode=new DependencyNode(pos);
 
-            Differentation *diff= new Differentation(k,cell_type_id,data.eps(cell_type_id)*pool.getRate(k));// cell_type_id(k) -> cell_type_id(k+1)+cell_type_id(k+1)
+            Differentation *diff= new Differentation(k,cell_type_id,data.eps(cell_type_id)*pool.getRate(k,cell_type_id));// cell_type_id(k) -> cell_type_id(k+1)+cell_type_id(k+1)
             diff->setPropensity((diff->sufficientReactants(pool)?diff->reactantFactor(pool):0.0)); 
             sum += diff->propensity();
             pos=all.add(diff);
@@ -114,7 +114,7 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
     }
     //add reactions for the stem cell compartment:
     for(int first_tp = 0; first_tp < 3; ++first_tp) { // excluding the bound type, i.e.tp = 3
-        StemCellRenewal *scr=new StemCellRenewal(&ran,first_tp,pool.getRate(0));
+        StemCellRenewal *scr=new StemCellRenewal(&ran,first_tp,pool.getRate(0,first_tp));
         scr->setPropensity(scr->sufficientReactants(pool)?scr->reactantFactor(pool):0.0);
         sum += scr->propensity();
         pos=all.add(scr);

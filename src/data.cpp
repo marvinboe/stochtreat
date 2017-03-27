@@ -11,10 +11,8 @@
 
 Data::Data(){
 	_mass = 70;
-	_rbase=1.263;
 	_dt=0.1;
 	_N0=400.0;
-	_tau=365.0;	
 	_frac_csc=0.0;
 	_numlsc = 0;
 	//are the same accross mamals
@@ -36,7 +34,6 @@ Data::Data(){
 	// _p_csc=0;
 	// _p_imm=0;
 	_treatment_duration=10.0;
-	// _rcancer = 1.0;
 }
 
 
@@ -49,13 +46,6 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	_numlsc = 1; //always start with 1 LSC
 	_frac_csc=_numlsc/_N0;
 	
-        if (simparams.prolif.kn <= 0.){
-            _tau = 365.0/(B*pow(_mass,-0.25));	
-        }
-        else {
-            _tau = 1./simparams.prolif.kn;
-        }
-	_rbase=simparams.prolif.gamman;//in paper 1.26// 1.263;
         _prolif=simparams.prolif;
 
 	_dt=T*pow(_mass,0.25);	
@@ -92,25 +82,23 @@ Data::Data(const Data& other){
 	_diffprobs.epsc=other.epsc();
 	_diffprobs.epsb=other.epsb();
 	_diffprobs.epsr=other.epsi();
+        _prolif=other.return_prolif_params();
 	_p_csc=other.p_csc();
 	_p_imm=other.p_imm();
 	_frac_csc=other.frac_csc();
 	_numlsc = other.numlsc();
 	_treatment_rate=other.treatment_rate();
         _tmax=other.getTmax_in_years();
-	_rbase=other.rbase();
 	_ncompartments=other.ncompartments();
 	_diagnosis_level=other.diagnosis_level();
 	_reduction=other.reduction();
         _required_redtime=other.required_reduction_time();
 	_N0=other.N0();
-	_tau=other.tau();
 	_numstochcomps=other.nstochcomp();
 	_threshold = other.threshold();
 	_additional=other.additional();
 	_outputstep=other.step();
 	_treatment_duration=other.treatment_dur();
-	_rcancer = other.rcancer();
 	_mass = other.mass();
 }
 
@@ -118,7 +106,6 @@ Data::Data(const Data& other){
 std::ostream& Data::display(std::ostream& os){
 	os << "#Inputdata_for_hematopoietic_model" << std::endl;
 	os << "    N0 " << _N0 << std::endl;
-	os << "    tau " << _tau << std::endl;
 	os << "    dt " << _dt << std::endl;
 	os << "    Tmax " << _tmax<<" years"<<std::endl;
 	os << "    mass " << _mass << std::endl;
@@ -127,7 +114,6 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    threshold " << _threshold << std::endl;
 	os << "    frac_csc " << _frac_csc << std::endl;
 	os << "    numlsc " << _numlsc << std::endl;
-	os << "    rbase " << _rbase << std::endl;	
 	os << "    epsh " << _diffprobs.epsh << std::endl;
 	os << "    espc " << _diffprobs.epsc << std::endl;
 	os << "    espb " << _diffprobs.epsb << std::endl;
@@ -140,7 +126,6 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    treatment duration " << _treatment_duration << std::endl;
 	os << "    stop " << _diagnosis_level << std::endl;
 	os << "    reduction " << _reduction << std::endl;
-	// os << "    rcancer " << _rcancer << std::endl;
 	
 	return os;
 }
@@ -164,12 +149,12 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
 
-    parameters.SetValue("kn", "base proliferation rate of stem cells (1/365. per day)", prolif.kn);
+    parameters.SetValue("kn", "base proliferation rate of stem cells (1/365 per day)", prolif.kn);
     parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman);
-    parameters.SetValue("kc", "base proliferation rate of cancer cells(=kn)", prolif.kc);
-    parameters.SetValue("gammac", "proliferation rate expansion cancer cells(=gamman)", prolif.gammac);
-    parameters.SetValue("kb", "base proliferation rate bound cells (=kn)", prolif.kb);
-    parameters.SetValue("gammab", "proliferation rate expansion bound cells (=gamman)", prolif.gammab);
+    parameters.SetValue("kc", "base proliferation rate of cancer cells(1/365 per day)", prolif.kc);
+    parameters.SetValue("gammac", "proliferation rate expansion cancer cells(1.263)", prolif.gammac);
+    parameters.SetValue("kb", "base proliferation rate bound cells (1/365 per day)", prolif.kb);
+    parameters.SetValue("gammab", "proliferation rate expansion bound cells (1.263)", prolif.gammab);
 
     parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);

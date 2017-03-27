@@ -29,15 +29,20 @@ public:
 	Model(const Model& other);
 	~Model(){
 		delete[] _compartments;
-		delete[] _rates;
 		delete[] _previous;
 	}
 	
 	unsigned int numStoch() const {return _numstoch;}
 	unsigned int numComp() const {return _numcomp;}
 	
-	void setRate(unsigned int k, double v);
-	double getRate(unsigned k) const;
+        /** set proliferation rate for cells.
+         * Parameters: compartment k, cell type t, rate v.*/
+	void setRate(unsigned int k,unsigned t, double v);
+
+        /** Returning proliferation rate of cells.
+         * Parameters: compartment k, cell type t (0 normal,
+         * 1 cancer, 2 resistant, 3 imatinib).*/
+	double getRate(unsigned k,unsigned t) const;
 
 	void setTreatRate( double v){_treatrate=v;};
 	double getTreatRate() const {return _treatrate;};
@@ -91,7 +96,7 @@ public:
 
         /** Returns actual number of cells in pool of type t and 
          * in compartment k. */
-	double get(unsigned k, unsigned t);
+	double get(unsigned k, unsigned t) const;
 
         /** Sets number of cells of type t in compartment k to v.*/
 	void set(unsigned k, unsigned t, double v);
@@ -133,9 +138,10 @@ private:
 	unsigned int _endstoch;
 	double* _compartments;
 	double* _previous;
-	double* _rates;
+        std::vector<std::vector<double>> _rates;
 	unsigned _numstoch;
 	unsigned _numcomp;
+        unsigned _numtypes;
 	double _alpha;
         double _treatrate;
 
