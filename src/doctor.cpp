@@ -200,6 +200,8 @@ bool Doctor::reduction_reached(double l, double t) const {
     if (l<0.) l=_full_reduction;
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
     if (t<0.) return false; 
+
+    if (l<0.) return false; //for negative l: reduction never reached
     // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<std::endl;
     return (get_logreduction(t)>=l);
 }

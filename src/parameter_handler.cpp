@@ -70,12 +70,12 @@ ParameterHandler::ParameterHandler(int argc, char** argv):file_loaded(false)
         DataFile.open(DEFAULT_PARAMETER_FILE);
         if (DataFile.fail())
         {
-            std::cout<<"Could not open default parameter file '"<<DEFAULT_PARAMETER_FILE<<"'"<<std::endl;
+            std::cout<<"Error: Could not open default parameter file '"<<DEFAULT_PARAMETER_FILE<<"'"<<std::endl;
             exit(1);
         }
         else
         {
-            std::cout<<"Using default parameter file"<<std::endl;
+            std::cout<<"#Using default parameter file "<<DEFAULT_PARAMETER_FILE<<std::endl;
             file_name=DEFAULT_PARAMETER_FILE;
         }
     }
