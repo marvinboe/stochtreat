@@ -29,7 +29,7 @@ std::ostream& QueueElement::display(std::ostream& os){
 
 
 
-IndexedQueue::IndexedQueue(RanGen& ran, Model& pool,AllReactions& all, double t, double dt):_pqueue(&_compare, &_swap),_sentinel(NULL){
+IndexedQueue::IndexedQueue(RanGen& ran, Model& /*pool*/,AllReactions& all, double t, double dt):_pqueue(&_compare, &_swap),_sentinel(NULL){
     init(ran,all);
 }
 

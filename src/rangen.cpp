@@ -65,6 +65,6 @@ int RanGen::ranpoisson(double mu){
     return distribution(rng_engine);
 }
 		
-double RanGen::ranpoissonpdf(unsigned int k, double mu){
+double RanGen::ranpoissonpdf(unsigned int /*k*/, double mu){
     return ranpoisson(mu);
 }

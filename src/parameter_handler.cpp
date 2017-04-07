@@ -64,20 +64,20 @@ ParameterHandler::ParameterHandler(int argc, char** argv):file_loaded(false)
             file_name=argv[1];
         }
     }
-    else //open default file... has to be provided
+    else //run with default parameters
     {
         return;
-        DataFile.open(DEFAULT_PARAMETER_FILE);
-        if (DataFile.fail())
-        {
-            std::cout<<"Error: Could not open default parameter file '"<<DEFAULT_PARAMETER_FILE<<"'"<<std::endl;
-            exit(1);
-        }
-        else
-        {
-            std::cout<<"#Using default parameter file "<<DEFAULT_PARAMETER_FILE<<std::endl;
-            file_name=DEFAULT_PARAMETER_FILE;
-        }
+        // DataFile.open(DEFAULT_PARAMETER_FILE);
+        // if (DataFile.fail())
+        // {
+        //     std::cout<<"Error: Could not open default parameter file '"<<DEFAULT_PARAMETER_FILE<<"'"<<std::endl;
+        //     exit(1);
+        // }
+        // else
+        // {
+        //     std::cout<<"#Using default parameter file "<<DEFAULT_PARAMETER_FILE<<std::endl;
+        //     file_name=DEFAULT_PARAMETER_FILE;
+        // }
     }
     
     std::string line_in_file;//buffer for line based reading
@@ -332,14 +332,14 @@ void ParameterHandler::print_help(std::ostream & os){
 
     if (help){
         os <<" Stochtreat - simulate virtual patients with CML. "<<std::endl;
-        os <<" usage: './stochtreat \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
-        os <<std::left<<std::setw(8)<<" or:"<<"'./stochtreat parameterfile \e[1margument1\e[0m=x \e[1margument2\e[0m=y ...'"<<std::endl;
+        os <<" usage: './stochtreat \033[1margument1\033[0m=x \033[1margument2\033[0m=y ...'"<<std::endl;
+        os <<std::left<<std::setw(8)<<" or:"<<"'./stochtreat parameterfile \033[1margument1\033[0m=x \033[1margument2\033[0m=y ...'"<<std::endl;
         os <<std::left<<"The parameterfile can be a simple text file with one key=value pair per line. Comments can be included with '#'."<<std::endl;
         os <<std::left<<"Possible options:"<<std::endl;
         os << "<argument name> \t description (default value)"<<std::endl;
         os << "-----------------------------------"<<std::endl;
         for (const auto keyhelp_pair: keys_and_help){
-            os <<"\e[1m"<< std::setw(14) << std::left<<keyhelp_pair.first<<"\e[0m"<<"|";
+            os <<"\033[1m"<< std::setw(14) << std::left<<keyhelp_pair.first<<"\033[0m"<<"|";
             std::cout <<keyhelp_pair.second<<std::endl;
         }
         exit(0);
