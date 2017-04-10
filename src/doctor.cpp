@@ -83,7 +83,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
 
 int Doctor::find_timepoint(double t) const{
     int i =_timepoints.size()-1;
-    if (t > (2*_timepoints.back()-_timepoints.rbegin()[1])) return -1;
+    if (i>0 && t > (2*_timepoints.back()-_timepoints.rbegin()[1])) return -1; //if t > t_max+t_step 
     while (i > 0 && _timepoints[i] > t) --i; 
     return i;
 }
@@ -149,7 +149,7 @@ void Doctor::print_patient_record(std::ostream &os) const{
 
 std::vector<double> Doctor::get_yearly_burden() const{
     std::vector<double> returnvec;
-    double t=_starttime_treatment+364.; //TODO something is one day off here???
+    double t=_starttime_treatment+365.; //TODO something is one day off here???
     while (t<=_timepoints.back()){
         returnvec.push_back(get_tumor_burden(t));
         t+=365.;
