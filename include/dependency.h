@@ -72,6 +72,11 @@ class DependencyGraph {
                 _diffnodes.pop_back();
                 delete dn;
             }
+            while(_treatnodes.size() > 0){
+                DependencyNode* dn = _treatnodes[_treatnodes.size()-1];
+                _treatnodes.pop_back();
+                delete dn;
+            }
         }
 
         unsigned numMoranNodes() const {return (unsigned) _morannodes.size();}
