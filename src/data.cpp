@@ -43,7 +43,7 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	double hsc=N * pow(_mass, 0.75);
         _N0=std::round(hsc);//round to integer number of HSC
 
-	_numlsc = 1; //always start with 1 LSC
+	_numlsc = simparams.inital_lsc; //
 	_frac_csc=_numlsc/_N0;
 	
         _prolif=simparams.prolif;
@@ -136,6 +136,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("n_compartments",	"Total number of compartments (32)",	n_compartments);
+    parameters.SetValue("lsc", "Initial number of leukemic stem cells (1)", inital_lsc);
     parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
     parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05/day)", treatment_rate);
     parameters.SetValue("mass",	"animal mass (70 kg)",	mass);

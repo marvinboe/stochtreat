@@ -62,6 +62,7 @@ struct Simulation_Parameters{
     int runid = 1;
     int n_stochastic_compartments = 7; // 1 means only the stem cell compartment
     int n_compartments = 32;
+    unsigned inital_lsc = 1;
     double diagnosis_level = 12;
     float treatmenttime  = 20;
     float mass = 70; //human mass
