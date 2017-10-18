@@ -2,7 +2,7 @@ Doxyfile
 build/
 doc/
 stochtreat
-seed.out
+seed.*
 cscope.out
 tags
 outinput/

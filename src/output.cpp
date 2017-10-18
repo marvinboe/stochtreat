@@ -129,7 +129,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _timetorelapse=-1.;
     _yearlyburden.clear();
 
-    _timetoreduction=0.;
+    _timetoreduction=-1.;
     _timebeforerelapserun=0.;
     ++_patients;
 
@@ -164,10 +164,11 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
     _initialburden_alpha=ker.doctor().return_initial_cratio();
-    if(ker.doctor().reduction_reached()){
+    double reduction_timepoint=ker.doctor().reduction_time();
+    if(reduction_timepoint>=0.){
         if (_run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
-        _timetoreduction=(ker.doctor().reduction_time() - _diagnosis_time);
+        _timetoreduction=(reduction_timepoint - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
     }

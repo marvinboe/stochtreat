@@ -135,6 +135,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("run",	"Run identifier (1)",	runid);
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
+    parameters.SetValue("n_compartments",	"Total number of compartments (32)",	n_compartments);
     parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
     parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05/day)", treatment_rate);
     parameters.SetValue("mass",	"animal mass (70 kg)",	mass);
