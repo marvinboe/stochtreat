@@ -37,7 +37,7 @@ Data::Data(){
 }
 
 
-void Data::initialize(const Simulation_Parameters & simparams, double N,double B, double T, double L){ 
+void Data::initialize(const Simulation_Parameters & simparams, double N, double T, double L){ 
 	_mass = simparams.mass;
 	
 	double hsc=N * pow(_mass, 0.75);
@@ -55,13 +55,14 @@ void Data::initialize(const Simulation_Parameters & simparams, double N,double B
 	
 	_outputstep=int(simparams.collectinterval/_dt); //output_steps
 	
-	//are the same accross mamals or changd by command line
+	//are the same accross mammals or changd by command line
 	_diffprobs.epsh=simparams.diff_probs.epsh;//in paper 0.85// 0.8476;
 	_diffprobs.epsc=simparams.diff_probs.epsc;
 	_diffprobs.epsb=simparams.diff_probs.epsb; //imatinib;
 	_diffprobs.epsr=_diffprobs.epsc;
 
 	_ncompartments=simparams.n_compartments;
+        _n_neutral_compartments=simparams.n_neutral;
 	_diagnosis_level=simparams.diagnosis_level;//log value at diagnosis
 	_reduction = simparams.reduction; //required log reduction
 	_required_redtime = simparams.required_reduction_time*365.; //required log reduction
@@ -81,7 +82,7 @@ Data::Data(const Data& other){
 	_diffprobs.epsh=other.epsh();
 	_diffprobs.epsc=other.epsc();
 	_diffprobs.epsb=other.epsb();
-	_diffprobs.epsr=other.epsi();
+	_diffprobs.epsr=other.epsr();
         _prolif=other.return_prolif_params();
 	_p_csc=other.p_csc();
 	_p_imm=other.p_imm();
@@ -90,6 +91,7 @@ Data::Data(const Data& other){
 	_treatment_rate=other.treatment_rate();
         _tmax=other.getTmax_in_years();
 	_ncompartments=other.ncompartments();
+        _n_neutral_compartments=other.n_neutral_compartments();
 	_diagnosis_level=other.diagnosis_level();
 	_reduction=other.reduction();
         _required_redtime=other.required_reduction_time();
@@ -136,6 +138,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("n_compartments",	"Total number of compartments (32)",	n_compartments);
+    parameters.SetValue("n_neutral","Number of compartments where bcr/abl is neutral (1)",	n_neutral);
     parameters.SetValue("lsc", "Initial number of leukemic stem cells (1)", inital_lsc);
     parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
     parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05/day)", treatment_rate);

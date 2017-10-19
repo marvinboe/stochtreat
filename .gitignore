@@ -8,3 +8,4 @@ tags
 outinput/
 .ycm*
 *.json
+parameters.inp

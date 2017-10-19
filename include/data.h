@@ -61,6 +61,7 @@ struct Simulation_Parameters{
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     int runid = 1;
     int n_stochastic_compartments = 7; // 1 means only the stem cell compartment
+    int n_neutral = 1; //bcr/abl neutral up to this compartment
     int n_compartments = 32;
     unsigned inital_lsc = 1;
     double diagnosis_level = 12;
@@ -152,9 +153,10 @@ class Data {
         double epsh() const {return _diffprobs.epsh;}
         double epsc() const {return _diffprobs.epsc;}
         double epsb() const {return _diffprobs.epsb;}
-        double epsi() const {return _diffprobs.epsr;}
+        double epsr() const {return _diffprobs.epsr;}
 
-        /** return self-renewal probability epsilon for type. */
+        /** return self-renewal probability epsilon for type.
+         * 0: healthy, 1: cancerous, 2: resistant, 3: bound (treated).*/
         double eps(unsigned type) const {
             switch(type){
                 case 0:
@@ -206,6 +208,10 @@ class Data {
 
         /** returns the total number of compartments in the model. */
         int ncompartments() const {return _ncompartments;}
+
+        /** returns the number of bcrabl-neutral compartments. */
+        unsigned int n_neutral_compartments() const {return _n_neutral_compartments;}
+
         /** Sets the total number of compartments in the model. */
         void setNCompartments(int v) {_ncompartments = v;}
 
@@ -277,7 +283,7 @@ class Data {
          * Bbase    - log base for the average cell cycle time of hematopeotic stem cells
          * Sbase    - log base for the deterministic timestep of simulation
          * Lbase    - log base for maximum simulation time */
-        void initialize(const Simulation_Parameters & ,double,double, double,double);
+        void initialize(const Simulation_Parameters & ,double, double,double);
 
         friend std::ostream & operator<<(std::ostream &o, Data& c){return c.display(o);}
 
@@ -295,6 +301,7 @@ class Data {
         double _treatment_rate; //percentage of cells bound to imatinib per day
         double _tmax; // maximum simulation time in years
         int _ncompartments;  //number of compartmens in the hematopoeitic system
+        int _n_neutral_compartments; //number of compartments where bcr/abl is neutral
         double _N0; //Numbe of cells in the stem cell compartment
         int _numstochcomps; //index of first deterministic compartment
         double _additional; //additional number of years to continue simulation after X

@@ -77,7 +77,12 @@ Model::Model(Data data):_diagnosis(0){
         storeB(k,0);
 
         for (unsigned t = 0; t< _numtypes; ++t){
-            setRate(k,t, getRate(k-1,t)*data.prolif_exp(t));
+            // if (k<data.n_neutral_compartments()){
+            //     setRate(k,t, getRate(k-1,0)*data.prolif_exp(t));//neutral compartments
+            // }
+            // else{ FIXME
+                setRate(k,t, getRate(k-1,t)*data.prolif_exp(t));
+            // }
         }
     }
     //initialize CML
@@ -491,19 +496,33 @@ bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
     assert(k>=_numstoch);
 
 
+
     double epsh = data.epsh(); 
     double epsc = data.epsc();
-    double epsi = data.epsi();
+    double epsr = data.epsr();
     double epsb = data.epsb();
     double prev_epsh = data.epsh(); 
     double prev_epsc = data.epsc();
-    double prev_epsi = data.epsi();
+    double prev_epsr = data.epsr();
     double prev_epsb = data.epsb();
     if(k==_numstoch){
         prev_epsh = 0.0;
         prev_epsc = 0.0;
-        prev_epsi = 0.0;
+        prev_epsr = 0.0;
         prev_epsb = 0.0;
+    }
+    if (k==data.n_neutral_compartments()){
+        prev_epsc = prev_epsh;
+        prev_epsr = prev_epsh;
+        prev_epsb = prev_epsh;
+    }
+    else if (k<data.n_neutral_compartments()){
+        epsc = epsh;
+        epsr = epsh;
+        epsb = epsh;
+        prev_epsc = prev_epsh;
+        prev_epsr = prev_epsh;
+        prev_epsb = prev_epsh;
     }
 
     // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << std::endl;
@@ -529,9 +548,9 @@ bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
 
     p = data.dt() *getRate(k,2);
     prev_comp_p = data.dt() *getRate(k-1,2); 
-    double tempI= retrieveI(k) + (2.0 * prev_epsi  * prev_comp_p * retrieveI(k-1)) 
-        + (p * (1.0 - epsi) * retrieveI(k))
-        - (p * epsi * retrieveI(k));
+    double tempI= retrieveI(k) + (2.0 * prev_epsr  * prev_comp_p * retrieveI(k-1)) 
+        + (p * (1.0 - epsr) * retrieveI(k))
+        - (p * epsr * retrieveI(k));
     // std::cout << "#current I("<<k<<")=" << retrieveI(k) << std::endl; 
     incr(k, I, tempI);
     // std::cout << "#new I("<<k<<")=" << getI(k) << std::endl; 

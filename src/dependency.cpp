@@ -67,12 +67,18 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
             // cout << "(1-eps) = " << (1.0-data.eps(cell_type_id)) << "\t rate= " << pool.getRate(k,cell_type_id) << endl; 
             SelfRenewal *self= new SelfRenewal(k,cell_type_id,(1.0 - data.eps(cell_type_id))*pool.getRate(k,cell_type_id));// cell_type_id(k) -> cell_type_id(k)+cell_type_id(k)
             self->setPropensity((self->sufficientReactants(pool)?self->reactantFactor(pool):0.0)); 
+            if (k<data.n_neutral_compartments()){
+                self->setRate((1.0 - data.eps(0))*pool.getRate(k,0));
+            }
             sum += self->propensity();
             pos=all.add(self);
             DependencyNode *selfnode=new DependencyNode(pos);
 
             Differentation *diff= new Differentation(k,cell_type_id,data.eps(cell_type_id)*pool.getRate(k,cell_type_id));// cell_type_id(k) -> cell_type_id(k+1)+cell_type_id(k+1)
             diff->setPropensity((diff->sufficientReactants(pool)?diff->reactantFactor(pool):0.0)); 
+            if (k<data.n_neutral_compartments()){
+                diff->setRate(data.eps(0)*pool.getRate(k,0));
+            }
             sum += diff->propensity();
             pos=all.add(diff);
             DependencyNode *diffnode=new DependencyNode(pos);
