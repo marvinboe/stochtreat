@@ -505,24 +505,21 @@ bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
     double prev_epsc = data.epsc();
     double prev_epsr = data.epsr();
     double prev_epsb = data.epsb();
+    if (k<=data.n_neutral_compartments()){
+        prev_epsc = prev_epsh;
+        prev_epsr = prev_epsh;
+        prev_epsb = prev_epsh;
+    }
+    if (k<data.n_neutral_compartments()){
+        epsc = epsh;
+        epsr = epsh;
+        epsb = epsh;
+    }
     if(k==_numstoch){
         prev_epsh = 0.0;
         prev_epsc = 0.0;
         prev_epsr = 0.0;
         prev_epsb = 0.0;
-    }
-    if (k==data.n_neutral_compartments()){
-        prev_epsc = prev_epsh;
-        prev_epsr = prev_epsh;
-        prev_epsb = prev_epsh;
-    }
-    else if (k<data.n_neutral_compartments()){
-        epsc = epsh;
-        epsr = epsh;
-        epsb = epsh;
-        prev_epsc = prev_epsh;
-        prev_epsr = prev_epsh;
-        prev_epsb = prev_epsh;
     }
 
     // std::cout << k-1 << " : " << getN(k-1) << " " << getH(k-1) << " " << getC(k-1) << " " << retrieveN(k-1) << " " << retrieveH(k-1) << " " << retrieveC(k-1) << std::endl;
@@ -535,7 +532,7 @@ bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
     double tempH= retrieveH(k) + (2.0 * prev_epsh * prev_comp_p * retrieveH(k-1)) 
         + (p * (1.0 - epsh) * retrieveH(k)) 
         - (p * epsh * retrieveH(k));
-    //	std::cout << "#current H("<<k<<")=" << getH(k) << std::endl; 
+    //	std::cout << "#current H("<<k<<")=" << getH(k) << std::endl;
     incr(k, H,tempH);
     //	std::cout << "#new H " << getH(k) << std::endl; 
 

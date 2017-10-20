@@ -111,6 +111,9 @@ public:
          * of each cell type in the deterministic compartments to zero!!!.*/
 	void memorize();
 
+        /** Integrates the deterministic equations for compartment k 
+         * with using the Euler method. 
+         * Careful with the equations: retrieve(k) != get(k).*/
 	bool updateDet(unsigned k, Data& data);
 
         /** returns true if LSC is in stem cell pool */
