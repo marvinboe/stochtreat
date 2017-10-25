@@ -78,6 +78,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
     _res_share_data.push_back(share);
     _lastn_data.push_back(patient.lastN());
     _timepoints.push_back(t);
+    _bcrabl_instoch.push_back(patient.getC_instoch());
 }
 
 
@@ -143,7 +144,7 @@ void Doctor::consult(double t, const Model& patient){
 void Doctor::print_patient_record(std::ostream &os) const{
     os <<"# patient data: <time> <burden>"<<std::endl;
     for (unsigned int i=0; i< _timepoints.size(); ++i){
-        os <<_timepoints[i]<<" "<<_burden_data[i]<<std::endl;
+        os <<_timepoints[i]/365.<<" "<<_burden_data[i]<<" "<<_bcrabl_instoch[i]<<std::endl;
     }
 }
 
@@ -154,6 +155,7 @@ std::vector<double> Doctor::get_yearly_burden() const{
         returnvec.push_back(get_tumor_burden(t));
         t+=365.;
     }
+    // returnvec.push_back(get_tumor_burden(-1.));
     // std::cout <<t<<" "<<_timepoints.back()<<std::endl;
     return returnvec;
 }
@@ -185,7 +187,7 @@ double Doctor::get_logreduction(double t) const{
     if (burden >0.)
         return -std::log10(burden/100.); //!burden starts at 100
     else 
-        return 0.;
+        return 100.;
 }
 
 double Doctor::reduction_time(double l) const{

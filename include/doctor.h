@@ -88,6 +88,7 @@ class Doctor{
         std::vector<double> _res_share_data;
         std::vector<double> _lastn_data;
         std::vector<double> _timepoints;
+        std::vector<double> _bcrabl_instoch;
 
         double _next_timepoint;
         double _sampling_timestep;
