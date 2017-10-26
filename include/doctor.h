@@ -66,7 +66,7 @@ class Doctor{
         /** Caculates and returns share of resistant cells at timepoint (defaults to the last).*/
         double get_resistant_share(double t=-1.) const;
 
-        /** Calculates the log reduction of tumor burden. */
+        /** Calculates the log reduction of tumor burden. Returns -1 if burden=0. */
         double get_logreduction(double t=-1.) const;
 
         /** Returns true if required reduction level is reached.*/

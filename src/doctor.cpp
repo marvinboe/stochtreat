@@ -187,7 +187,7 @@ double Doctor::get_logreduction(double t) const{
     if (burden >0.)
         return -std::log10(burden/100.); //!burden starts at 100
     else 
-        return 100.;
+        return -1.;
 }
 
 double Doctor::reduction_time(double l) const{
@@ -229,5 +229,5 @@ bool Doctor::relapse_reached(double l, double t) const {
     if (t<0.) return false; 
 
     // std::cout <<"relapse_reached debug: "<<l<<" "<<t<<" "<<get_logreduction(t)<<" "<<get_tumor_burden(t)<<std::endl;
-    return (get_logreduction(t)<l);
+    return (get_logreduction(t)<l && get_logreduction(t) >=0.);
 }

@@ -264,6 +264,15 @@ double Model::get(unsigned k, unsigned t) const{
     return -1.0;
 }
 
+double Model::getC_instoch() const {
+
+    double tmp(0.);
+    for (unsigned k =0 ;k < _numstoch; ++k){
+        tmp+=getC(k);
+    }
+    return tmp;
+}
+
 void Model::set(unsigned k, unsigned t, double v){
     if (k==0 && t==4)
         return;
