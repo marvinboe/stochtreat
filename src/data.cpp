@@ -11,7 +11,7 @@
 
 Data::Data(){
 	_mass = 70;
-	_dt=0.1;
+	_dt=-1.;
 	_N0=400.0;
 	_frac_csc=0.0;
 	_numlsc = 0;
@@ -48,7 +48,10 @@ void Data::initialize(const Simulation_Parameters & simparams, double N, double 
 	
         _prolif=simparams.prolif;
 
-	_dt=T*pow(_mass,0.25);	
+        _dt=simparams.dt;
+        if (_dt<0.){
+	    _dt=T*pow(_mass,0.25);	
+        }
 	
 	// _age=(L*pow(mass,0.25));
         _tmax=(L*pow(_mass,0.25));
@@ -147,7 +150,9 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("reductiontime", "Required time in reduction (0 years)", required_reduction_time);
     parameters.SetValue("relapse_reduction", "Required reduction level (3 log)", relapse_logreduction);
     parameters.SetValue("patients", "Number of patients (1)", patients);
+
     parameters.SetValue("ntime", "Maximum simulation time (25 years)", ntime);
+    parameters.SetValue("timestep", "Timestep for integration of deterministic equations (0.1 days)", dt);
 
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest=100 (-1)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);

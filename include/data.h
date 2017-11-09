@@ -74,6 +74,7 @@ struct Simulation_Parameters{
     unsigned patients = 1;
     double collectinterval=30.; //how often data is collected
     double ntime=25.;// maximum simulation time in years
+    double dt=0.1;
     void set_parameters(ParameterHandler & inputparams);
 };
 
