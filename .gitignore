@@ -1,6 +1,7 @@
 Doxyfile
 build/
 doc/
+data/
 stochtreat
 seed.*
 cscope.out
