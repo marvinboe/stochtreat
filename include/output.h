@@ -41,6 +41,7 @@ struct Print_specifiers{
     bool three_timepoint_median=false;
     bool three_timepoint_full=false;
     bool treat_dynamics=false;
+    bool last_burden_output=false;
 
     /** Returns "true" if single patient data will be printed,
      * i.e. decides if a newline is printed after each patient.
@@ -108,6 +109,7 @@ class Stats_Output{
         double _timetorelapse;
         double _timebeforerelapserun;
         double _burden_after_treatment;
+        double _c_instoch_after_treatment;
         double _resshare_treat;
         double _initialburden_alpha;
         double _resshare_relapse;

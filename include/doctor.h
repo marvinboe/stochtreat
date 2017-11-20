@@ -47,6 +47,10 @@ class Doctor{
         /** Caculates and returns the tumor burden at a specific already recorded timepoint (defaults to the last).*/
         double get_tumor_burden(double t=-1.) const;
 
+        /** Returns number of cancer cells in the stochastic compartments
+         * at a specific already recorded timepoint (defaults to the last).*/
+        double get_c_instoch(double t=-1.) const;
+
         /** Returns the full tumor burden at specified
          * interval times.*/
         std::vector<double> get_burden_at_interval(double intdays) const;

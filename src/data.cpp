@@ -166,7 +166,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("kb", "base proliferation rate bound cells (1/365 per day)", prolif.kb);
     parameters.SetValue("gammab", "proliferation rate expansion bound cells (1.263)", prolif.gammab);
 
-    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics'. Can be combined: 'output=x1;x2;etc'.", output);
+    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,lastburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
 
 }

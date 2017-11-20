@@ -39,11 +39,14 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("treatdynamics")!=std::string::npos){
         treat_dynamics=true;
     }
+    if (output_choice.find("lastburden")!=std::string::npos){
+        last_burden_output=true;
+    }
 }
 Print_specifiers::operator bool() const {
     return (per_patient||nolsctime||initialresponse||timetodiagnosis||
             timetoreduction||yearlyburden||three_timepoint_full||
-            relapsetime);
+            relapsetime||last_burden_output);
 }
 
 Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode): _run_mode(run_mode),_print(output_choice){
@@ -97,6 +100,8 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     }
 
     if (_print.yearlyburden) std::cout <<"<yearlyburden>";
+    if (_print.last_burden_output) std::cout <<"<last burden>";
+
     std::cout << std::endl;
 }
 
@@ -177,6 +182,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     }
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
+    _c_instoch_after_treatment=ker.doctor().get_c_instoch();
     _resshare_treat=ker.doctor().get_resistant_share();
 
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
@@ -241,6 +247,9 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 
     if (_print.yearlyburden) 
         std::cout <<_yearlyburden<<"  ";
+
+    if (_print.last_burden_output) 
+        std::cout <<_burden_after_treatment<<" "<<_c_instoch_after_treatment<<"  ";
 
     if (_run_mode.resistance>=0){
         std::cout <<_resshare_treat<<"  ";

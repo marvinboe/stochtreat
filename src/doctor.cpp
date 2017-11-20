@@ -37,6 +37,17 @@ double Doctor::get_tumor_burden(double t) const{
     // do nothing 
 }
 
+double Doctor::get_c_instoch(double t) const{
+    if (t<0. && _timepoints.size()>0)
+        return _bcrabl_instoch.back();
+
+    int i=find_timepoint(t);
+    if (i>=0 && _timepoints.size()>0)
+        return _bcrabl_instoch[i];
+    return -1;
+    // do nothing 
+}
+
 
 void Doctor::calc_initial_reference(double time,const Model& patient){
 	double NC=patient.lastC()+patient.lastI();
@@ -83,6 +94,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
 
 
 int Doctor::find_timepoint(double t) const{
+    if (t<0.) return -1;
     int i =_timepoints.size()-1;
     if (i>0 && t > (2*_timepoints.back()-_timepoints.rbegin()[1])) return -1; //if t > t_max+t_step 
     while (i > 0 && _timepoints[i] > t) --i; 
