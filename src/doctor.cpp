@@ -48,6 +48,17 @@ double Doctor::get_c_instoch(double t) const{
     // do nothing 
 }
 
+double Doctor::get_c_inneutral(double t) const{
+    if (t<0. && _timepoints.size()>0)
+        return _bcrabl_inneutral.back();
+
+    int i=find_timepoint(t);
+    if (i>=0 && _timepoints.size()>0)
+        return _bcrabl_inneutral[i];
+    return -1;
+    // do nothing 
+}
+
 
 void Doctor::calc_initial_reference(double time,const Model& patient){
 	double NC=patient.lastC()+patient.lastI();
@@ -90,6 +101,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
     _lastn_data.push_back(patient.lastN());
     _timepoints.push_back(t);
     _bcrabl_instoch.push_back(patient.get_c_instoch());
+    _bcrabl_inneutral.push_back(patient.get_c_inneutral());
 }
 
 

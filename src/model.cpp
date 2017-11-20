@@ -33,6 +33,7 @@ double Model::mylog(double p1, double base) const{
 
 Model::Model(Data data):_diagnosis(0){
     _numstoch=data.nstochcomp();
+    _numneutral=data.n_neutral_compartments();
     assert(_numstoch > 0);
     _numcomp = data.ncompartments()+1;
     _numtypes=4;
@@ -92,6 +93,7 @@ Model::Model(Data data):_diagnosis(0){
 
 Model::Model(Data data,std::istream & is):_diagnosis(0){ 
     _numcomp = data.ncompartments()+1;
+    _numneutral=data.n_neutral_compartments();
     _numtypes=4;
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _compartments=new double[tlen];
@@ -107,6 +109,7 @@ Model::Model(Data data,std::istream & is):_diagnosis(0){
 Model::Model(const Model& other){
     _numstoch = other.numStoch();
     _numcomp = other.numComp();
+    _numneutral=other._numneutral;
     _numtypes=4;
     unsigned int tlen = ((_numcomp-1)*4) + 3;
     _endstoch = ((_numstoch-1)*4) + 3;
@@ -268,6 +271,14 @@ double Model::get_c_instoch() const {
 
     double tmp(0.);
     for (unsigned k =0 ;k < _numstoch; ++k){
+        tmp+=getC(k)+getB(k);
+    }
+    return tmp;
+}
+double Model::get_c_inneutral() const {
+
+    double tmp(0.);
+    for (unsigned k =0 ;k < _numneutral; ++k){
         tmp+=getC(k)+getB(k);
     }
     return tmp;

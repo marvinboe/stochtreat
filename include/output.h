@@ -110,6 +110,7 @@ class Stats_Output{
         double _timebeforerelapserun;
         double _burden_after_treatment;
         double _c_instoch_after_treatment;
+        double _c_inneutral_after_treatment;
         double _resshare_treat;
         double _initialburden_alpha;
         double _resshare_relapse;

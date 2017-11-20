@@ -60,6 +60,8 @@ public:
 
         /** Returns total number of cancerous cells in stochastic compartments. */
         double get_c_instoch() const;
+        /** Returns total number of cancerous cells in stochastic compartments. */
+        double get_c_inneutral() const;
 
 	double retrieveN(unsigned int k) const;
 	void storeH(unsigned int k, double v); 
@@ -146,6 +148,7 @@ private:
 	double* _previous;
         std::vector<std::vector<double>> _rates;
 	unsigned _numstoch;
+        unsigned _numneutral;
 	unsigned _numcomp;
         unsigned _numtypes;
 	double _alpha;

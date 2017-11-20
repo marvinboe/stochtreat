@@ -51,6 +51,10 @@ class Doctor{
          * at a specific already recorded timepoint (defaults to the last).*/
         double get_c_instoch(double t=-1.) const;
 
+        /** Returns number of cancer cells in the neutral compartments
+         * at a specific already recorded timepoint (defaults to the last).*/
+        double get_c_inneutral(double t=-1.) const;
+
         /** Returns the full tumor burden at specified
          * interval times.*/
         std::vector<double> get_burden_at_interval(double intdays) const;
@@ -93,6 +97,7 @@ class Doctor{
         std::vector<double> _lastn_data;
         std::vector<double> _timepoints;
         std::vector<double> _bcrabl_instoch;
+        std::vector<double> _bcrabl_inneutral;
 
         double _next_timepoint;
         double _sampling_timestep;

@@ -59,6 +59,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     _total_timetoreduction = 0;
     _burden_after_treatment=-1.;
     _c_instoch_after_treatment=-1.;
+    _c_inneutral_after_treatment=-1.;
     _avgsize.resize(no_stochcomps+1);
 
     _treat_dynamics_interval=0.05;
@@ -101,7 +102,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     }
 
     if (_print.yearlyburden) std::cout <<"<yearlyburden>";
-    if (_print.last_burden_output) std::cout <<"<last burden>";
+    if (_print.last_burden_output) std::cout <<"<last burden><c_instoch><c_inneutral>";
 
     std::cout << std::endl;
 }
@@ -133,6 +134,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _diagnosis_time=-1;
     _burden_after_treatment=-1.;
     _c_instoch_after_treatment=-1.;
+    _c_inneutral_after_treatment=-1.;
     _timetorelapse=-1.;
     _yearlyburden.clear();
 
@@ -185,6 +187,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
     _c_instoch_after_treatment=ker.doctor().get_c_instoch();
+    _c_inneutral_after_treatment=ker.doctor().get_c_inneutral();
     _resshare_treat=ker.doctor().get_resistant_share();
 
     std::vector<double> yearlyburden=ker.doctor().get_yearly_burden();
@@ -251,7 +254,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         std::cout <<_yearlyburden<<"  ";
 
     if (_print.last_burden_output) 
-        std::cout <<_burden_after_treatment<<" "<<_c_instoch_after_treatment<<"  ";
+        std::cout <<_burden_after_treatment<<" "<<_c_instoch_after_treatment<<" "<<_c_inneutral_after_treatment<<"  ";
 
     if (_run_mode.resistance>=0){
         std::cout <<_resshare_treat<<"  ";
