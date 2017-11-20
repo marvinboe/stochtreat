@@ -58,6 +58,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     _reachedreduction = 0;
     _total_timetoreduction = 0;
     _burden_after_treatment=-1.;
+    _c_instoch_after_treatment=-1.;
     _avgsize.resize(no_stochcomps+1);
 
     _treat_dynamics_interval=0.05;
@@ -131,6 +132,7 @@ void Stats_Output::initialize_per_patient(int patient){
     _diagnosis_reached=false;
     _diagnosis_time=-1;
     _burden_after_treatment=-1.;
+    _c_instoch_after_treatment=-1.;
     _timetorelapse=-1.;
     _yearlyburden.clear();
 

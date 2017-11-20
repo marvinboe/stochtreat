@@ -89,7 +89,7 @@ void Doctor::take_bloodsample(double t, const Model & patient){
     _res_share_data.push_back(share);
     _lastn_data.push_back(patient.lastN());
     _timepoints.push_back(t);
-    _bcrabl_instoch.push_back(patient.getC_instoch());
+    _bcrabl_instoch.push_back(patient.get_c_instoch());
 }
 
 

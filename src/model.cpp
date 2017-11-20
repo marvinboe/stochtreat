@@ -264,11 +264,11 @@ double Model::get(unsigned k, unsigned t) const{
     return -1.0;
 }
 
-double Model::getC_instoch() const {
+double Model::get_c_instoch() const {
 
     double tmp(0.);
     for (unsigned k =0 ;k < _numstoch; ++k){
-        tmp+=getC(k);
+        tmp+=getC(k)+getB(k);
     }
     return tmp;
 }

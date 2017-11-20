@@ -59,7 +59,7 @@ public:
 	double getB(unsigned int k) const; 
 
         /** Returns total number of cancerous cells in stochastic compartments. */
-        double getC_instoch() const;
+        double get_c_instoch() const;
 
 	double retrieveN(unsigned int k) const;
 	void storeH(unsigned int k, double v); 
