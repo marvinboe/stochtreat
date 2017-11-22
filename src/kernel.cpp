@@ -193,7 +193,7 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
     
     int iters =0.;// (int)ceil(_time / _data.dt());
 
-    double next_stoch = (_queue.top())->tau(); //when occurs the next stochastic reaction
+    double next_stoch = (_queue.top())->tau(); //when does the next stochastic reaction occur
 
     while(_time<t_max && !stopsim(_time,sim_type) ){
 

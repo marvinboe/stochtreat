@@ -59,7 +59,9 @@ $(TARGET): $(OBJECTS)
 
 
 #copy target to simulation directory SIMDIR
-copy: all
+.PHONY : copy
+
+copy: $(TARGET)
 	@cp -v $(TARGET) $(SIMDIR)/
 	@for d in $(SIMDIR)/*/; do cp -v $(TARGET)  "$$d"; done
 
