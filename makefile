@@ -13,6 +13,7 @@ BUILDDIR :=  build
 SRCDIR :=  src
 SRCEXT := cpp
 INCLUDEDIR := include
+SIMDIR := data
 
 
 #COMPILATION AND LIBARY FLAGS
@@ -57,9 +58,10 @@ $(TARGET): $(OBJECTS)
 
 
 
-#copy files to "/data/"
+#copy target to simulation directory SIMDIR
 copy: all
-	cp $(TARGET) ./data/
+	@cp -v $(TARGET) $(SIMDIR)/
+	@for d in $(SIMDIR)/*/; do cp -v $(TARGET)  "$$d"; done
 
 
 #create dependencies ############################################
