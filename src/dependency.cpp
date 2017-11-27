@@ -120,21 +120,35 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
     }
     //add reactions for the stem cell compartment:
     for(int first_tp = 0; first_tp < 3; ++first_tp) { // excluding the bound type, i.e.tp = 3
-        StemCellRenewal *scr=new StemCellRenewal(&ran,first_tp,pool.getRate(0,first_tp));
+        //TODO at the moment asymmetric division is implemted in kinda hackish way: into the same container as the moran step
+        StemCellRenewal *scr=new StemCellRenewal(&ran,first_tp,
+                (1-data.eps_asym())*pool.getRate(0,first_tp));
         scr->setPropensity(scr->sufficientReactants(pool)?scr->reactantFactor(pool):0.0);
         sum += scr->propensity();
         pos=all.add(scr);
         DependencyNode *scrnode=new DependencyNode(pos);
         pos=add(MORAN,scrnode);
         scr->setDG(MORAN, pos);
-        //		cout << "# stem cell renewal : " << *scr << "\t propensity " << <<endl;
 
+        //		cout << "# stem cell renewal : " << *scr << "\t propensity " << <<endl;
         scrnode->affects(scrnode);
+
+        StemCellDifferentiation *scd=new StemCellDifferentiation(first_tp,data.eps_asym()*pool.getRate(0,first_tp));
+        scd->setPropensity(scd->sufficientReactants(pool)?scd->reactantFactor(pool):0.0);
+        sum += scd->propensity();
+        pos=all.add(scd);
+        DependencyNode *scdnode=new DependencyNode(pos);
+        pos=add(MORAN,scdnode);
+        scd->setDG(MORAN, pos);
+
+        //		cout << "# stem cell renewal : " << *scr << "\t propensity " << <<endl;
+        scdnode->affects(scdnode);
 
         if (_selfnodes.size() > 0 && _diffnodes.size() > 0){
             //Stem Cell reaction moves random cell to next comp. -> adding links to all other cell types
             DependencyNode *nexttreat=get(TREATMENT,0);
             scrnode->affects(nexttreat);
+            scdnode->affects(nexttreat);
             for(int second_type = 0; second_type < 3; ++second_type) {
                 DependencyNode *nextself, *nextdiff;
                 nextself = get(SELF_RENEWAL,second_type); 
@@ -143,6 +157,8 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
                 //				cout << *(all[scrnode->reaction()]) << "is linked to " << *(all[nextself->reaction()]) << endl;
                 scrnode->affects(nextdiff);
                 //				cout << *(all[scrnode->reaction()]) << "is linked to " << *(all[nextdiff->reaction()]) << endl;
+                scdnode->affects(nextself);
+                scdnode->affects(nextdiff);
             }
         }
 
@@ -150,14 +166,16 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
 
     //add dependencies between all reactions in first (Moran) compartment
     for(unsigned first_tp = 0; first_tp < 3; ++first_tp) { 
-        DependencyNode *scrnode =  get(MORAN,first_tp);
+        DependencyNode *scrnode =  get(MORAN,first_tp*2);
         for(unsigned second_tp = 0; second_tp < 3; ++second_tp) {
             if(first_tp != second_tp){
-                DependencyNode *oscrnode =  get(MORAN,second_tp);
+                DependencyNode *oscrnode =  get(MORAN,second_tp*2);
                 scrnode->affects(oscrnode);
                 //				cout << *(all[scrnode->reaction()]) << "is linked to " << *(all[oscrnode->reaction()]) << endl;
 
             }
+            DependencyNode *scdnode =  get(MORAN,second_tp*2+1);
+            scrnode->affects(scdnode);
         }
     }
     all.setPropSum(sum);

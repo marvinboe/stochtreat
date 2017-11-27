@@ -22,6 +22,7 @@ Doctor::Doctor(double diagnosis_level, double full_reduction, double relapse_red
     _starttime=0.;
     _starttime_treatment=-1.;
     _first_time_consulted=true;
+    _reduction_reached=false;
     _alpha=0.;
 }
 
@@ -224,14 +225,18 @@ double Doctor::reduction_time(double l) const{
     return -1.;
 }
 
-bool Doctor::reduction_reached(double l, double t) const {
+bool Doctor::in_reduction(double l, double t) {
     if (l<0.) l=_full_reduction;
-    if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
-    if (t<0.) return false; 
+    // if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
+    if (_timepoints.size()==0) return false;
+    // if (t<0.) return false; 
 
     if (l<0.) return false; //for negative l: reduction never reached
-    // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<std::endl;
-    return (get_logreduction(t)>=l);
+    bool reduction=(get_logreduction(t)>=l);
+    // if (!_reduction_reached)
+        _reduction_reached=reduction;
+    // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<" "<<_reduction_reached<<std::endl;
+    return (reduction);
 }
 
 

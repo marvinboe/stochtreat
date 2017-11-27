@@ -74,7 +74,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
 
     _timer=clock();
 
-    std::cout <<"#output info: ";
+    if (_print) std::cout <<"#output info: ";
     if (_print.nolsctime) std::cout <<"<nolsctime> ";
     if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
     if (_print.timetoreduction) std::cout <<"<time to reduction> ";
@@ -104,7 +104,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     if (_print.yearlyburden) std::cout <<"<yearlyburden>";
     if (_print.last_burden_output) std::cout <<"<last burden><c_instoch><c_inneutral>";
 
-    std::cout << std::endl;
+    if (_print) std::cout << std::endl;
 }
 
 double calc_median(std::vector<double> x){
@@ -174,7 +174,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
 
     _initialburden_alpha=ker.doctor().return_initial_cratio();
     double reduction_timepoint=ker.doctor().reduction_time();
-    if(reduction_timepoint>=0.){
+    if(reduction_timepoint>=0. && ker.doctor().reduction_reached()){
         if (_run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
         _timetoreduction=(reduction_timepoint - _diagnosis_time);
@@ -315,25 +315,18 @@ void Stats_Output::print_at_end() const{
     }
 
     if (!_print.overview_at_end) return;
-
-    if (_run_mode.treattest){
-        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
-        if (_print) std::cout <<"# ";
-        std::cout <<_recurrence_count/double(_no_recurrence_patients)
-            <<" "<<_recurrence_count   <<" "  << _no_recurrence_patients<< " "<<_nolsc_recurrence_count/double(_diagnosed_nolsc)<<" "<<_nolsc_recurrence_count <<" "<< _diagnosed_nolsc<< std::endl;
-    }
-
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-_timer)/CLOCKS_PER_SEC << std::endl;
+
+
     std::cout <<"#<av. diagtime>"<<"<diagnosed frac>"<<"<nolsc frac>"<<"<nolsc diagnosed frac>"<<std::endl;
     std::cout <<"# "<< (_diagnosed > 0?(_total_diagnosis_time / (double) _diagnosed):0)<<" "
         << (_diagnosed /(double) _patients) <<" " << (_nolsc / (double) _patients) <<" "
         << (_diagnosed > 0?(_diagnosed_nolsc / (double) _diagnosed):0) << std::endl;
 
     std::cout << "#<reduction freq.> <#of reductions> <diagnosed> <noscl at dignose>" << std::endl;
-    if (_print || !_run_mode.treattest) std::cout <<"# ";
+    std::cout <<"# ";
     std::cout << ((_reachedreduction > 0&&_diagnosed>0)?(_reachedreduction / (double) _diagnosed):0)
         << " " << _reachedreduction << " " << _diagnosed << " " << _diagnosed_nolsc<< std::endl;
-
 
     double stddev = 0;
     double avg = (_reachedreduction > 0?(_total_timetoreduction / (double) _reachedreduction):-1.) ;
@@ -343,7 +336,16 @@ void Stats_Output::print_at_end() const{
     stddev = stddev / (double)_redresult.size();
     stddev = sqrt(stddev);
     std::cout << "#time to reduction avg="<< avg << " stddev=" << stddev << std::endl;
-    std::cout << "#avg size comps. ";
+
+    if (_run_mode.treattest){
+        std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
+        std::cout <<"# ";
+        std::cout <<_recurrence_count/double(_no_recurrence_patients)
+            <<" "<<_recurrence_count   <<" "  << _no_recurrence_patients<< " "<<_nolsc_recurrence_count/double(_diagnosed_nolsc)<<" "<<_nolsc_recurrence_count <<" "<< _diagnosed_nolsc<< std::endl;
+    }
+
+
+    std::cout << "#avg size stochastic comps. ";
     for (unsigned int i=0; i< _avgsize.size(); i++) {
         std::cout << "<" << i << "> ";
     }

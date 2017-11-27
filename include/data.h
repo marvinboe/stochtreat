@@ -24,10 +24,11 @@ struct Diff_probabilities{
     double epsc=0.72;
     double epsb=0.89;
     double epsr=epsc; //differentation probability immmune cell
+    double eps_asym=0.0; //asymmetric division probability for stem cells
 
     /* write differentiation probabilities output os. */
     void write(std::ostream & os){ 
-        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsr<<std::endl;
+        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsr<<" "<<eps_asym<<std::endl;
     }
 
 };
@@ -156,9 +157,11 @@ class Data {
         double epsc() const {return _diffprobs.epsc;}
         double epsb() const {return _diffprobs.epsb;}
         double epsr() const {return _diffprobs.epsr;}
+        double eps_asym() const {return _diffprobs.eps_asym;}
 
         /** return self-renewal probability epsilon for type.
-         * 0: healthy, 1: cancerous, 2: resistant, 3: bound (treated).*/
+         * 0: healthy, 1: cancerous, 2: resistant, 3: bound (treated).
+         * Special case 4: asymmetric division probability for stem cells.*/
         double eps(unsigned type) const {
             switch(type){
                 case 0:
@@ -169,6 +172,8 @@ class Data {
                     return _diffprobs.epsr;
                 case 3:
                     return _diffprobs.epsb;
+                case 4:
+                    return _diffprobs.eps_asym;
                 default :
                     return -1.0;
             }
@@ -178,6 +183,7 @@ class Data {
         void setEpsc (double v) {_diffprobs.epsc = v;} 
         void setEpsb (double v) {_diffprobs.epsb = v;} 
         void setEpsi (double v) {_diffprobs.epsr = v;} 
+        void set_eps_asym (double v) {_diffprobs.eps_asym = v;} 
         void setEps(unsigned type, double v)  {
             switch(type){
                 case 0:
@@ -191,6 +197,9 @@ class Data {
                     break;
                 case 3:
                     _diffprobs.epsb = v;
+                    break;
+                case 4:
+                    _diffprobs.eps_asym = v;
                     break;
             }
         }

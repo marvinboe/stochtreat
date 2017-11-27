@@ -77,8 +77,11 @@ class Doctor{
         /** Calculates the log reduction of tumor burden. Returns -1 if burden=0. */
         double get_logreduction(double t=-1.) const;
 
-        /** Returns true if required reduction level is reached.*/
-        bool reduction_reached(double l=-1.,double t=-1.) const;
+        /** Returns true if reduction level l is reached at time t.*/
+        bool in_reduction(double l=-1.,double t=-1.);
+
+        /** Returns true if required reduction level was reached before.*/
+        bool reduction_reached() const {return _reduction_reached;}
 
         /** Returns the timepoint when reduction was reached (for the first time).*/
         double reduction_time(double l=-1.) const;
@@ -108,6 +111,8 @@ class Doctor{
         double _diagnosis_level;
         double _full_reduction;
         double _relapse_reduction;
+
+        bool _reduction_reached;
 
         double _alpha;
 

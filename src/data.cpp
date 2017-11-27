@@ -64,6 +64,7 @@ void Data::initialize(const Simulation_Parameters & simparams, double N, double 
 	_diffprobs.epsh=simparams.diff_probs.epsh;//in paper 0.85// 0.8476;
 	_diffprobs.epsc=simparams.diff_probs.epsc;
 	_diffprobs.epsb=simparams.diff_probs.epsb; //imatinib;
+	_diffprobs.eps_asym=simparams.diff_probs.eps_asym; //imatinib;
 	_diffprobs.epsr=_diffprobs.epsc;
 
 	_ncompartments=simparams.n_compartments;
@@ -84,11 +85,8 @@ void Data::initialize(const Simulation_Parameters & simparams, double N, double 
 
 Data::Data(const Data& other){
 	_dt=other.dt();
-	_diffprobs.epsh=other.epsh();
-	_diffprobs.epsc=other.epsc();
-	_diffprobs.epsb=other.epsb();
-	_diffprobs.epsr=other.epsr();
-        _prolif=other.return_prolif_params();
+        _diffprobs=other._diffprobs;
+        _prolif=other._prolif;
 	_p_csc=other.p_csc();
 	_p_imm=other.p_imm();
 	_frac_csc=other.frac_csc();
@@ -126,6 +124,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    espc " << _diffprobs.epsc << std::endl;
 	os << "    espb " << _diffprobs.epsb << std::endl;
 	os << "    espr " << _diffprobs.epsr << std::endl;
+	os << "    esp_asym " << _diffprobs.eps_asym << std::endl;
 	os << "    p_csc " << _p_csc << std::endl;
 	os << "    p_imm " << _p_imm << std::endl;
 	os << "    treatment_rate " << _treatment_rate << std::endl;
@@ -162,6 +161,8 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
     parameters.SetValue("epsc", "change differentiation probability for cancer cells (0.71)", diff_probs.epsc);
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
+    parameters.SetValue("epsr", "change differentiation probability for resistant cells (0.71)", diff_probs.epsr);
+    parameters.SetValue("eps_asym", "asymmetric division probability stem cells (0.0)", diff_probs.eps_asym);
 
     parameters.SetValue("kn", "base proliferation rate of stem cells (1/365 per day)", prolif.kn);
     parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman);

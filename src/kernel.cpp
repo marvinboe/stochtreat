@@ -280,7 +280,7 @@ void Kernel::introduce_resistance(unsigned k){
 
 bool Kernel::stopsim(double t,int sim_type){
     if (sim_type==TREATMENTRUN){
-        if (_doctor.reduction_reached()){
+        if (_doctor.in_reduction()){
             if (_stoptimer<=0.){
                 _stoptimer=t;
             }

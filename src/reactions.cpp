@@ -61,7 +61,8 @@ SelfRenewal& SelfRenewal::operator=(const SelfRenewal& other){
     _time_zero = other.getTZero();
     _intype=other.inType();
     _ingraph=other.inGraph();
-    _used =other.used();	return *this;
+    _used =other.used();	
+    return *this;
 }
 
 
@@ -104,6 +105,25 @@ StemCellRenewal& StemCellRenewal::operator=(const StemCellRenewal& other){
     return *this;
 }
 
+StemCellDifferentiation& StemCellDifferentiation::operator=(const StemCellDifferentiation& other){
+    _comp_reactant=other.reactantComp();
+    _reactant=other.reactant();	
+    _comp_product1=other.product1Comp();	
+    _product1=other.product1();	
+    _comp_product2=other.product2Comp();	
+    _product2=other.product2();	
+    _r=other.rate();
+    _a=other.propensity();
+    _ptime = other.putativeTime();
+    _lasta = other.last_a();
+    _lastptime = other.last_ptime();
+    _time_zero = other.getTZero();
+    _intype=other.inType();
+    _ingraph=other.inGraph();
+    _used =other.used();
+    return *this;
+}
+
 Treatment& Treatment::operator=(const Treatment& other){
     _comp_reactant=other.reactantComp();
     _reactant=other.reactant();	
@@ -123,94 +143,6 @@ Treatment& Treatment::operator=(const Treatment& other){
     return *this;
 }
 
-MoranReaction::MoranReaction(const MoranReaction& other){
-    _comp_reactant=other.reactantComp();
-    _reactant=other.reactant();	
-    _comp_reactant2=other.reactant2Comp();
-    _reactant2=other.reactant2();	
-    _comp_product1=other.product1Comp();	
-    _product1=other.product1();	
-    _comp_product2=other.product2Comp();	
-    _product2=other.product2();	
-    _r=other.rate();
-    _a=other.propensity();
-    _ptime = other.putativeTime();
-    _lasta = other.last_a();
-    _lastptime = other.last_ptime();
-    _time_zero = other.getTZero();
-    _intype=other.inType();
-    _ingraph=other.inGraph();
-    _used =other.used();
-}
-
-
-MoranReaction& MoranReaction::operator=(const MoranReaction& other){
-    _comp_reactant=other.reactantComp();
-    _reactant=other.reactant();	
-    _comp_reactant2=other.reactant2Comp();
-    _reactant2=other.reactant2();	
-    _comp_product1=other.product1Comp();	
-    _product1=other.product1();	
-    _comp_product2=other.product2Comp();	
-    _product2=other.product2();	
-    _r=other.rate();
-    _a=other.propensity();
-    _ptime = other.putativeTime();
-    _lasta = other.last_a();
-    _lastptime = other.last_ptime();
-    _time_zero = other.getTZero();
-    _intype=other.inType();
-    _ingraph=other.inGraph();
-    _used =other.used();
-    return *this;
-}
-
-
-MoranRenewal& MoranRenewal::operator=(const MoranRenewal& other){
-    _comp_reactant=other.reactantComp();
-    _reactant=other.reactant();	
-    _comp_reactant2=other.reactant2Comp();
-    _reactant2=other.reactant2();	
-    _comp_product1=other.product1Comp();	
-    _product1=other.product1();	
-    _comp_product2=other.product2Comp();	
-    _product2=other.product2();	
-    _r=other.rate();
-    _a=other.propensity();
-    _ptime = other.putativeTime();
-    _lasta = other.last_a();
-    _lastptime = other.last_ptime();
-    _time_zero = other.getTZero();
-    _intype=other.inType();
-    _ingraph=other.inGraph();
-    _used =other.used();
-    return *this;
-}
-
-
-
-MoranDifferentiation& MoranDifferentiation::operator=(const MoranDifferentiation& other){
-    _comp_reactant=other.reactantComp();
-    _reactant=other.reactant();	
-    _comp_reactant2=other.reactant2Comp();
-    _reactant2=other.reactant2();	
-    _comp_product1=other.product1Comp();	
-    _product1=other.product1();	
-    _comp_product2=other.product2Comp();	
-    _product2=other.product2();	
-    _r=other.rate();
-    _a=other.propensity();
-    _ptime = other.putativeTime();
-    _lasta = other.last_a();
-    _lastptime = other.last_ptime();
-    _time_zero = other.getTZero();
-    _intype=other.inType();
-    _ingraph=other.inGraph();
-    _used =other.used();
-    return *this;
-}
-
-
 std::ostream& Reaction::display(std::ostream& os){
     os <<"["<< _r <<","<<_a<<","<<_ptime<<"] ";
     os << "{";
@@ -220,18 +152,6 @@ std::ostream& Reaction::display(std::ostream& os){
     os << "}[";
     os  << _intype << " - " << _ingraph;
     os << "]"<< "(" << _used << ")";
-    return os;
-}
-
-std::ostream& MoranReaction::display(std::ostream& os){
-    os << "{";
-    os <<_comp_reactant<<":" <<_reactant<<" + ";
-    os <<_comp_reactant2<<":" <<_reactant2<<" -> ";
-    os <<"2*"<<_comp_product1<<":" <<_product1<<" + ";
-    os <<"2*"<<_comp_product2<<":" <<_product2;
-    os << "}[";
-    os << _intype << " - " << _ingraph;
-    os << "]" << "(" << _used << ")";
     return os;
 }
 
@@ -314,27 +234,6 @@ bool StemCellRenewal::apply(Model& pool, double /*time*/){
 }
 
 
-bool MoranReaction::apply(Model& pool, double /*time*/){
-    //Reaction format : Tp(k) + oTp(k) -> 2Tp(k') + 2oTp(k'')
-    //decrease reactants, increase products
-    //	cout << "before1[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]\t";
-    //	cout << "before2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << std::endl;
-
-    if( (pool.retrieve(reactantComp(), reactant()) > 0) && (pool.retrieve(reactant2Comp(), reactant2()) > 0) ){
-        pool.decr(reactantComp(), reactant(),1);
-        pool.decr(reactant2Comp(), reactant2(),1);
-        //		cout << "after1[" << reactantComp() << ", " << reactant() << ", " << pool.get(reactantComp(), reactant()) << "]\t";
-        //		cout << "after2[" << reactant2Comp() << ", " << reactant2() << ", " << pool.get(reactant2Comp(), reactant2()) << "]" << std::endl;
-
-        pool.incr(product1Comp(), product1(),2);
-        pool.incr(product2Comp(), product2(),2);
-        //		cout << "after1[" << product1Comp() << ", " << product1() << ", " << pool.get(product1Comp(), product1()) << "]\t";
-        //		cout << "after2[" << product2Comp() << ", " << product2() << ", " << pool.get(product2Comp(), product2()) << "]" << std::endl;
-        return false; 
-    }
-    return false;
-}
-
 bool Reaction::sufficientReactants(Model& pool){
     return (pool.get(reactantComp(), reactant()) > 0);
 }
@@ -342,17 +241,6 @@ bool Reaction::sufficientReactants(Model& pool){
 double Reaction::reactantFactor(Model& pool){
     return (double)pool.get(reactantComp(), reactant());
 }
-
-bool MoranReaction::sufficientReactants(Model& pool){
-    if(reactant() != reactant2()){
-        return  ( (pool.get(reactantComp(), reactant()) > 0) && (pool.get(reactant2Comp(), reactant2()) > 0) );
-    }
-    return (pool.get(reactantComp(), reactant()) >= 1);
-}
-
-//double MoranReaction::reactantFactor(Model& pool){
-//	return (double)(pool.get(reactantComp(), reactant()));
-//}
 
 unsigned int AllReactions::add(Reaction* r){
     int loc = (int)_all.size();

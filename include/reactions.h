@@ -168,46 +168,13 @@ private:
 	RanGen* _ran;
 };
 
-
-class MoranReaction : public Reaction { //X0 + Y0 -> 2X0 + 2Y1
+class StemCellDifferentiation : public Reaction {
 public:
-	MoranReaction():Reaction(),_comp_reactant2(0), _reactant2(0) {};
-	MoranReaction(int cr1, int rct1, int cr2, int rct2,int cp1, int p1, int cp2, int p2, double r):Reaction(cr1,rct1,cp1,p1,cp2,p2,r),_comp_reactant2(cr2), _reactant2(rct2){};
-	MoranReaction(const MoranReaction& other);
-	virtual ~MoranReaction () {};
-	
-	unsigned int reactant2Comp() const {return _comp_reactant2;}
-	unsigned int reactant2() const {return _reactant2;}
-	
-	
-	virtual MoranReaction& operator=(const MoranReaction& other);
-	virtual bool apply(Model& pool, double time);
-	virtual bool sufficientReactants(Model& pool);
-//	virtual double reactantFactor(Model& pool);
-	
-protected:
-	virtual std::ostream& display(std::ostream& os);
-	unsigned int _comp_reactant2;
-	unsigned int _reactant2;
-};
-
-
-class MoranRenewal : public MoranReaction {
-public:
-	MoranRenewal(int compartment, int ct, double rate):MoranReaction(compartment,ct,compartment,ct,compartment,ct,compartment+1,ct,rate){};
-	MoranRenewal(const MoranRenewal& other):MoranReaction(other){};
-	virtual ~MoranRenewal () {};
-	virtual MoranRenewal& operator=(const MoranRenewal& other);
-	
-};
-
-class MoranDifferentiation : public MoranReaction {
-public:
-	MoranDifferentiation(int compartment, int ct1, int ct2, double rate):MoranReaction(compartment,ct1,compartment,ct2,compartment,ct1,compartment+1,ct2,rate){};
-	MoranDifferentiation(const MoranDifferentiation& other):MoranReaction(other){};
-	virtual ~MoranDifferentiation () {};
-	virtual MoranDifferentiation& operator=(const MoranDifferentiation& other);
-	
+	StemCellDifferentiation(int ct, double rate):Reaction(0,ct,0,ct,1,ct,rate){};
+	StemCellDifferentiation(const StemCellDifferentiation& other): Reaction(other){};
+	virtual ~StemCellDifferentiation() {}
+	virtual StemCellDifferentiation& operator=(const StemCellDifferentiation& other);
+	// virtual bool apply(Model& pool, double time);
 };
 
 

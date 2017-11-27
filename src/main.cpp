@@ -53,6 +53,9 @@ int main (int argc, char *argv[]) {
                 time=ker.execute(ran,time,RELAPSERUN); //look for diagnosis again
                 out.save_data_after_relapse(ker,time);
             }
+            // else if (simparams.run_mode.treattest && !ker.doctor().reduction_reached()){
+            //     out.save_data_after_relapse(ker,time);
+            // }
 
         }//######### everything for case of diagnosis done
         out.print_patient(ker);
