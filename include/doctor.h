@@ -81,7 +81,7 @@ class Doctor{
         bool reduction_reached(double l=-1.,double t=-1.) const;
 
         /** Returns the timepoint when reduction was reached (for the first time).*/
-        double reduction_time(double l=4.) const;
+        double reduction_time(double l=-1.) const;
 
         /** Returns if cell count reaches diagnosis level.*/
         bool diagnosis_reached(double level=-1., double t=-1.) const;

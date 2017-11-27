@@ -215,6 +215,8 @@ double Doctor::get_logreduction(double t) const{
 }
 
 double Doctor::reduction_time(double l) const{
+    if (l<0.) l=_full_reduction;
+    if (l<0.) return -1.; //for negative l: reduction never reached
 
     for (unsigned int ti=0 ; ti < _timepoints.size(); ++ti){
         if (get_logreduction(_timepoints[ti]) >= l) return _timepoints[ti]/365.;
