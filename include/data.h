@@ -70,6 +70,7 @@ struct Simulation_Parameters{
     float reduction = 4.5;
     double relapse_logreduction = 3.;
     double required_reduction_time = 0;
+    double relapse_waiting_time = 5;
     double treatment_rate = 0.05;
     unsigned patients = 1;
     double collectinterval=30.; //how often data is collected
@@ -259,6 +260,9 @@ class Data {
         /** Returns the maximum time a simulation runs in years.*/
         double getTmax_in_years() const {return _tmax;}
 
+        /** returns waiting time for cancer relapse.*/
+        double relapse_waiting_time() const {return _relapse_waiting_time;}
+
         /** Sets maximum simulation time. */
         void setTmax(double v){_tmax=v;}
 
@@ -311,6 +315,7 @@ class Data {
         double _reduction; //stop value (required log reduction in bcr-abl transcript level)
         double _required_redtime; //time stop value to be maintained
         double _relapse_reduction; //stop value relapse
+        double _relapse_waiting_time; //time to wait for relapse after stopping of treatment
         double _mass;  //mammal mass
         double _threshold; //percentage increase in number of cells for diagnosis
 

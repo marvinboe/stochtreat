@@ -3,7 +3,8 @@
  *  HemaMass
  *
  *  Created by Tom Lenaerts on 15/08/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+ *  Modified by Marvin A. Böttcher 2017
+ *
  *
  */
 
@@ -20,6 +21,7 @@ Data::Data(){
 	_diffprobs.epsc=0.72;
 	_diffprobs.epsr=_diffprobs.epsc;
 	_diffprobs.epsb=0.89;
+        _relapse_waiting_time=5.;
         _tmax=25.;
 	_ncompartments=32;
 	_diagnosis_level=10.39;//DP RAT
@@ -91,6 +93,7 @@ Data::Data(const Data& other){
 	_p_imm=other.p_imm();
 	_frac_csc=other.frac_csc();
 	_numlsc = other.numlsc();
+        _relapse_waiting_time=other._relapse_waiting_time;
 	_treatment_rate=other.treatment_rate();
         _tmax=other.getTmax_in_years();
 	_ncompartments=other.ncompartments();
@@ -153,6 +156,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
 
     parameters.SetValue("ntime", "Maximum simulation time (25 years)", ntime);
     parameters.SetValue("timestep", "Timestep for integration of deterministic equations (0.1 days)", dt);
+    parameters.SetValue("relapse_waiting", "Waiting time for relapse after treatment (5 years)", relapse_waiting_time);
 
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest=100 (-1)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
