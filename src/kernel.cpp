@@ -220,7 +220,12 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
 }
 
 float Kernel::get_nolsctime() const{
-    return _lsctime/365.;
+    if (_lsctime >=0.){
+        return _lsctime/365.;
+    }
+    else {
+        return -1.;
+    }
 }
 
 
