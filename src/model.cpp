@@ -271,7 +271,9 @@ double Model::get_c_instoch() const {
 
     double tmp(0.);
     for (unsigned k =0 ;k < _numstoch; ++k){
-        tmp+=getC(k)+getB(k);
+        tmp+=getC(k);
+        if (k>0)
+            tmp+=getB(k);
     }
     return tmp;
 }
@@ -279,7 +281,9 @@ double Model::get_c_inneutral() const {
 
     double tmp(0.);
     for (unsigned k =0 ;k < _numneutral; ++k){
-        tmp+=getC(k)+getB(k);
+        tmp+=getC(k);
+        if (k>0)
+            tmp+=getB(k);
     }
     return tmp;
 }
