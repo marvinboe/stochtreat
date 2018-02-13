@@ -79,7 +79,7 @@ Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simp
 
     if (_print.print_simparams){
         std::cout <<"#$";
-        std::cout <<_simparams.diff_probs.epsh<<" "<<_simparams.diff_probs.epsc<<" "<<_simparams.diff_probs.epsb<<std::endl;
+        std::cout <<_simparams.diff_probs.epsh<<" "<<_simparams.diff_probs.epsc<<" "<<_simparams.diff_probs.epsb<<" "<<_simparams.treatment_rate<<std::endl;
     }
     if (_print) std::cout <<"#output info: ";
     if (_print.nolsctime) std::cout <<"<nolsctime> ";
