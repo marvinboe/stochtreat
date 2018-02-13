@@ -42,6 +42,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("lastburden")!=std::string::npos){
         last_burden_output=true;
     }
+    if (output_choice.find("print_simparams")!=std::string::npos){
+        print_simparams=true;
+    }
 }
 Print_specifiers::operator bool() const {
     return (per_patient||nolsctime||initialresponse||timetodiagnosis||
@@ -49,7 +52,7 @@ Print_specifiers::operator bool() const {
             relapsetime||last_burden_output);
 }
 
-Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode): _run_mode(run_mode),_print(output_choice){
+Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simparams): _simparams(simparams),_print(output_choice){
 
     _nolsc = 0;
     _diagnosed_nolsc = 0;
@@ -60,7 +63,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
     _burden_after_treatment=-1.;
     _c_instoch_after_treatment=-1.;
     _c_inneutral_after_treatment=-1.;
-    _avgsize.resize(no_stochcomps+1);
+    _avgsize.resize(_simparams.n_stochastic_compartments+1);
 
     _treat_dynamics_interval=0.05;
 
@@ -74,6 +77,10 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
 
     _timer=clock();
 
+    if (_print.print_simparams){
+        std::cout <<"#$";
+        std::cout <<_simparams.diff_probs.epsh<<" "<<_simparams.diff_probs.epsc<<" "<<_simparams.diff_probs.epsb<<std::endl;
+    }
     if (_print) std::cout <<"#output info: ";
     if (_print.nolsctime) std::cout <<"<nolsctime> ";
     if (_print.timetodiagnosis) std::cout <<"<time_to_diag> ";
@@ -85,7 +92,7 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         // std::cout <<"<relapse>";
         std::cout <<" ";
     }
-    if (_run_mode.treattest && _print.relapsetime)
+    if (_simparams.run_mode.treattest && _print.relapsetime)
         std::cout <<"<timetorelapse> ";
 
     if (_print.three_timepoint_full){
@@ -95,9 +102,9 @@ Stats_Output::Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_
         std::cout <<" ";
     }
 
-    if (_run_mode.resistance>=0){
+    if (_simparams.run_mode.resistance>=0){
         std::cout <<"<resistance_share_treat>";
-        if (_run_mode.treattest) std::cout <<"<resistance_share_relapse>";
+        if (_simparams.run_mode.treattest) std::cout <<"<resistance_share_relapse>";
         std::cout <<" ";
     }
 
@@ -163,7 +170,7 @@ void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
         if(!ker.hasLSC()){
             _lsc_at_diagnosis=false;
             _diagnosed_nolsc +=1;
-            if (_run_mode.treattest){
+            if (_simparams.run_mode.treattest){
                 _nolsc_treattest=true;
             }
         }
@@ -175,7 +182,7 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     _initialburden_alpha=ker.doctor().return_initial_cratio();
     double reduction_timepoint=ker.doctor().reduction_time();
     if(reduction_timepoint>=0. && ker.doctor().reduction_reached()){
-        if (_run_mode.treattest) _no_recurrence_patients++;
+        if (_simparams.run_mode.treattest) _no_recurrence_patients++;
         _reachedreduction +=1;
         _timetoreduction=(reduction_timepoint - _diagnosis_time);
         _total_timetoreduction +=_timetoreduction;
@@ -234,7 +241,7 @@ void Stats_Output::print_patient(const Kernel& ker) const{
         //     std::cout <<ker.doctor().diagnosis_reached()<< " ";
         std::cout <<" ";
     }
-    if (_run_mode.treattest && _print.relapsetime)
+    if (_simparams.run_mode.treattest && _print.relapsetime)
         std::cout <<_timetorelapse<<"  ";
 
     if (_print.three_timepoint_full){
@@ -256,16 +263,16 @@ void Stats_Output::print_patient(const Kernel& ker) const{
     if (_print.last_burden_output) 
         std::cout <<_burden_after_treatment<<" "<<_c_instoch_after_treatment<<" "<<_c_inneutral_after_treatment<<"  ";
 
-    if (_run_mode.resistance>=0){
+    if (_simparams.run_mode.resistance>=0){
         std::cout <<_resshare_treat<<"  ";
-        if (_run_mode.treattest) std::cout <<_resshare_relapse<<" ";
+        if (_simparams.run_mode.treattest) std::cout <<_resshare_relapse<<" ";
     }
 
     if (_print.fullburden){
         std::cout <<std::endl<<"#full doctor report"<<std::endl;
         ker.print_full_doctors_report(std::cout);
     }
-    if (_print||_run_mode.resistance>=0) std::cout <<std::endl;
+    if (_print||_simparams.run_mode.resistance>=0) std::cout <<std::endl;
 
 
 
@@ -337,7 +344,7 @@ void Stats_Output::print_at_end() const{
     stddev = sqrt(stddev);
     std::cout << "#time to reduction avg="<< avg << " stddev=" << stddev << std::endl;
 
-    if (_run_mode.treattest){
+    if (_simparams.run_mode.treattest){
         std::cout <<"#results cancer recurrence: <ratio> <recurrences> <total. diag.> <nolsc_ratio> <nolsc_recurrences> <no_lscdiags>"<<std::endl;
         std::cout <<"# ";
         std::cout <<_recurrence_count/double(_no_recurrence_patients)

@@ -18,6 +18,7 @@ limitations under the License.
 #define __OUTPUT_H
 
 #include "kernel.h"
+#include "data.h"
 #include "doctor.h"
 #include <iostream>
 #include <fstream>
@@ -42,6 +43,7 @@ struct Print_specifiers{
     bool three_timepoint_full=false;
     bool treat_dynamics=false;
     bool last_burden_output=false;
+    bool print_simparams=false;
 
     /** Returns "true" if single patient data will be printed,
      * i.e. decides if a newline is printed after each patient.
@@ -64,7 +66,7 @@ struct Three_timepoint_measurements{
 class Stats_Output{
     public:
 
-        Stats_Output(std::string output_choice,unsigned no_stochcomps,Run_modes run_mode);
+        Stats_Output(std::string output_choice,Simulation_Parameters simparams);
 
         /** Initialises per patient variables .*/
         void initialize_per_patient(int patient_id);
@@ -131,7 +133,7 @@ class Stats_Output{
         bool _diagnosis_reached;
 
 
-        Run_modes _run_mode;
+        Simulation_Parameters _simparams;
 
         Print_specifiers _print;
 

@@ -149,6 +149,7 @@ class Data {
         }
 
         Proliferation_parameters return_prolif_params() const{ return _prolif;}
+        Diff_probabilities return_diff_params() const{ return _diffprobs;}
 
         double mass() const {return _mass;}
         void setMass(double v) {_mass = v;}
@@ -216,6 +217,8 @@ class Data {
         /** sets the percentage of cells that is affected by treatment. */
         void set_treatment_rate(double v) {_treatment_rate = v;}
 
+        /** returns simlation paramters used to initialize data.*/
+        Simulation_Parameters return_simparams() const {return _simparams;}
 
         /** returns the total number of compartments in the model. */
         int ncompartments() const {return _ncompartments;}
@@ -308,6 +311,7 @@ class Data {
         double _dt; //time step relative to days
         Diff_probabilities _diffprobs;//differentiation probabilities of all cell types
         Proliferation_parameters _prolif; //proliferation parameters of all cell types
+        Simulation_Parameters _simparams;
         double _p_csc; //probability that a normal cell turns into a cancer cell
         double _p_imm; //probabilty that a cancer cell turns into an immune cell
         double _frac_csc; //fraction of cancer cells in the stem cell compartment

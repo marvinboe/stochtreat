@@ -25,7 +25,7 @@ int main (int argc, char *argv[]) {
     data.initialize(simparams, Nbase, Sbase, (Lbase * factor));
     // std::cout << data << std::endl;
 
-    Stats_Output out(simparams.output,simparams.n_stochastic_compartments,simparams.run_mode);
+    Stats_Output out(simparams.output,simparams);
 
     std::vector<unsigned> redresult;
     for(unsigned i=0 ; i < simparams.patients; ++i){
