@@ -25,10 +25,11 @@ struct Diff_probabilities{
     double epsb=0.89;
     double epsr=epsc; //differentation probability immmune cell
     double eps_asym=0.0; //asymmetric division probability for stem cells
+    double beta=-1.0; //stem cells replacement probability
 
     /* write differentiation probabilities output os. */
     void write(std::ostream & os){ 
-        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsr<<" "<<eps_asym<<std::endl;
+        os <<"#diffprobs: "<<epsh<<" "<<epsc<<" "<<epsb<<" "<<epsr<<" "<<eps_asym<<" "<<beta<<std::endl;
     }
 
 };
@@ -71,7 +72,7 @@ struct Simulation_Parameters{
     float reduction = 4.5;
     double relapse_logreduction = 3.;
     double required_reduction_time = 0;
-    double relapse_waiting_time = 5;
+    double relapse_waiting_time = 15;
     double treatment_rate = 0.05;
     unsigned patients = 1;
     double collectinterval=30.; //how often data is collected
@@ -159,10 +160,12 @@ class Data {
         double epsb() const {return _diffprobs.epsb;}
         double epsr() const {return _diffprobs.epsr;}
         double eps_asym() const {return _diffprobs.eps_asym;}
+        double beta() const {return _diffprobs.beta;}
 
         /** return self-renewal probability epsilon for type.
          * 0: healthy, 1: cancerous, 2: resistant, 3: bound (treated).
-         * Special case 4: asymmetric division probability for stem cells.*/
+         * Special case 4: asymmetric division probability for stem cells.
+         * Special case 5: stem cell replacement probability.*/
         double eps(unsigned type) const {
             switch(type){
                 case 0:
@@ -175,6 +178,8 @@ class Data {
                     return _diffprobs.epsb;
                 case 4:
                     return _diffprobs.eps_asym;
+                case 5:
+                    return _diffprobs.beta;
                 default :
                     return -1.0;
             }
@@ -185,6 +190,7 @@ class Data {
         void setEpsb (double v) {_diffprobs.epsb = v;} 
         void setEpsi (double v) {_diffprobs.epsr = v;} 
         void set_eps_asym (double v) {_diffprobs.eps_asym = v;} 
+        void set_beta (double v) {_diffprobs.beta = v;} 
         void setEps(unsigned type, double v)  {
             switch(type){
                 case 0:
@@ -201,6 +207,9 @@ class Data {
                     break;
                 case 4:
                     _diffprobs.eps_asym = v;
+                    break;
+                case 5:
+                    _diffprobs.beta = v;
                     break;
             }
         }

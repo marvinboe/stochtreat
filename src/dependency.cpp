@@ -120,9 +120,9 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
     }
     //add reactions for the stem cell compartment:
     for(int first_tp = 0; first_tp < 3; ++first_tp) { // excluding the bound type, i.e.tp = 3
-        //TODO at the moment asymmetric division is implemted in kinda hackish way: into the same container as the moran step
+        //differentiation with renewal (->Moran step)
         StemCellRenewal *scr=new StemCellRenewal(&ran,first_tp,
-                (1-data.eps_asym())*pool.getRate(0,first_tp));
+                data.beta()*pool.getRate(0,first_tp));
         scr->setPropensity(scr->sufficientReactants(pool)?scr->reactantFactor(pool):0.0);
         sum += scr->propensity();
         pos=all.add(scr);
@@ -133,7 +133,8 @@ DependencyGraph::DependencyGraph(Model& pool, Data& data, AllReactions& all, Ran
         //		cout << "# stem cell renewal : " << *scr << "\t propensity " << <<endl;
         scrnode->affects(scrnode);
 
-        StemCellDifferentiation *scd=new StemCellDifferentiation(first_tp,data.eps_asym()*pool.getRate(0,first_tp));
+        //differentiation without renewal
+        StemCellDifferentiation *scd=new StemCellDifferentiation(first_tp,(1-data.beta())*pool.getRate(0,first_tp));
         scd->setPropensity(scd->sufficientReactants(pool)?scd->reactantFactor(pool):0.0);
         sum += scd->propensity();
         pos=all.add(scd);

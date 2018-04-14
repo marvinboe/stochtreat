@@ -21,7 +21,7 @@ Data::Data(){
 	_diffprobs.epsc=0.72;
 	_diffprobs.epsr=_diffprobs.epsc;
 	_diffprobs.epsb=0.89;
-        _relapse_waiting_time=5.;
+        _relapse_waiting_time=15.;
         _tmax=25.;
 	_ncompartments=32;
 	_diagnosis_level=10.39;//DP RAT
@@ -62,11 +62,9 @@ void Data::initialize(const Simulation_Parameters & simparams, double N, double 
 	_outputstep=int(simparams.collectinterval/_dt); //output_steps
 	
 	//are the same accross mammals or changd by command line
-	_diffprobs.epsh=simparams.diff_probs.epsh;//in paper 0.85// 0.8476;
-	_diffprobs.epsc=simparams.diff_probs.epsc;
-	_diffprobs.epsb=simparams.diff_probs.epsb; //imatinib;
-	_diffprobs.eps_asym=simparams.diff_probs.eps_asym; //imatinib;
+        _diffprobs=simparams.diff_probs;
 	_diffprobs.epsr=_diffprobs.epsc;
+        if (_diffprobs.beta<0) _diffprobs.beta=1-_diffprobs.eps_asym;
 
 	_ncompartments=simparams.n_compartments;
         _n_neutral_compartments=simparams.n_neutral;
@@ -126,6 +124,7 @@ std::ostream& Data::display(std::ostream& os){
 	os << "    espb " << _diffprobs.epsb << std::endl;
 	os << "    espr " << _diffprobs.epsr << std::endl;
 	os << "    esp_asym " << _diffprobs.eps_asym << std::endl;
+	os << "    beta " << _diffprobs.beta << std::endl;
 	os << "    p_csc " << _p_csc << std::endl;
 	os << "    p_imm " << _p_imm << std::endl;
 	os << "    treatment_rate " << _treatment_rate << std::endl;
@@ -156,7 +155,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
 
     parameters.SetValue("ntime", "Maximum simulation time (25 years)", ntime);
     parameters.SetValue("timestep", "Timestep for integration of deterministic equations (0.1 days)", dt);
-    parameters.SetValue("relapse_waiting", "Waiting time for relapse after treatment (5 years)", relapse_waiting_time);
+    parameters.SetValue("relapse_waiting", "Waiting time for relapse after treatment (15 years)", relapse_waiting_time);
 
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest=100 (-1)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
@@ -164,6 +163,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("epsb", "change differentiation probability for bound cells (0.89)", diff_probs.epsb);
     parameters.SetValue("epsr", "change differentiation probability for resistant cells (0.71)", diff_probs.epsr);
     parameters.SetValue("eps_asym", "asymmetric division probability stem cells (0.0)", diff_probs.eps_asym);
+    parameters.SetValue("beta", "stem cell replacement probability (1-eps_asym)", diff_probs.beta);
 
     parameters.SetValue("kn", "base proliferation rate of stem cells (1/365 per day)", prolif.kn);
     parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman);
