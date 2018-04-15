@@ -114,9 +114,9 @@ Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simp
     if (_print) std::cout << std::endl;
 }
 
-double calc_median(std::vector<double> x){
+double Stats_Output::calc_median(std::vector<double> x) const{
     double returnvalue;
-    size_t n = 0.;
+    std::vector<double>::size_type n = 0.;
     if(x.size()%2 == 1)
         n=(x.size()-1)/2;
     else 
@@ -132,6 +132,32 @@ double calc_median(std::vector<double> x){
         returnvalue= 0.5*(xn+x[n-1]);
     }
     return returnvalue;
+}
+
+
+double Stats_Output::lin_interpol(double v0, double v1, double t) const
+{
+    return v0+t*(v1-v0);
+}
+
+double Stats_Output::calc_quantile(const std::vector<double>& invec, double quant) const
+{
+    if (invec.empty()) return 0.;
+    if (1 == invec.size()) return invec[0];
+
+    std::vector<double> data = invec;
+    std::sort(data.begin(), data.end()); //slow step -> maybe optimizing later
+
+    double poi = lin_interpol(-0.5, data.size() - 0.5, quant);//point of interest
+
+    size_t left = std::max(int64_t(std::floor(poi)), int64_t(0));
+    size_t right = std::min(int64_t(std::ceil(poi)), int64_t(data.size() - 1));
+
+    double dataleft = data.at(left);
+    double dataright = data.at(right);
+    double quantile = lin_interpol(dataleft, dataright, poi - left);
+
+    return quantile;
 }
 
 void Stats_Output::initialize_per_patient(int patient){
@@ -285,7 +311,8 @@ void Stats_Output::print_at_end() const{
         for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
         std::cout<<std::endl;
         for (int i=0; i<3; ++i){
-            std::cout<<_three_timepoints_measure.return_median()[i]<<" ";
+            double median=calc_median(_three_timepoints_measure.v[i]);
+            std::cout<<median<<" ";
         }
         for (int i=0; i<3; ++i){
             std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
@@ -296,7 +323,7 @@ void Stats_Output::print_at_end() const{
     if (_print.treat_dynamics){
         unsigned int i=0; //row number
         bool stop=false;
-        std::cout <<"#<time><average><median>"<<std::endl;
+        std::cout <<"#<time><average><median><q25><q75>"<<std::endl;
         while (!stop){
             unsigned no_columns=0;
             double sum=0.;
@@ -314,8 +341,15 @@ void Stats_Output::print_at_end() const{
             }
             //median
             double med=calc_median(row);
+            double q25=calc_quantile(row,0.25);
+            double q75=calc_quantile(row,0.75);
 
-            std::cout <<i*_treat_dynamics_interval<<" "<<sum/double(burden_record.size())<<" "<<med<<std::endl;
+            std::cout <<i*_treat_dynamics_interval<<" "
+                <<sum/double(burden_record.size())<<" "
+                <<med<<" "
+                <<q25<<" "
+                <<q75<<" "
+                <<std::endl;
             ++i;
         }
         std::cout <<"###########"<<std::endl;
@@ -385,15 +419,3 @@ std::vector<double> Three_timepoint_measurements::return_std() const{
     return stdev;
 }
 
-
-std::vector<double> Three_timepoint_measurements::return_median() const {
-    std::vector<double> returnvalues(3,std::numeric_limits<double>::quiet_NaN());
-    for (int i = 0 ; i<3 ;++i){
-        std::vector<double>x=v[i];
-
-        if (x.size() == 0) return returnvalues;
-        returnvalues[i]=calc_median(x);
-
-    }
-    return returnvalues;
-}

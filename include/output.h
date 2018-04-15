@@ -59,8 +59,6 @@ struct Three_timepoint_measurements{
     std::vector<rundata> v;
     std::vector<double> return_av() const; 
     std::vector<double> return_std() const; 
-    std::vector<double> return_median() const;
-
 };
 
 class Stats_Output{
@@ -95,6 +93,9 @@ class Stats_Output{
         void save_data_after_relapse(const Kernel & ker, double time);
 
     private:
+        double calc_median(std::vector<double> x) const;
+        double lin_interpol(double v0, double v1, double t) const;
+        double calc_quantile(const std::vector<double>& invec, double quant) const;
 
         clock_t _timer;
         int _output_specifier;
