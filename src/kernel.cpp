@@ -295,7 +295,7 @@ bool Kernel::stopsim(double t,int sim_type){
             }
         }
         else{
-            // _stoptimer=-1.;
+            _stoptimer=-1.;//reset timer if burden is too high!
             return false;
         }
     }
