@@ -42,6 +42,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("relapsedynamics")!=std::string::npos){
         relapse_dynamics=true;
     }
+    if (output_choice.find("relapsedynall")!=std::string::npos){
+        relapse_dynamics_all=true;
+    }
     if (output_choice.find("lastburden")!=std::string::npos){
         last_burden_output=true;
     }
@@ -247,13 +250,13 @@ void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
         _timetorelapse=time-(_timebeforerelapserun);
         if (_nolsc_treattest) 
             _nolsc_recurrence_count++;
-        if (_print.relapse_dynamics){
+        if (_print.relapse_dynamics || _print.relapse_dynamics_all){
             _relapse_burden_record.push_back(ker.doctor().get_relapseburden_at_interval(_treat_dynamics_interval*365));
         }
     }
     else {
         _timetorelapse=-2.;
-        if (_print.relapse_dynamics){
+        if (_print.relapse_dynamics || _print.relapse_dynamics_all){
             _norelapse_burden_record.push_back(ker.doctor().get_relapseburden_at_interval(_treat_dynamics_interval*365));
         }
     }
@@ -336,6 +339,9 @@ void Stats_Output::print_at_end() const{
         print_dynamics(_relapse_burden_record);
         print_dynamics(_norelapse_burden_record);
     }
+    if (_print.relapse_dynamics_all){
+        print_relapse_dynamics_all();
+    }
 
     if (!_print.overview_at_end) return;
     std::cout << "#Real time elapsed in seconds: " << ((double)clock()-_timer)/CLOCKS_PER_SEC << std::endl;
@@ -410,6 +416,49 @@ bool Stats_Output::print_dynamics( const std::vector<std::vector<double>>& burde
             <<q75<<" "
             <<std::endl;
         ++i;
+    }
+    std::cout <<"###########"<<std::endl;
+    return true;
+}
+
+bool Stats_Output::print_relapse_dynamics_all() const {
+    const std::vector<std::vector<double>>& burden2dvector=_relapse_burden_record;
+    unsigned int i=0; //row number
+    bool stop=false;
+    std::cout <<"#<time><patients...><...>"<<std::endl;
+    while (!stop){
+        unsigned no_columns=0;
+        std::vector<double> row;
+        for (unsigned j=0; j<burden2dvector.size(); ++j){
+            if (burden2dvector[j].size()>i){
+                row.push_back(burden2dvector[j][i]);
+                ++no_columns;
+            }
+            else {
+                row.push_back(-1.);
+            }
+        }
+        for (unsigned j=0; j<_norelapse_burden_record.size(); ++j){
+            if (_norelapse_burden_record[j].size()>i){
+                row.push_back(_norelapse_burden_record[j][i]);
+                ++no_columns;
+            }
+            else {
+                row.push_back(-1.);
+            }
+        }
+        if (no_columns==0){
+            stop=true;
+            break;
+        }
+
+        //output
+        std::cout <<i*_treat_dynamics_interval<<"  ";
+        for (auto it=row.cbegin();it !=row.cend(); ++it){
+            std::cout <<*it<<" ";
+        }
+        std::cout <<std::endl;
+        ++i; //increment output time
     }
     std::cout <<"###########"<<std::endl;
     return true;
