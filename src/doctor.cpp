@@ -9,6 +9,7 @@ Doctor::Doctor(){
     _diagnosis_level=1.e12;
     _starttime=0.;
     _starttime_treatment=-1.;
+    _stoptime_treatment=-1.;
     _first_time_consulted=true;
     _alpha=0.;
 }
@@ -21,6 +22,7 @@ Doctor::Doctor(double diagnosis_level, double full_reduction, double relapse_red
     _slope_timeintervall=62.;
     _starttime=0.;
     _starttime_treatment=-1.;
+    _stoptime_treatment=-1.;
     _first_time_consulted=true;
     _reduction_reached=false;
     _alpha=0.;
@@ -196,6 +198,17 @@ std::vector<double> Doctor::get_burden_at_interval(double intdays) const{
     return returnvec;
 }
 
+std::vector<double> Doctor::get_relapseburden_at_interval(double intdays) const{
+    std::vector<double> returnvec;
+    double t=_stoptime_treatment+0.; //TODO something is one day off here???
+    while (t<=_timepoints.back()){
+        returnvec.push_back(get_tumor_burden(t));
+        t+=intdays;
+    }
+    // std::cout <<t<<" "<<_timepoints.back()<<std::endl;
+    return returnvec;
+}
+
 double Doctor::get_resistant_share(double t) const{
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():0.);
 
@@ -235,6 +248,7 @@ bool Doctor::in_reduction(double l, double t) {
     bool reduction=(get_logreduction(t)>=l);
     // if (!_reduction_reached)
         _reduction_reached=reduction;
+        if (t<0.) _stoptime_treatment=_timepoints.back();
     // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<" "<<_reduction_reached<<std::endl;
     return (reduction);
 }

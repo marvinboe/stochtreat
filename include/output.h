@@ -42,6 +42,7 @@ struct Print_specifiers{
     bool three_timepoint_median=false;
     bool three_timepoint_full=false;
     bool treat_dynamics=false;
+    bool relapse_dynamics=false;
     bool last_burden_output=false;
     bool print_simparams=false;
 
@@ -96,6 +97,7 @@ class Stats_Output{
         double calc_median(std::vector<double> x) const;
         double lin_interpol(double v0, double v1, double t) const;
         double calc_quantile(const std::vector<double>& invec, double quant) const;
+        bool print_dynamics( const std::vector<std::vector<double>>& burden2dvector) const;
 
         clock_t _timer;
         int _output_specifier;
@@ -120,6 +122,8 @@ class Stats_Output{
         std::string _yearlyburden;
         std::vector<double> _avgsize;
         std::vector<std::vector<double>> burden_record;
+        std::vector<std::vector<double>> _relapse_burden_record;
+        std::vector<std::vector<double>> _norelapse_burden_record;
 
         double _treat_dynamics_interval;
 

@@ -59,6 +59,10 @@ class Doctor{
          * interval times.*/
         std::vector<double> get_burden_at_interval(double intdays) const;
 
+        /** Returns the full tumor burden at specified
+         * interval times after stopping of treatment.*/
+        std::vector<double> get_relapseburden_at_interval(double intdays) const;
+
         /** Takes a bloodsample every _sampling_timestep timesteps .*/
         void consult(double t, const Model & patient);
 
@@ -106,6 +110,7 @@ class Doctor{
         double _sampling_timestep;
         double _starttime;
         double _starttime_treatment;
+        double _stoptime_treatment;
         double _slope_timeintervall;
 
         double _diagnosis_level;

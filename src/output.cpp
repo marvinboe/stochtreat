@@ -39,6 +39,9 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("treatdynamics")!=std::string::npos){
         treat_dynamics=true;
     }
+    if (output_choice.find("relapsedynamics")!=std::string::npos){
+        relapse_dynamics=true;
+    }
     if (output_choice.find("lastburden")!=std::string::npos){
         last_burden_output=true;
     }
@@ -235,7 +238,6 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
     if (_print.treat_dynamics){
         burden_record.push_back(ker.doctor().get_burden_at_interval(_treat_dynamics_interval*365));
     }
-
 }
 
 void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
@@ -245,9 +247,16 @@ void Stats_Output::save_data_after_relapse(const Kernel &ker, double time){
         _timetorelapse=time-(_timebeforerelapserun);
         if (_nolsc_treattest) 
             _nolsc_recurrence_count++;
+        if (_print.relapse_dynamics){
+            _relapse_burden_record.push_back(ker.doctor().get_relapseburden_at_interval(_treat_dynamics_interval*365));
+        }
     }
-    else
+    else {
         _timetorelapse=-2.;
+        if (_print.relapse_dynamics){
+            _norelapse_burden_record.push_back(ker.doctor().get_relapseburden_at_interval(_treat_dynamics_interval*365));
+        }
+    }
 }
 
 void Stats_Output::print_patient(const Kernel& ker) const{
@@ -321,38 +330,11 @@ void Stats_Output::print_at_end() const{
     }
 
     if (_print.treat_dynamics){
-        unsigned int i=0; //row number
-        bool stop=false;
-        std::cout <<"#<time><average><median><q25><q75>"<<std::endl;
-        while (!stop){
-            unsigned no_columns=0;
-            double sum=0.;
-            std::vector<double> row;
-            for (unsigned j=0; j<burden_record.size(); ++j){
-                if (burden_record[j].size()>i){
-                    row.push_back(burden_record[j][i]);
-                    sum+=burden_record[j][i];
-                    ++no_columns;
-                }
-            }
-            if (no_columns==0){
-                stop=true;
-                break;
-            }
-            //median
-            double med=calc_median(row);
-            double q25=calc_quantile(row,0.25);
-            double q75=calc_quantile(row,0.75);
-
-            std::cout <<i*_treat_dynamics_interval<<" "
-                <<sum/double(burden_record.size())<<" "
-                <<med<<" "
-                <<q25<<" "
-                <<q75<<" "
-                <<std::endl;
-            ++i;
-        }
-        std::cout <<"###########"<<std::endl;
+        print_dynamics(burden_record);
+    }
+    if (_print.relapse_dynamics){
+        print_dynamics(_relapse_burden_record);
+        print_dynamics(_norelapse_burden_record);
     }
 
     if (!_print.overview_at_end) return;
@@ -397,7 +379,41 @@ void Stats_Output::print_at_end() const{
     std::cout << std::endl;
 }
 
+bool Stats_Output::print_dynamics( const std::vector<std::vector<double>>& burden2dvector) const {
+    unsigned int i=0; //row number
+    bool stop=false;
+    std::cout <<"#<time><average><median><q25><q75>"<<std::endl;
+    while (!stop){
+        unsigned no_columns=0;
+        double sum=0.;
+        std::vector<double> row;
+        for (unsigned j=0; j<burden2dvector.size(); ++j){
+            if (burden2dvector[j].size()>i){
+                row.push_back(burden2dvector[j][i]);
+                sum+=burden2dvector[j][i];
+                ++no_columns;
+            }
+        }
+        if (no_columns==0){
+            stop=true;
+            break;
+        }
+        //median
+        double med=calc_median(row);
+        double q25=calc_quantile(row,0.25);
+        double q75=calc_quantile(row,0.75);
 
+        std::cout <<i*_treat_dynamics_interval<<" "
+            <<sum/double(burden2dvector.size())<<" "
+            <<med<<" "
+            <<q25<<" "
+            <<q75<<" "
+            <<std::endl;
+        ++i;
+    }
+    std::cout <<"###########"<<std::endl;
+    return true;
+}
 
 std::vector<double> Three_timepoint_measurements::return_av() const{ 
     std::vector<double> av {0.,0.,0.};

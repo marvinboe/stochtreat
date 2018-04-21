@@ -77,6 +77,7 @@ void Data::initialize(const Simulation_Parameters & simparams, double N, double 
 
         set_relapse_reduction(simparams.relapse_logreduction); //treatment stop 
         set_maximum_treatment_duration(simparams.treatmenttime);
+        _relapse_waiting_time=simparams.relapse_waiting_time;
         if (simparams.ntime > 0.){ //non-default
             setTmax(simparams.ntime);
         }
@@ -172,7 +173,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("kb", "base proliferation rate bound cells (1/365 per day)", prolif.kb);
     parameters.SetValue("gammab", "proliferation rate expansion bound cells (1.263)", prolif.gammab);
 
-    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,lastburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics,print_simparams'. Can be combined: 'output=x1;x2;etc'.", output);
+    parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,lastburden,relapsetime,3timepointsmedian,3timepointsfull,treatdynamics,relapsedynamics,print_simparams'. Can be combined: 'output=x1;x2;etc'.", output);
     parameters.SetValue("treattest", "test the treatment", run_mode.treattest);
 
 }
