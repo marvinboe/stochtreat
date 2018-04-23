@@ -71,7 +71,10 @@ Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simp
     _c_inneutral_after_treatment=-1.;
     _avgsize.resize(_simparams.n_stochastic_compartments+1);
 
-    _treat_dynamics_interval=0.05;
+    if (_print.relapse_dynamics_all)
+        _treat_dynamics_interval=0.01;
+    else
+        _treat_dynamics_interval=0.05;
 
     _redresult.clear();
 

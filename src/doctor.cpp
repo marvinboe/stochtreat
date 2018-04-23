@@ -200,7 +200,7 @@ std::vector<double> Doctor::get_burden_at_interval(double intdays) const{
 
 std::vector<double> Doctor::get_relapseburden_at_interval(double intdays) const{
     std::vector<double> returnvec;
-    double t=_stoptime_treatment+0.; //TODO something is one day off here???
+    double t=_stoptime_treatment; 
     while (t<=_timepoints.back()){
         returnvec.push_back(get_tumor_burden(t));
         t+=intdays;
@@ -246,9 +246,8 @@ bool Doctor::in_reduction(double l, double t) {
 
     if (l<0.) return false; //for negative l: reduction never reached
     bool reduction=(get_logreduction(t)>=l);
-    // if (!_reduction_reached)
-        _reduction_reached=reduction;
-        if (t<0.) _stoptime_treatment=_timepoints.back();
+    _reduction_reached=reduction;
+    if (t<0.) _stoptime_treatment=_timepoints.back();//find timepoint of stopping treatment
     // std::cout <<"reduction_reached debug: "<<get_logreduction(t)<<" "<<l<<" "<<_reduction_reached<<std::endl;
     return (reduction);
 }

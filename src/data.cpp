@@ -21,7 +21,7 @@ Data::Data(){
 	_diffprobs.epsc=0.72;
 	_diffprobs.epsr=_diffprobs.epsc;
 	_diffprobs.epsb=0.89;
-        _relapse_waiting_time=15.;
+        _relapse_waiting_time=10.;
         _tmax=25.;
 	_ncompartments=32;
 	_diagnosis_level=10.39;//DP RAT
@@ -156,7 +156,7 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
 
     parameters.SetValue("ntime", "Maximum simulation time (25 years)", ntime);
     parameters.SetValue("timestep", "Timestep for integration of deterministic equations (0.1 days)", dt);
-    parameters.SetValue("relapse_waiting", "Waiting time for relapse after treatment (15 years)", relapse_waiting_time);
+    parameters.SetValue("relapse_waiting", "Waiting time for relapse after treatment (10 years)", relapse_waiting_time);
 
     parameters.SetValue("resistance", "introduce resistant cell at diagnosis in specified compartment or in lowest=100 (-1)", run_mode.resistance);
     parameters.SetValue("epsn", "change differentiation probability for healthy cells (0.85)", diff_probs.epsh);
