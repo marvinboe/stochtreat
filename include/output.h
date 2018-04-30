@@ -102,7 +102,6 @@ class Stats_Output{
         bool print_relapse_dynamics_all() const;
 
         clock_t _timer;
-        int _output_specifier;
         int _patients;
 
         double _nolsc;

@@ -515,6 +515,16 @@ void Model::reset_treatment(){
     }
 }
 
+void Model::set_treatment(){
+
+    for(unsigned k=1 ; k < _numcomp; ++k){
+        // std::cout <<"before: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+        incr(k,B,getC(k));
+        setC(k,0);
+        // std::cout <<"after: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+    }
+}
+
 
 bool Model::updateDet(unsigned k, Data& data){	//FIXME this has to be checked!!!
     assert(k>=_numstoch);

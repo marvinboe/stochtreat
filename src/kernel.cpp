@@ -177,8 +177,14 @@ double Kernel::execute(RanGen& ran, double t, int sim_type){
 
     //######turn treatment on or off
     if (sim_type==TREATMENTRUN) {
-        _pool.setTreatRate(_data.treatment_rate());
         _doctor.calc_initial_reference(_time,_pool);
+        if (_data.treatment_rate() < 0.){
+            _pool.set_treatment();
+            _pool.setTreatRate(10000000000.);
+        }
+        else {
+            _pool.setTreatRate(_data.treatment_rate());
+        }
     }
     else
         _pool.setTreatRate(0.);
