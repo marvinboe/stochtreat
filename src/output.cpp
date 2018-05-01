@@ -30,11 +30,17 @@ Print_specifiers::Print_specifiers(std::string output_choice){
     if (output_choice.find("nooverview")!=std::string::npos){
         overview_at_end=false;
     }
-    if (output_choice.find("3timepointsmedian")!=std::string::npos){
-        three_timepoint_median=true;
+    if (output_choice.find("3timepointsmedian")!=std::string::npos){//TODO legacy option
+        timepointburden_median=true;
     }
-    if (output_choice.find("3timepointsfull")!=std::string::npos){
-        three_timepoint_full=true;
+    if (output_choice.find("3timepointsfull")!=std::string::npos){//TODO legacy option
+        timepointburden_full=true;
+    }
+    if (output_choice.find("timepointburdenmedian")!=std::string::npos){
+        timepointburden_median=true;
+    }
+    if (output_choice.find("timepointburdenfull")!=std::string::npos){
+        timepointburden_full=true;
     }
     if (output_choice.find("treatdynamics")!=std::string::npos){
         treat_dynamics=true;
@@ -54,7 +60,7 @@ Print_specifiers::Print_specifiers(std::string output_choice){
 }
 Print_specifiers::operator bool() const {
     return (per_patient||nolsctime||initialresponse||timetodiagnosis||
-            timetoreduction||yearlyburden||three_timepoint_full||
+            timetoreduction||yearlyburden||timepointburden_full||
             relapsetime||last_burden_output);
 }
 
@@ -104,9 +110,9 @@ Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simp
     if (_simparams.run_mode.treattest && _print.relapsetime)
         std::cout <<"<timetorelapse> ";
 
-    if (_print.three_timepoint_full){
-        for (int i=0; i<3; ++i){
-            std::cout<<"<burden"<<_three_timepoints_measure.t[i]<<"> ";
+    if (_print.timepointburden_full){
+        for (int i=0; i<_timepoints_measure.len; ++i){
+            std::cout<<"<burden"<<_timepoints_measure.t[i]<<"> ";
         }
         std::cout <<" ";
     }
@@ -223,8 +229,8 @@ void Stats_Output::save_data_after_treatment(const Kernel &ker, double time){
         _total_timetoreduction +=_timetoreduction;
         _redresult.push_back(_timetoreduction);
     }
-    for (unsigned i =0; i<3; ++i){
-        _three_timepoints_measure.v[i].push_back(ker.doctor().get_tumor_burden((_diagnosis_time+_three_timepoints_measure.t[i])*365.));
+    for (int i =0; i<_timepoints_measure.len; ++i){
+        _timepoints_measure.v[i].push_back(ker.doctor().get_tumor_burden((_diagnosis_time+_timepoints_measure.t[i])*365.));
     }
     _timebeforerelapserun=time;
     _burden_after_treatment=ker.doctor().get_tumor_burden();
@@ -285,14 +291,14 @@ void Stats_Output::print_patient(const Kernel& ker) const{
     if (_simparams.run_mode.treattest && _print.relapsetime)
         std::cout <<_timetorelapse<<"  ";
 
-    if (_print.three_timepoint_full){
-        if (_diagnosis_reached){
-            for (int i=0; i<3; ++i){
-                std::cout<<_three_timepoints_measure.v[i].back()<<" ";
+    if (_print.timepointburden_full){
+        for (int i=0; i<_timepoints_measure.len; ++i){
+            if (_diagnosis_reached){
+                std::cout<<_timepoints_measure.v[i].back()<<" ";
             }
-        }
-        else {
-            std::cout <<"-1 -1 -1 ";
+            else{
+                std::cout<<"-1"<<" ";
+            }
         }
         std::cout <<" ";
 
@@ -321,16 +327,16 @@ void Stats_Output::print_patient(const Kernel& ker) const{
 
 void Stats_Output::print_at_end() const{
 
-    if (_print.three_timepoint_median){
-        std::cout <<"#median burden at three timepoint: ";
-        for (int i=0; i<3; ++i) std::cout <<"<"<<_three_timepoints_measure.t[i]<<">";
+    if (_print.timepointburden_median){
+        std::cout <<"#median burden at time points: ";
+        for (int i=0; i<_timepoints_measure.len; ++i) std::cout <<"<"<<_timepoints_measure.t[i]<<">";
         std::cout<<std::endl;
-        for (int i=0; i<3; ++i){
-            double median=calc_median(_three_timepoints_measure.v[i]);
+        for (int i=0; i<_timepoints_measure.len; ++i){
+            double median=calc_median(_timepoints_measure.v[i]);
             std::cout<<median<<" ";
         }
-        for (int i=0; i<3; ++i){
-            std::cout<<_three_timepoints_measure.return_std()[i]<<" ";
+        for (int i=0; i<_timepoints_measure.len; ++i){
+            std::cout<<_timepoints_measure.return_std()[i]<<" ";
         }
         std::cout<<std::endl;
     }
@@ -467,19 +473,19 @@ bool Stats_Output::print_relapse_dynamics_all() const {
     return true;
 }
 
-std::vector<double> Three_timepoint_measurements::return_av() const{ 
+std::vector<double> Timepoint_measurements::return_av() const{ 
     std::vector<double> av {0.,0.,0.};
     double number=v.back().size();
-    for (int i=0; i<3; ++i){
+    for (int i=0; i<len; ++i){
         av[i]=std::accumulate(v[i].begin(),v[i].end(),0.)/number;
     }
     return av;
 }
 
-std::vector<double> Three_timepoint_measurements::return_std() const{ 
+std::vector<double> Timepoint_measurements::return_std() const{ 
     std::vector<double> stdev {0.,0.,0.};
     std::vector<double> allmean=return_av();
-    for (int i=0; i<3; ++i){
+    for (int i=0; i<len; ++i){
         double mean=allmean[i];
         double sq_sum = std::inner_product(v[i].begin(), v[i].end(), v[i].begin(), 0.0);
         stdev[i] = std::sqrt(sq_sum / v[i].size() - mean * mean);

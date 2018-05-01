@@ -39,8 +39,8 @@ struct Print_specifiers{
     bool yearlyburden=false;
     bool overview_at_end=true;
     bool relapsetime=false;
-    bool three_timepoint_median=false;
-    bool three_timepoint_full=false;
+    bool timepointburden_median=false;
+    bool timepointburden_full=false;
     bool treat_dynamics=false;
     bool relapse_dynamics=false;
     bool relapse_dynamics_all=false;
@@ -54,10 +54,11 @@ struct Print_specifiers{
 
 };
 
-struct Three_timepoint_measurements{
-    Three_timepoint_measurements():v(3,std::vector<double>(0)){}
+struct Timepoint_measurements{
+    const int len=6;
+    Timepoint_measurements():v(len,std::vector<double>(0)){}
     typedef std::vector<double> rundata;
-    std::vector<double> t {0.25,0.5,1.0};
+    std::vector<double> t {0.25,0.5,0.75,1.0,1.25,1.5};
     std::vector<rundata> v;
     std::vector<double> return_av() const; 
     std::vector<double> return_std() const; 
@@ -129,7 +130,7 @@ class Stats_Output{
         double _treat_dynamics_interval;
 
         std::vector<double> _redresult;
-        Three_timepoint_measurements _three_timepoints_measure;
+        Timepoint_measurements _timepoints_measure;
         int _no_recurrence_patients;
         unsigned _recurrence_count;
         unsigned _nolsc_recurrence_count;
