@@ -63,12 +63,13 @@ struct Simulation_Parameters{
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     int runid = 1;
     int n_stochastic_compartments = 7; // 1 means only the stem cell compartment
+    int n_hsc = 400; // total number of HSC
     int n_neutral = 1; //bcr/abl neutral up to this compartment
     int n_compartments = 32;
     unsigned inital_lsc = 1;
     double diagnosis_level = 12;
     float treatmenttime  = 20;
-    float mass = 70; //human mass
+    float mass = -1.; //human mass
     float reduction = 4.5;
     double relapse_logreduction = 3.;
     double required_reduction_time = 0;
@@ -309,7 +310,7 @@ class Data {
          * Bbase    - log base for the average cell cycle time of hematopeotic stem cells
          * Sbase    - log base for the deterministic timestep of simulation
          * Lbase    - log base for maximum simulation time */
-        void initialize(const Simulation_Parameters & ,double, double,double);
+        void initialize(const Simulation_Parameters &);
 
         friend std::ostream & operator<<(std::ostream &o, Data& c){return c.display(o);}
 
@@ -338,7 +339,7 @@ class Data {
         double _required_redtime; //time stop value to be maintained
         double _relapse_reduction; //stop value relapse
         double _relapse_waiting_time; //time to wait for relapse after stopping of treatment
-        double _mass;  //mammal mass
+        double _mass;  //mammal mass, proportional to number of HSC
         double _threshold; //percentage increase in number of cells for diagnosis
 
         int _outputstep;//steps after which output is saved. unused

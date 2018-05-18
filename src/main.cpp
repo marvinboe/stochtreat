@@ -14,15 +14,10 @@ int main (int argc, char *argv[]) {
 
 
 
-    double Nbase(16.52861491); // Number of HSCs=Nbase*mass^(0.75)
-    // double Bbase(2.892507609); // division rate HSC: 1/tau; tau = 365.0/(Bbase*pow(mass,-0.25))
-    double Sbase(0.034572078); // deterministic timestep dt=Sbase*pow(mass,0.25)
-    double Lbase(8.643019616); // maximum simulation time Tmax=(Lbase*pow(mass,0.25)); elephant 8.54663017, human 8.643019616
-    double factor(1.0); // maximum simulation time factor ... WHY?
 
     RanGen ran;
     Data data;
-    data.initialize(simparams, Nbase, Sbase, (Lbase * factor));
+    data.initialize(simparams);
     // std::cout << data << std::endl;
 
     Stats_Output out(simparams.output,simparams);

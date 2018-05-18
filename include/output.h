@@ -42,6 +42,7 @@ struct Print_specifiers{
     bool timepointburden_median=false;
     bool timepointburden_full=false;
     bool treat_dynamics=false;
+    bool treat_dynamics_all=false;
     bool relapse_dynamics=false;
     bool relapse_dynamics_all=false;
     bool last_burden_output=false;
@@ -100,6 +101,7 @@ class Stats_Output{
         double lin_interpol(double v0, double v1, double t) const;
         double calc_quantile(const std::vector<double>& invec, double quant) const;
         bool print_dynamics( const std::vector<std::vector<double>>& burden2dvector) const;
+        bool print_dynamics_all( const std::vector<std::vector<double>>& burden2dvector) const;
         bool print_relapse_dynamics_all() const;
 
         clock_t _timer;
