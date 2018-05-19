@@ -28,7 +28,7 @@ class Kernel {
          * 3. Calls constructor of IndexedQueue with _pool and _allr as argument to initialize reaction queue.  */
         Kernel(RanGen& ran, Data& data, double time=0.0):_time(time),_data(data), _dt(data.dt()), _pool(data), 
         _depend(_pool, data, _allr, ran), _queue(ran, _pool, _allr, time, data.dt()),
-        _endtime(data.getTmax_in_years()),_doctor(data.diagnosis_level(),data.reduction(),data.relapse_reduction()){};
+        _endtime(data.getTmax_in_years()),_doctor(data.diagnosis_amplification()*_pool.steady_state_lastcomp(),data.reduction(),data.relapse_reduction()){};
 
         /** Kernel contructor that reads model data from std::istream& is instead of initialising new. Steps:
          * 1. Calls constructor of Model to initialize system in _pool.
@@ -67,8 +67,8 @@ class Kernel {
         /** Makes all bound cells to cancer cells again*/
         void reset_treatment(RanGen& ran,double t);
 
-        /** adds the sizes of stochastic compartments to the given data vector. */
-        void addStochCompSizes(std::vector<double>& data) const;
+        /** adds the sizes of compartments to the given data vector. */
+        void addCompSizes(std::vector<double>& data) const;
 
         /** write all model data to the std::ostream */
         std::ostream& writeModel(std::ostream&);

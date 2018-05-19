@@ -35,17 +35,34 @@ struct Diff_probabilities{
 };
 
 struct Proliferation_parameters{
-    double kn=1/365.;
-    double kc=kn;
-    double kb=kn;
-    double kr=kn;
 
-    double gamman=1.263;//in paper 1.26// 1.263;
-    double gammac=1.263;
-    double gammab=1.263;
-    double gammar=gammac;
+    double r0[4]={1/365.,-1.,-1.,-1.};
+    double& r0n(){ return r0[0];}
+    double& r0c(){ return r0[1];}
+    double& r0r(){ return r0[2];}
+    double& r0b(){ return r0[3];}
+
+    double gamma[4]={1.263,-1.,-1.,-1.};//in paper 1.26// 1.263;
+    double& gamman(){return gamma[0];}
+    double& gammac(){return gamma[1];}
+    double& gammar(){return gamma[2];}
+    double& gammab(){return gamma[3];}
     void write(std::ostream & os){ 
-        os <<"#prolifs (k,gamma): "<<kn<<" "<<kc<<" "<<kr<<" "<<kb<<" "<<gamman<<" "<<gammac<<" "<<gammar<<" "<<gammab<<" "<<std::endl;
+        os <<"#prolifs (k,gamma): ";
+            for (int i=0; i<4; ++i)
+                os <<r0[i]<<" ";
+            for (int i=0; i<4; ++i)
+                os <<gamma[i]<<" ";
+            os <<std::endl;
+    }
+
+    /* Sets all previously unset values to normal (default).
+     * Has to be called before usage of parameters. */
+    void set_unset_params(){
+        for (int i=1; i<4; ++i){
+            if (r0[i]<0.) r0[i]=r0[0];
+            if (gamma[i]<0.) gamma[i]=gamma[0];
+        }
     }
 };
 
@@ -56,6 +73,7 @@ struct Run_modes{
     operator bool() const { return (resistance>=0||treattest);}
 };
 
+/** Contains all user input simulation parameters and their defaults. */
 struct Simulation_Parameters{
     Diff_probabilities diff_probs;
     Proliferation_parameters prolif;
@@ -63,16 +81,16 @@ struct Simulation_Parameters{
     std::string output; //"patient nolsctime diagtime initresponse fullburden"
     int runid = 1;
     int n_stochastic_compartments = 7; // 1 means only the stem cell compartment
-    int n_hsc = 400; // total number of HSC
+    double n_hsc = 400.; // total number of HSC
     int n_neutral = 1; //bcr/abl neutral up to this compartment
     int n_compartments = 32;
     unsigned inital_lsc = 1;
-    double diagnosis_level = 12;
+    double diagnosis_amplification = 2.857;
     float treatmenttime  = 20;
     float mass = -1.; //human mass
     float reduction = 4.5;
     double relapse_logreduction = 3.;
-    double required_reduction_time = 0;
+    double required_reduction_time = 2.;
     double relapse_waiting_time = 15;
     double treatment_rate = 0.05;
     unsigned patients = 1;
@@ -91,8 +109,8 @@ struct Simulation_Parameters{
 class Data {
     public:
         Data(); 
-        Data(const Data&); 
-        ~Data(){};
+        // Data(const Data&); 
+        // ~Data(){};
 
         double dt() const {return _dt;}
         void setdt(double v) {_dt=v;}
@@ -119,35 +137,19 @@ class Data {
         /* Returns the base proliferation rate for each cell type,
          * which is the stem cell proliferation.*/
         double base_proliferation(unsigned type){
-            switch(type){
-                case 0:
-                    return _prolif.kn;
-                case 1:
-                    return _prolif.kc;
-                case 2:
-                    return _prolif.kr;
-                case 3:
-                    return _prolif.kb;
-                default :
-                    return -1.0;
-            }
+            if (type < 4)
+                return _prolif.r0[type];
+            else 
+                return -1.;
         }
 
         /* Returns the base proliferation rate for each cell type,
          * which is the stem cell proliferation.*/
         double prolif_exp(unsigned type){
-            switch(type){
-                case 0:
-                    return _prolif.gamman;
-                case 1:
-                    return _prolif.gammac;
-                case 2:
-                    return _prolif.gammar;
-                case 3:
-                    return _prolif.gammab;
-                default :
-                    return -1.0;
-            }
+            if (type < 4)
+                return _prolif.gamma[type];
+            else 
+                return -1.;
         }
 
         Proliferation_parameters return_prolif_params() const{ return _prolif;}
@@ -162,6 +164,7 @@ class Data {
         double epsr() const {return _diffprobs.epsr;}
         double eps_asym() const {return _diffprobs.eps_asym;}
         double beta() const {return _diffprobs.beta;}
+        double diagnosis_amplification() const { return _diagnosis_amplification;}
 
         /** return self-renewal probability epsilon for type.
          * 0: healthy, 1: cancerous, 2: resistant, 3: bound (treated).
@@ -239,14 +242,6 @@ class Data {
         /** Sets the total number of compartments in the model. */
         void setNCompartments(int v) {_ncompartments = v;}
 
-        /** Returns the threshold power of 10 when diagnosis is reached:
-         * When 10^(stop) cells are in the compartment -> diagnosis. */
-        double diagnosis_level() const {return _diagnosis_level;}
-
-        /** Sets the threshold power of 10 when diagnosis is reached:
-         * When 10^(stop) cells are in the compartment -> diagnosis. */
-        void set_diagnosis_limit(double v) {_diagnosis_level = v;}
-
         /** Returns the recuction level that is required to stop treatment.*/
         double reduction() const {return _reduction;}
         void set_treatment_stop_reduction(double v) {_reduction = v;}
@@ -267,11 +262,6 @@ class Data {
 
         /** Sets the number of stochastic compartments.*/
         void set_numstochcomps(int l) {_numstochcomps = l;}
-
-        /** threshold of cellnumber for diagnosis. */
-        double threshold() const {return _threshold;}
-        void setThreshold(double v) {_threshold = v;}
-
 
         int step() const {return _outputstep;}
         void setStep(int v) { _outputstep = v;}
@@ -334,7 +324,7 @@ class Data {
         int _numstochcomps; //index of first deterministic compartment
         double _additional; //additional number of years to continue simulation after X
         double _treatment_duration; //number of years of treatment
-        double _diagnosis_level; //stop value = diagnosis level
+        double _diagnosis_amplification; //stop value = diagnosis cellcount
         double _reduction; //stop value (required log reduction in bcr-abl transcript level)
         double _required_redtime; //time stop value to be maintained
         double _relapse_reduction; //stop value relapse

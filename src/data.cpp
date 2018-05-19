@@ -24,7 +24,7 @@ Data::Data(){
     _relapse_waiting_time=10.;
     _tmax=25.;
     _ncompartments=32;
-    _diagnosis_level=10.39;//DP RAT
+    _diagnosis_amplification=2.875; //10.39;//DP RAT
     _reduction = 3;
     _numstochcomps=7;
     _additional=0;
@@ -45,7 +45,6 @@ void Data::initialize(const Simulation_Parameters & simparams){
     // double Bbase(2.892507609); // division rate HSC: 1/tau; tau = 365.0/(Bbase*pow(mass,-0.25))
     double Sbase(0.034572078); // deterministic timestep dt=Sbase*pow(mass,0.25)
     double Lbase(8.643019616); // maximum simulation time Tmax=(Lbase*pow(mass,0.25)); elephant 8.54663017, human 8.643019616
-    double factor(1.0); // maximum simulation time factor ... WHY?
 
     _simparams=simparams;
     _mass = _simparams.mass;
@@ -62,6 +61,8 @@ void Data::initialize(const Simulation_Parameters & simparams){
     _frac_csc=_numlsc/_N0;
 
     _prolif=_simparams.prolif;
+    _prolif.set_unset_params();
+
 
     _dt=_simparams.dt;
     if (_dt<0.){
@@ -80,7 +81,7 @@ void Data::initialize(const Simulation_Parameters & simparams){
 
     _ncompartments=_simparams.n_compartments;
     _n_neutral_compartments=_simparams.n_neutral;
-    _diagnosis_level=_simparams.diagnosis_level;//log value at diagnosis
+    _diagnosis_amplification=_simparams.diagnosis_amplification;
     _reduction = _simparams.reduction; //required log reduction
     _required_redtime = _simparams.required_reduction_time*365.; //required log reduction
     _treatment_rate=_simparams.treatment_rate;
@@ -94,32 +95,6 @@ void Data::initialize(const Simulation_Parameters & simparams){
         setTmax(_simparams.ntime);
     }
 }
-
-Data::Data(const Data& other){
-    _dt=other.dt();
-    _diffprobs=other._diffprobs;
-    _prolif=other._prolif;
-    _p_csc=other.p_csc();
-    _p_imm=other.p_imm();
-    _frac_csc=other.frac_csc();
-    _numlsc = other.numlsc();
-    _relapse_waiting_time=other._relapse_waiting_time;
-    _treatment_rate=other.treatment_rate();
-    _tmax=other.getTmax_in_years();
-    _ncompartments=other.ncompartments();
-    _n_neutral_compartments=other.n_neutral_compartments();
-    _diagnosis_level=other.diagnosis_level();
-    _reduction=other.reduction();
-    _required_redtime=other.required_reduction_time();
-    _N0=other.N0();
-    _numstochcomps=other.nstochcomp();
-    _threshold = other.threshold();
-    _additional=other.additional();
-    _outputstep=other.step();
-    _treatment_duration=other.treatment_dur();
-    _mass = other.mass();
-}
-
 
 std::ostream& Data::display(std::ostream& os){
     os << "#Inputdata_for_hematopoietic_model" << std::endl;
@@ -144,7 +119,7 @@ std::ostream& Data::display(std::ostream& os){
     os << "    ncompartment " << _ncompartments << std::endl;
     os << "    additional " << _additional << std::endl;
     os << "    treatment duration " << _treatment_duration << std::endl;
-    os << "    stop " << _diagnosis_level << std::endl;
+    os << "    stop " << _diagnosis_amplification << std::endl;
     os << "    reduction " << _reduction << std::endl;
 
     return os;
@@ -156,14 +131,15 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("size",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("stochcomps",	"Number of stochastic compartments (7)",	n_stochastic_compartments);
     parameters.SetValue("n_hsc", "Total size of hematopoietic stem cell compartment (400)", n_hsc);
-    parameters.SetValue("n_compartments",	"Total number of compartments (32)",	n_compartments);
+    parameters.SetValue("compartments",	"Total number of compartments (32)",	n_compartments);
     parameters.SetValue("n_neutral","Number of compartments where bcr/abl is neutral (1)",	n_neutral);
     parameters.SetValue("lsc", "Initial number of leukemic stem cells (1)", inital_lsc);
     parameters.SetValue("treattime", "Maximum years of treatment (10 years)", treatmenttime);
     parameters.SetValue("treatrate", "rate at which cells are bound to drug (0.05/day)", treatment_rate);
     parameters.SetValue("mass",	"obsolete: animal mass (-1)",	mass);
     parameters.SetValue("reduction", "Required reduction level (4.5 log)", reduction);
-    parameters.SetValue("reductiontime", "Required time in reduction (0 years)", required_reduction_time);
+    parameters.SetValue("diagnosis", "Amplification of cell count in last compartment for diagnosis (2.857x)", diagnosis_amplification);
+    parameters.SetValue("reductiontime", "Required time in reduction (2 years)", required_reduction_time);
     parameters.SetValue("relapse_reduction", "Required reduction level (3 log)", relapse_logreduction);
     parameters.SetValue("patients", "Number of patients (1)", patients);
 
@@ -179,12 +155,12 @@ void Simulation_Parameters::set_parameters(ParameterHandler & parameters){
     parameters.SetValue("eps_asym", "asymmetric division probability stem cells (0.0)", diff_probs.eps_asym);
     parameters.SetValue("beta", "stem cell replacement probability (1-eps_asym)", diff_probs.beta);
 
-    parameters.SetValue("kn", "base proliferation rate of stem cells (1/365 per day)", prolif.kn);
-    parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman);
-    parameters.SetValue("kc", "base proliferation rate of cancer cells(1/365 per day)", prolif.kc);
-    parameters.SetValue("gammac", "proliferation rate expansion cancer cells(1.263)", prolif.gammac);
-    parameters.SetValue("kb", "base proliferation rate bound cells (1/365 per day)", prolif.kb);
-    parameters.SetValue("gammab", "proliferation rate expansion bound cells (1.263)", prolif.gammab);
+    parameters.SetValue("r0n", "base proliferation rate of stem cells (1/365 per day)", prolif.r0n());
+    parameters.SetValue("gamman", "proliferation rate expansion between comps (1.263)", prolif.gamman());
+    parameters.SetValue("r0c", "base proliferation rate of cancer cells (r0n)", prolif.r0c());
+    parameters.SetValue("gammac", "proliferation rate expansion cancer cells(gamman)", prolif.gammac());
+    parameters.SetValue("r0b", "base proliferation rate bound cells (r0n)", prolif.r0b());
+    parameters.SetValue("gammab", "proliferation rate expansion bound cells (gamman)", prolif.gammab());
 
     parameters.SetValue("output", "Specifiy kind of output (). possible: 'patient,nolsctime,\
             diagtime,reductiontime,initresponse,fullburden,nooverview,yearlyburden,lastburden,\

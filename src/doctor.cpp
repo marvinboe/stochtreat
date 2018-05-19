@@ -6,7 +6,7 @@ Doctor::Doctor(){
     _next_timepoint=0.;
     _sampling_timestep=1.;
     _slope_timeintervall=62.;
-    _diagnosis_level=1.e12;
+    _diagnosis_cellcount=1.e12;
     _starttime=0.;
     _starttime_treatment=-1.;
     _stoptime_treatment=-1.;
@@ -14,8 +14,8 @@ Doctor::Doctor(){
     _alpha=0.;
 }
 
-Doctor::Doctor(double diagnosis_level, double full_reduction, double relapse_reduction):
-    _diagnosis_level(diagnosis_level),_full_reduction(full_reduction),_relapse_reduction(relapse_reduction){
+Doctor::Doctor(double diagnosis_cellcount, double full_reduction, double relapse_reduction):
+    _diagnosis_cellcount(diagnosis_cellcount),_full_reduction(full_reduction),_relapse_reduction(relapse_reduction){
     //do nothing
     _next_timepoint=0.;
     _sampling_timestep=1.;
@@ -254,14 +254,14 @@ bool Doctor::in_reduction(double l, double t) {
 
 
 bool Doctor::diagnosis_reached( double level, double t) const{
-    if (level < 0.) level=_diagnosis_level;
+    if (level < 0.) level=_diagnosis_cellcount;
 
     if (t<0.) t=(_timepoints.size()>0?_timepoints.back():-1.);
     if (t<0.) return false; 
     int i=find_timepoint(t);
 
     // std::cout <<"debug diagnosis: "<<_lastn_data[i]<<" "<<level<<" "<<i<<" "<<t<<std::endl;
-    if ((i>=0) && (_lastn_data[i] >= std::pow(10.,level))){
+    if ((i>=0) && (_lastn_data[i] >= level)){
         return true;
     }
     else return false;

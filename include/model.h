@@ -129,8 +129,6 @@ public:
 
 	bool treatDeterministically(unsigned k, double amount);
 
-	// double diseaseBurden() const;
-
         /** print cell numbers.
          * <HSC> <LSC> */
         void print_cells(std::ostream &,double _time);
@@ -138,6 +136,9 @@ public:
         /** makes one cancer cell in compartment k immune. Returns true 
          * if successfull (at least one cell existed), otherwise false.*/
         bool manual_mutation(unsigned int k,unsigned int celltype_from=C,unsigned int celltype_to=I);
+
+        /** Returns size of last compartment in healthy steady state. */
+        double steady_state_lastcomp() const { return _steady_state_lastn;}
 	
 private:
 	double myround(double val);
@@ -149,6 +150,7 @@ private:
 	unsigned int _endstoch;
 	double* _compartments;
 	double* _previous;
+        double _steady_state_lastn;
         std::vector<std::vector<double>> _rates;
 	unsigned _numstoch;
         unsigned _numneutral;

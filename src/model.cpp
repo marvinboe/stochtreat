@@ -76,14 +76,10 @@ Model::Model(Data data):_diagnosis(0){
         storeC(k,0);
         storeI(k,0);
         storeB(k,0);
+        _steady_state_lastn=Hk; //stores steady state cell count in last compartment
 
         for (unsigned t = 0; t< _numtypes; ++t){
-            // if (k<data.n_neutral_compartments()){
-            //     setRate(k,t, getRate(k-1,0)*data.prolif_exp(t));//neutral compartments
-            // }
-            // else{ FIXME
-                setRate(k,t, getRate(k-1,t)*data.prolif_exp(t));
-            // }
+            setRate(k,t, getRate(k-1,t)*data.prolif_exp(t));
         }
     }
     //initialize CML
@@ -509,6 +505,7 @@ void Model::reset_treatment(){
 
     for(unsigned k=1 ; k < _numcomp; ++k){
         // std::cout <<"before: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;
+        // if (getB(k) >= 0.5) //only reset if full cell is left in compartment
         incr(k,C,getB(k));
         setB(k,0);
         // std::cout <<"after: "<<k<<" "<<getC(k)<<" "<<getB(k)<<std::endl;

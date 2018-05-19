@@ -78,7 +78,7 @@ Stats_Output::Stats_Output(std::string output_choice, Simulation_Parameters simp
     _burden_after_treatment=-1.;
     _c_instoch_after_treatment=-1.;
     _c_inneutral_after_treatment=-1.;
-    _avgsize.resize(_simparams.n_stochastic_compartments+1);
+    _avgsize.resize(_simparams.n_compartments+1);
 
     if (_print.relapse_dynamics_all)
         _treat_dynamics_interval=0.01;
@@ -201,7 +201,7 @@ void Stats_Output::initialize_per_patient(int patient){
 
 void Stats_Output::save_data_after_diagnosisrun(const Kernel& ker, double time){
 
-    ker.addStochCompSizes(_avgsize);
+    ker.addCompSizes(_avgsize);
     if(!ker.hasLSC())
         _nolsc +=1;
 
@@ -389,7 +389,7 @@ void Stats_Output::print_at_end() const{
     }
 
 
-    std::cout << "#avg size stochastic comps. ";
+    std::cout << "#avg size comps. ";
     for (unsigned int i=0; i< _avgsize.size(); i++) {
         std::cout << "<" << i << "> ";
     }

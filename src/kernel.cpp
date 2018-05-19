@@ -239,7 +239,7 @@ bool Kernel::hasLSC() const{
     return _pool.containsLSC();
 }
 
-void Kernel::addStochCompSizes(std::vector<double>& data) const{
+void Kernel::addCompSizes(std::vector<double>& data) const{
     for (unsigned i=0; i < data.size(); ++i) {
         data[i] += _pool.getN(i);
     }

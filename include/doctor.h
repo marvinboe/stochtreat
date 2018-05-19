@@ -28,7 +28,7 @@ class Doctor{
     public:
         typedef double recorddata;
         Doctor();
-        Doctor(double diagnosis_level, double full_reduction, double relapse_reduction);
+        Doctor(double diagnosis_cellcount, double full_reduction, double relapse_reduction);
         
         /** Reads the patient data at a single time point and adds to the
          * patients record in _data. */
@@ -113,7 +113,7 @@ class Doctor{
         double _stoptime_treatment;
         double _slope_timeintervall;
 
-        double _diagnosis_level;
+        double _diagnosis_cellcount;
         double _full_reduction;
         double _relapse_reduction;
 
